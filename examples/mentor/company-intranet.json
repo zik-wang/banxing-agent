@@ -1,0 +1,32 @@
+{
+  "version": "v7-intranet-all-1",
+  "chat": {
+    "provider": "intranet",
+    "baseUrl": "http://10.0.0.32:8861/v1",
+    "model": "qwen3.8-27b-fp8",
+    "auth": {
+      "type": "none"
+    },
+    "analysisMode": "structured-json",
+    "inference": {
+      "quantization": "FP8 (service-reported model metadata)",
+      "inference_backend": "vLLM (service-reported)",
+      "chat_template": "server default; client enable_thinking=false",
+      "temperature": 0.1,
+      "top_p": null,
+      "max_output_tokens": 6500,
+      "context_budget_tokens": 28000,
+      "timeout_ms": 180000,
+      "output_constraint": "prompt-json-and-strict-parser",
+      "input_projection": "unit-text-once-v1"
+    }
+  },
+  "services": {
+    "ocr": {
+      "baseUrl": "http://10.0.0.32:8010"
+    },
+    "asr": {
+      "baseUrl": "http://10.0.0.32:6001"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "testedAt": "2026-10-23T08:20:26.843Z",
+  "execution": "Actual Chromium UI using packaged intranet configuration and public inputs; new isolated runtime data",
+  "checks": {
+    "passed": 11,
+    "failed": 0,
+    "browserErrors": 0
+  },
+  "steps": [
+    {
+      "request": "这俩表给我合一下。",
+      "status": "done",
+      "actualModelRounds": 0,
+      "durationMs": 1126,
+      "downloads": [
+        {
+          "name": "公开支出A与公开支出B.xlsx",
+          "bytes": 12941,
+          "sha256": "cb88f28dceeef0dae9a6d7c945c8e6dd6abb040855f2de2eea8176253fd40e69",
+          "verified": true,
+          "clickedAndDownloaded": true
+        }
+      ]
+    },
+    {
+      "request": "重复的不要。",
+      "status": "done",
+      "actualModelRounds": 0,
+      "durationMs": 1100,
+      "downloads": [
+        {
+          "name": "公开支出A与公开支出B修订.xlsx",
+          "bytes": 14336,
+          "sha256": "31f60217b339d7c3e4b893d27b07973953b56760366b5e12f4f24a3b506c46f8",
+          "verified": true,
+          "clickedAndDownloaded": true
+        }
+      ]
+    },
+    {
+      "request": "按Amount降序排列。",
+      "status": "done",
+      "actualModelRounds": 0,
+      "durationMs": 1127,
+      "downloads": [
+        {
+          "name": "公开支出A与公开支出B修订修订.xlsx",
+          "bytes": 14402,
+          "sha256": "f6331ac44f644dc9f0b7598326070cfb11d6c3f7d396e030ebd16a927ec8ee78",
+          "verified": true,
+          "clickedAndDownloaded": true
+        }
+      ]
+    },
+    {
+      "request": "再给我一个领导看的版本。",
+      "status": "done",
+      "actualModelRounds": 0,
+      "durationMs": 1185,
+      "downloads": [
+        {
+          "name": "公开支出A与公开支出B修订修订领导报告.docx",
+          "bytes": 19383,
+          "sha256": "5d2ee5fa0b0527d9441ae385d2aa52af81af0a5fa6dec0b9152ccc2a863b6c63",
+          "verified": true,
+          "clickedAndDownloaded": true
+        }
+      ]
+    },
+    {
+      "request": "按Amount的数额大小倒着排列，然后转Word",
+      "status": "done",
+      "actualModelRounds": 2,
+      "durationMs": 9539,
+      "downloads": [
+        {
+          "name": "公开支出A与公开支出B修订修订领导报告修订.docx",
+          "bytes": 19417,
+          "sha256": "30bd2118bb6f54ef917b2980ea96ede269965b7cd086e3d93662db334685d62d",
+          "verified": true,
+          "clickedAndDownloaded": true
+        }
+      ]
+    }
+  ],
+  "independentGold": 0,
+  "accuracyClaim": null,
+  "calendar": {
+    "provider": "isolated",
+    "realAccountConnected": false,
+    "acceptance": "Prior release verified isolated calendar workflow; this handoff run tests office flow and intranet model only"
+  },
+  "invoice09": {
+    "newFilesRequireAuthorisedScope": true,
+    "dedicatedPrivateConfigIncluded": false
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "publicSourcePage": "https://www.gov.uk/government/publications/desnz-spending-over-25000-september-2025",
+  "publicCsvUrl": "https://assets.publishing.service.gov.uk/media/6996ea2eb33a4db7ff889e09/DESNZ_monthly_spend_September_2025_-_published_version.csv",
+  "sha256": "9ca748113871029055212b70607c9688b6e5113a427789006c61aebf31ade1c7",
+  "transformation": "Real source CSV to XLSX; A original data rows1..20; B rows11..30, columns reversed plus source-note column. Department header translated to 部门; Amount parsed as number; no fabricated business values.",
+  "overlapRows": 10,
+  "license": "Contains public sector information licensed under the Open Government Licence v3.0. © Crown copyright.",
+  "licenseUrl": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+  "expectedInputRows": {
+    "A": 20,
+    "B": 20
+  },
+  "expectedDistinctRows": 30,
+  "files": [
+    {
+      "name": "公开支出A.xlsx",
+      "bytes": 9072,
+      "sha256": "1869d9f09b4dba8f2d557f1ac4bc754484a0baca7f59bb05aa53a257fc8842ac"
+    },
+    {
+      "name": "公开支出B.xlsx",
+      "bytes": 9304,
+      "sha256": "c2ab0118bc3715147c800696f3e67cfb6fd869e8d2229dbc76600b07bde479e3"
+    },
+    {
+      "name": "desnz-202509.csv",
+      "bytes": 103962,
+      "sha256": "9ca748113871029055212b70607c9688b6e5113a427789006c61aebf31ade1c7"
+    }
+  ]
+}
