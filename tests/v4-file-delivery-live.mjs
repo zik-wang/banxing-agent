@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {Store} from '../core.mjs';
+import {Harness} from '../runtime.mjs';
+import {Workspace} from '../workspace.mjs';
+import {ConversationActions} from '../conversation-actions.mjs';
+import {ServiceDirectory} from '../intranet.mjs';
+import {resolveArtifact} from '../artifacts.mjs';
+const root=path.resolve('qa-output/file-delivery/live-'+Date.now());fs.mkdirSync(root,{recursive:true});
+const directory=new ServiceDirectory();await directory.refresh();await directory.discoverMore();directory.get('chat');
+const store=new Store(path.join(root,'data')),h=new Harness(store,{directory}),w=new Workspace(store,h);h.chatActions=new ConversationActions(store,w,h);store.state.conversations=[{id:'qa',title:'文件交付真实验收'}];store.state.runs=[];store.state.jobs=[];
+const report={startedAt:new Date().toISOString(),root,realModel:true,realConverter:true,requests:[]};
+async function submit(request,fileIds=[]){const run=h.start(request,{conversationId:'qa',fileIds});const end=Date.now()+310000;while(h.active.has(run.id)||w.active.size){if(Date.now()>end)throw Error('验收超时');await new Promise(r=>setTimeout(r,200));}const jobs=store.state.jobs.filter(j=>j.chatRunId===run.id);const row={request,status:run.status,error:run.error,answer:run.answer,tools:run.trace.filter(t=>t.type==='tool_status'),jobs:jobs.map(j=>({id:j.id,status:j.status,error:j.error,checks:j.checks,warnings:j.warnings,artifacts:j.artifacts.map(a=>({name:a.name,sha256:a.sha256,bytes:a.bytes}))}))};report.requests.push(row);for(const j of jobs)for(const a of j.artifacts){if(/\.(docx|xlsx|pdf)$/.test(a.name))fs.writeFileSync(path.join(root,report.requests.length+'-'+a.name),resolveArtifact(store,j.id,a.id).bytes);}fs.writeFileSync(path.join(root,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(row));if(run.status!=='done'||!jobs.length||jobs.some(j=>j.error))throw Error('真实聊天没有交付文件');return jobs;}
+const first=await submit('根据以下内容制作一份星河项目周报，生成Word、Excel和PDF三个可下载文件，使用正常标题、段落和费用表，不需要再问我确认：本周接口联调已完成，客户验收尚未安排。费用明细：接口测试128.50元，材料制作71.25元。张三负责测试报告，李四负责费用核对。金额如需合计必须准确，不编造时间。');
+const second=await submit('把刚才已经生成的结果再导出一个PDF，标题叫星河项目周报复核版。直接使用本对话已有文件任务的结果，不要重复手抄。');
+assert.equal(second[0].sourceJobId,first[0].id,'后续导出必须引用实际任务正文，而非已生成文件的短回执');assert.equal(second[0].exportSource.content,first[0].exportSource.content);assert.deepEqual(second[0].exportSource.sheets,first[0].exportSource.sheets);
+const file=await w.upload({name:'周报原始进展.txt',base64:Buffer.from('2026年10月19日，星河项目接口联调已完成；客户验收尚未安排。张三负责提交测试报告，李四负责费用核对。').toString('base64')});
+const third=await submit('把这些进展整理成周报，导出Word和Excel两个文件供下载。保持原文事实，不编造完成状态或日期。',[file.id]);
+assert.equal(third[0].scenarioId,'11','明确业务交办必须使用业务处理器，不能绕过来源校验');assert(third[0].artifacts.some(a=>a.name.endsWith('.docx')));assert(third[0].artifacts.some(a=>a.name.endsWith('.xlsx')));
+report.finishedAt=new Date().toISOString();fs.writeFileSync(path.join(root,'report.json'),JSON.stringify(report,null,2));fs.writeFileSync('qa-output/file-delivery/live-latest.json',JSON.stringify({root,report:path.join(root,'report.json')},null,2));

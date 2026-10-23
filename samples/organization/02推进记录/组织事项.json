@@ -1,0 +1,12 @@
+{
+  "schema": "org-memory/v1",
+  "events": [
+    {
+      "kind": "progress",
+      "key": "proposal",
+      "status": "blocked",
+      "sourceName": "进展原文.txt",
+      "quote": "星河项目：提交方案受阻，等待客户确认。"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+const {chromium}=require('../../QiHuoAutoChess/WebNext/node_modules/playwright');const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const base=process.env.V4_QA_BASE||'http://127.0.0.1:8815',samples=path.resolve(__dirname,'../samples/organization');
+(async()=>{const browser=await chromium.launch({headless:true,executablePath:'C:/Users/31125/AppData/Local/ms-playwright/chromium-1223/chrome-win64/chrome.exe'}),page=await browser.newPage({viewport:{width:1320,height:960}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+async function send(message){await page.waitForFunction(()=>!document.querySelector('#send').disabled);await page.locator('#message').fill(message);const pending=page.waitForResponse(r=>r.url()===base+'/api/chat'&&r.request().method()==='POST');await page.locator('#send').click();const response=await pending;assert.equal(response.status(),202,await response.text());const run=await response.json();assert.equal(run.status,'done');assert.equal(run.modelProvider,'local');await page.waitForFunction(()=>document.querySelector('#message').value==='');return run;}
+async function stage(folder){const root=path.join(samples,folder);await page.locator('#chat-file-input').setInputFiles(fs.readdirSync(root).map(n=>path.join(root,n)));await page.waitForFunction(()=>!document.querySelector('#chat-upload').disabled);const run=await send('记录组织事项');await page.waitForFunction(()=>document.querySelectorAll('.chat-file-chip').length===0);return run;}
+try{await page.goto(base);await page.waitForFunction(()=>document.querySelectorAll('.conversation-row').length>0);assert.match((await stage('01团队承诺')).answer,/已记录3条/);
+ const projects=await send('项目列表');assert(projects.answer.includes('星河项目')&&projects.answer.includes('远帆项目'));
+ const project=await send('项目进展：星河项目');assert.match(project.answer,/匹配2项/);assert(!project.answer.includes('远帆项目'));
+ const owner=await send('负责人事项：张三');assert.match(owner.answer,/匹配2项/);assert(!owner.answer.includes('李四'));
+ await stage('02推进记录');assert.match((await send('项目风险：星河项目')).answer,/进展受阻/);
+ await stage('03完成记录');const detail=await send('事项详情：proposal');assert(detail.answer.includes('会议原文.txt')&&detail.answer.includes('进展原文.txt')&&detail.answer.includes('完成原文.txt'));assert.match(detail.answer,/事件记录：共3条/);
+ assert.match((await stage('03完成记录')).answer,/已记录0条.*跳过1条/);
+ await stage('04可选冲突');const conflict=await send('事项详情：proposal');assert.match(conflict.answer,/记录冲突/);assert.match(conflict.answer,/负责人：张三/);assert(conflict.answer.includes('王五'));
+ const state=await(await page.request.get(base+'/api/state')).json();assert.equal(state.organizationEvents.length,6);assert.equal(state.chatJobs.length,0);
+ const preview=await(await page.request.post(base+'/api/proactive/check',{headers:{'X-CSRF-Token':state.csrfToken},data:{preview:true}})).json();assert(preview.candidates.some(c=>c.title==='组织事项需要关注'&&c.target.conversationId===conflict.conversationId));
+ await page.screenshot({path:path.resolve(__dirname,'../qa-output/v4-team-details.png'),fullPage:true});
+ await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:path.resolve(__dirname,'../qa-output/v4-team-mobile.png'),fullPage:true});
+ await page.evaluate(()=>document.querySelector('#conversation-new').click());await page.waitForFunction(()=>document.querySelector('#message').value==='');assert.match((await send('项目列表')).answer,/尚无组织项目/);
+ assert.deepEqual(errors,[]);const report={passed:true,allRepliesLocal:true,projects:true,exactOwnerFilter:true,itemEvidenceChain:true,reuploadDeduplicated:true,conflictPreservesOriginal:true,proactivePreview:true,conversationIsolation:true,mobileOverflow:false,eventCount:6,browserErrors:errors};fs.writeFileSync(path.resolve(__dirname,'../qa-output/v4-team-browser-result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

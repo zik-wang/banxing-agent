@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {Harness} from '../runtime.mjs';
+import {localChatReply} from '../local-chat.mjs';
+import {ServiceDirectory} from '../intranet.mjs';
+
+function fixture(){const store={state:{conversations:[{id:'own',title:'新对话'}],runs:[],jobs:[],workspaceFiles:[]},save(){}};let calls=0;const harness=new Harness(store,{directory:{services:{},get(){calls++;throw Error('offline');}}});return {store,harness,calls:()=>calls};}
+test('本地帮助和进度查询无需模型连接，明确来源与能力边界',()=>{const x=fixture();for(const message of ['你能做什么？','帮助','/help','查看任务进度','查看交付文件']){const r=x.harness.start(message,{conversationId:'own'});assert.equal(r.status,'done');assert.equal(r.turns,0);assert.equal(r.modelProvider,'local');assert(r.answer.length>0);}assert.equal(x.calls(),0);assert.equal(x.harness.active.size,0);assert.equal(x.store.state.jobs.length,0);});
+test('查询只读当前对话，最多列出最近五项，不能泄露其他对话',()=>{const x=fixture();for(let i=0;i<8;i++)x.store.state.jobs.push({id:'j'+i,conversationId:'own',createdAt:`2026-10-${10+i}`,title:'任务'+i,status:'completed',artifacts:[{kind:'report'}]});x.store.state.jobs.push({id:'secret',conversationId:'foreign',title:'不应泄露',artifacts:[{kind:'report'}]});const r=x.harness.start('查看交付文件',{conversationId:'own'});assert.deepEqual(r.localJobIds,['j7','j6','j5','j4','j3']);assert(!r.answer.includes('不应泄露'));assert.equal(x.store.state.jobs.length,9);});
+test('失败任务如实显示且审计文件不算用户交付',()=>{const x=fixture();x.store.state.jobs.push({id:'failed',conversationId:'own',title:'失败任务',status:'failed',error:'没有完成',artifacts:[{kind:'audit'}]});assert.match(localChatReply(x.store,'own','查看任务进度').answer,/未完成/);assert.deepEqual(localChatReply(x.store,'own','查看交付文件').jobIds,[]);});
+test('明确交办、否定、复合问题及引用中的查询词不被本地规则吞掉',()=>{const x=fixture();for(const message of ['帮我比较文件','不要查看任务进度','查看任务进度然后重新执行','请分析“帮助”这个词','好，就这么做']){assert.equal(localChatReply(x.store,'own',message),null);assert.throws(()=>x.harness.start(message,{conversationId:'own'}),/offline/);}assert.equal(x.store.state.runs.length,0);});
+test('带附件或视觉模式的请求不绕过模型或材料校验',()=>{const x=fixture();assert.throws(()=>x.harness.start('帮助',{conversationId:'own',fileIds:['missing']}));assert.throws(()=>x.harness.start('帮助',{conversationId:'own',mode:'vision'}));assert.equal(x.store.state.runs.length,0);});
+test('本地轮次保留全部历史并遵守对话归属及忙碌限制',()=>{const x=fixture();assert.throws(()=>x.harness.start('帮助',{conversationId:'foreign'}),/不存在/);x.harness.active.set('busy',null);assert.throws(()=>x.harness.start('帮助',{conversationId:'own'}),/上一项/);x.harness.active.clear();for(let i=0;i<65;i++)x.harness.start('帮助',{conversationId:'own'});assert.equal(x.store.state.runs.length,65);});
+test('断网提示给出本地可用入口而不是泄露底层错误',()=>{const d=new ServiceDirectory(()=>{throw Error('must not fetch');});assert.throws(()=>d.get('chat'),/公司内网对话模型暂不可用.*查看交付文件.*未提交模型处理/);});

@@ -1,0 +1,11 @@
+{
+  "version": "v7-mentor-private-rc1",
+  "releaseDate": "2026-10-23",
+  "entrypoint": "start-product.mjs",
+  "localPort": 8814,
+  "visibility": "private",
+  "independentGoldCount": 0,
+  "currentDeployment": "configured-intranet; unconfigured by default in clean clone",
+  "externalCalendarAcceptance": "not_tested",
+  "priorRecords": "Retained locally in qa-output and original Git history; not packaged"
+}

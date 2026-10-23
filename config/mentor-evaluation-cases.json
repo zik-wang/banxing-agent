@@ -1,0 +1,277 @@
+{
+  "version": "mentor-evaluation-1",
+  "classification": "pending_independent_human_evaluation",
+  "independentGoldCount": 0,
+  "cases": [
+    {
+      "caseId": "invoice-1",
+      "group": "invoice",
+      "name": "多票上传后得到Excel",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "invoice-2",
+      "group": "invoice",
+      "name": "连续要求补收件人并保留缺证据值",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "invoice-3",
+      "group": "invoice",
+      "name": "用户更正指定行金额保留旧值",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "invoice-4",
+      "group": "invoice",
+      "name": "转Word不重复识别原件",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "invoice-5",
+      "group": "invoice",
+      "name": "刷新后下载已交付文件",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "report-1",
+      "group": "report",
+      "name": "不同字段表合并且保留来源",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "report-2",
+      "group": "report",
+      "name": "只删除真正重复项",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "report-3",
+      "group": "report",
+      "name": "金额分币种统计不汇总比例",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "report-4",
+      "group": "report",
+      "name": "复合排序筛选不得只执行导出",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "report-5",
+      "group": "report",
+      "name": "领导报告有核实统计与原明细",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "format-1",
+      "group": "format",
+      "name": "宽表19列转换Word",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "format-2",
+      "group": "format",
+      "name": "多工作表转换无静默遗漏",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "format-3",
+      "group": "format",
+      "name": "Word转PDF含中文且可回读",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "format-4",
+      "group": "format",
+      "name": "转换服务失败保留已有格式",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "format-5",
+      "group": "format",
+      "name": "只要求Excel不增加Word和PDF",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "calendar-1",
+      "group": "calendar",
+      "name": "真实账号查询冲突",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "calendar-2",
+      "group": "calendar",
+      "name": "确认前不写入事件",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "calendar-3",
+      "group": "calendar",
+      "name": "创建回读且重试不重复",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "calendar-4",
+      "group": "calendar",
+      "name": "改期并发冲突不覆盖",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "calendar-5",
+      "group": "calendar",
+      "name": "取消后回读不存在",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "context-1",
+      "group": "context",
+      "name": "A和B上传后下一轮仍可用",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "context-2",
+      "group": "context",
+      "name": "指名B优先于旧成果",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "context-3",
+      "group": "context",
+      "name": "排除A后继续不混入A",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "context-4",
+      "group": "context",
+      "name": "选择旧版后修改形成新分支",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "context-5",
+      "group": "context",
+      "name": "独立对话不继承他人文件",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "recovery-1",
+      "group": "recovery",
+      "name": "失败后重试原操作",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "recovery-2",
+      "group": "recovery",
+      "name": "同请求重复提交不重复任务",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "recovery-3",
+      "group": "recovery",
+      "name": "预算耗尽仍交付已验证文件",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "recovery-4",
+      "group": "recovery",
+      "name": "重启保留超过60轮历史",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    },
+    {
+      "caseId": "recovery-5",
+      "group": "recovery",
+      "name": "备份恢复到新目录并验证哈希",
+      "status": "pending",
+      "inputFiles": [],
+      "referenceIndependentlyAdjudicated": false,
+      "actualOutcome": null
+    }
+  ]
+}

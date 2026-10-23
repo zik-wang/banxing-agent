@@ -1,0 +1,14 @@
+{
+  "caseId": "mentor-new-001",
+  "userPrompt": "由mentor提供陌生任务，不能预写评估答案",
+  "inputFiles": [],
+  "expectedOutcome": "由独立评审者填写",
+  "actualOutcome": "尚未执行",
+  "artifacts": [],
+  "toolActions": [],
+  "status": "pending",
+  "blockingIssues": [],
+  "criticalErrors": [],
+  "humanReviewRequired": true,
+  "referenceIndependentlyAdjudicated": false
+}

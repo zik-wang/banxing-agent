@@ -1,0 +1,37 @@
+{
+  "version": "v7-configured-services-1",
+  "allowedOrigins": [
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8010",
+    "http://127.0.0.1:6001"
+  ],
+  "chat": {
+    "provider": "intranet",
+    "baseUrl": "http://127.0.0.1:8000/v1",
+    "model": "replace-with-your-qwen-27b-model-id",
+    "auth": {
+      "type": "none"
+    },
+    "analysisMode": "structured-json",
+    "inference": {
+      "quantization": "unknown",
+      "inference_backend": "unknown",
+      "chat_template": "unknown",
+      "temperature": 0.1,
+      "max_output_tokens": 6500,
+      "context_budget_tokens": 28000,
+      "timeout_ms": 180000
+    }
+  },
+  "services": {
+    "ocr": {
+      "baseUrl": "http://127.0.0.1:8010",
+      "model": "your-MinerU-service"
+    },
+    "asr": {
+      "baseUrl": "http://127.0.0.1:6001",
+      "model": "your-Qwen-ASR-service"
+    }
+  },
+  "capabilities": []
+}

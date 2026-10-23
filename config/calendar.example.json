@@ -1,0 +1,10 @@
+{
+  "provider": "disconnected",
+  "calendarId": "primary",
+  "name": "My authorized calendar",
+  "calendarUrl": "https://calendar.example.invalid/my-authorized-collection/",
+  "usernameEnv": "CALDAV_USERNAME",
+  "passwordEnv": "CALDAV_PASSWORD",
+  "allowLocalHttp": false,
+  "note": "Replace with your approved configuration and provider=caldav; provider=isolated selects only a local verification calendar."
+}

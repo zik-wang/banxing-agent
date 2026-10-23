@@ -1,0 +1,9 @@
+export const CONTRACT_VERSION='v7-p3-task-delivery-1';
+export function semanticContract({scenarioId,candidates=[],atoms=[],inputComplete=false,targetsProcessed=false,deliveryReadback=false,deterministicDiff=false,scopeChecked=false,dependenciesVerified=false}){
+ const common=[{id:'input_complete',passed:inputComplete,blocking:true},{id:'targets_processed',passed:targetsProcessed,blocking:true},{id:'candidate_trace',passed:candidates.every(c=>c.citationValid===true),blocking:true},{id:'delivery_readback',passed:deliveryReadback,blocking:true},{id:'business_scope_checked',passed:scopeChecked,blocking:true}];
+ if(scenarioId==='08')common.push({id:'deterministic_diff_delivered',passed:deterministicDiff,blocking:true},{id:'amendment_omission_not_deletion',passed:scopeChecked,blocking:true});
+ if(scenarioId==='24')common.push({id:'dependency_edges_evidence_verified',passed:dependenciesVerified,blocking:true},{id:'facts_interpretations_separate',passed:!candidates.some(c=>c.claimType==='interpretation'&&c.semanticStatus==='directly_supported'),blocking:true});
+ if(scenarioId==='21')common.push({id:'table_scope_checked',passed:scopeChecked&&!atoms.some(a=>a.issues?.includes('table_grid_unavailable')),blocking:true});
+ const open=candidates.filter(c=>!c.independentlyVerified).length,failed=common.filter(c=>!c.passed),state=!inputComplete?'blocked':failed.length?'partial':open?'complete_with_open_questions':'complete_verified';
+ return {version:CONTRACT_VERSION,scenarioId,state,gates:common,openSemanticCount:open,businessGoalComplete:state==='complete_verified',layers:{fileProduced:deliveryReadback,inputComplete,targetsProcessed,factsVerified:candidates.filter(c=>c.semanticStatus==='directly_supported').length,semanticPending:open,interpretations:candidates.filter(c=>c.claimType==='interpretation').length},limit:'Source disposition and successful files do not establish semantic completeness; unknown task scope blocks business completion.'};
+}

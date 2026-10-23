@@ -1,0 +1,221 @@
+{
+  "note": "直接依赖清单。依赖代码由npm安装，许可证留在各包；完整依赖版本以package-lock.json为准。",
+  "dependencies": [
+    {
+      "name": "@deepseek-ai/cordis",
+      "requested": "4.0.4",
+      "installed": "4.0.4",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-agent",
+      "requested": "0.2.0-rc.2",
+      "installed": "0.2.0-rc.2",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-agent-loop",
+      "requested": "0.2.0-rc.2",
+      "installed": "0.2.0-rc.2",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-llm",
+      "requested": "0.2.0-rc.2",
+      "installed": "0.2.0-rc.2",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-llm-pi-ai",
+      "requested": "0.2.0-rc.2",
+      "installed": "0.2.0-rc.2",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-session",
+      "requested": "0.2.0-rc.2",
+      "installed": "0.2.0-rc.2",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-session-projection",
+      "requested": "0.2.0-rc.2",
+      "installed": "0.2.0-rc.2",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-system-prompt",
+      "requested": "0.2.0-rc.2",
+      "installed": "0.2.0-rc.2",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-tools",
+      "requested": "0.2.0-rc.2",
+      "installed": "0.2.0-rc.2",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@modelcontextprotocol/sdk",
+      "requested": "1.32.1",
+      "installed": "1.32.1",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@napi-rs/canvas",
+      "requested": "1.0.11",
+      "installed": "1.0.11",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "@xmldom/xmldom",
+      "requested": "0.8.15",
+      "installed": "0.8.15",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "7zip-bin",
+      "requested": "^5.2.0",
+      "installed": "5.2.0",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE.txt"
+      ]
+    },
+    {
+      "name": "csv-parse",
+      "requested": "^7.0.3",
+      "installed": "7.0.3",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "diff",
+      "requested": "^9.0.0",
+      "installed": "9.0.0",
+      "license": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "docx",
+      "requested": "^9.11.0",
+      "installed": "9.11.0",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "exceljs",
+      "requested": "^4.4.0",
+      "installed": "4.4.0",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "ical.js",
+      "requested": "2.2.1",
+      "installed": "2.2.1",
+      "license": "MPL-2.0",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "jszip",
+      "requested": "^3.10.2",
+      "installed": "3.10.2",
+      "license": "(MIT OR GPL-3.0-or-later)",
+      "licenseFiles": [
+        "LICENSE.markdown"
+      ]
+    },
+    {
+      "name": "mammoth",
+      "requested": "^1.13.0",
+      "installed": "1.13.0",
+      "license": "BSD-2-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "node-unrar-js",
+      "requested": "^2.0.2",
+      "installed": "2.0.2",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE.md"
+      ]
+    },
+    {
+      "name": "pdfjs-dist",
+      "requested": "^6.4.299",
+      "installed": "6.4.299",
+      "license": "Apache-2.0",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    },
+    {
+      "name": "typebox",
+      "requested": "1.3.27",
+      "installed": "1.3.27",
+      "license": "MIT",
+      "licenseFiles": [
+        "license"
+      ]
+    },
+    {
+      "name": "zod",
+      "requested": "3.25.76",
+      "installed": "3.25.76",
+      "license": "MIT",
+      "licenseFiles": [
+        "LICENSE"
+      ]
+    }
+  ]
+}

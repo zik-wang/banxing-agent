@@ -1,0 +1,35 @@
+{
+  "schema": "org-memory/v1",
+  "events": [
+    {
+      "kind": "commitment",
+      "key": "proposal",
+      "project": "星河项目",
+      "title": "提交方案",
+      "owner": "张三",
+      "dueDate": "2026-10-15",
+      "sourceName": "会议原文.txt",
+      "quote": "星河项目：张三负责提交方案，截止2026-10-15。"
+    },
+    {
+      "kind": "commitment",
+      "key": "integration",
+      "project": "远帆项目",
+      "title": "接口联调",
+      "owner": "张三",
+      "dueDate": "2035-01-01",
+      "sourceName": "会议原文.txt",
+      "quote": "远帆项目：张三负责接口联调，截止2035-01-01。"
+    },
+    {
+      "kind": "commitment",
+      "key": "test-report",
+      "project": "星河项目",
+      "title": "提交测试报告",
+      "owner": "李四",
+      "dueDate": "2035-01-01",
+      "sourceName": "会议原文.txt",
+      "quote": "星河项目：李四负责提交测试报告，截止2035-01-01。"
+    }
+  ]
+}

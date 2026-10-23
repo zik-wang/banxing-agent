@@ -1,0 +1,15 @@
+{
+  "schema": "org-memory/v1",
+  "events": [
+    {
+      "kind": "commitment",
+      "key": "proposal",
+      "project": "星河项目",
+      "title": "提交方案",
+      "owner": "王五",
+      "dueDate": "2026-10-30",
+      "sourceName": "变更原文.txt",
+      "quote": "星河项目：王五负责提交方案，截止2026-10-30。"
+    }
+  ]
+}

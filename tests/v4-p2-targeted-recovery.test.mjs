@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {splitNumberedRequirements,validateSupplement} from '../targeted-recovery.mjs';
+const units=[{id:'U1',text:'进口设备必须提交证明，样机除外。'}];
+const row=()=>({id:'U1',disposition:'candidate',reason:'原文要求',claims:[{text:'进口设备提交证明，样机除外',evidence:[{unitId:'U1',quote:units[0].text}]}]});
+test('编号表格按真实行界拆分，原文offset可完整回查，不解释末列否',()=>{const u={id:'D',text:'页眉\n17 ★ 支持导出\n否\n18 # 支持迁移\n否'},r=splitNumberedRequirements(u);assert.equal(r.length,2);for(const x of r)assert.equal(x.text,u.text.slice(x.parentStart,x.parentEnd));assert(r[0].text.endsWith('否'));assert.equal(r[1].id,'D:R18');});
+test('重复行号失败关闭，普通数字段落不误拆表格',()=>{assert.throws(()=>splitNumberedRequirements({id:'D',text:'1 ★ A\n1 # B'}),/重复/);assert.equal(splitNumberedRequirements({id:'D',text:'2026年\n金额12'}).length,1);});
+test('引用通过仍保留语义待核',()=>{const v=validateSupplement({rows:[row()]},units);assert(v.allTargetsRegistered);assert.equal(v.accepted[0].claims[0].claimValidity,'not_verified');});
+test('缺失、额外、重复目标不能冒充处置齐全',()=>{for(const rows of [[],[row(),row()],[row(),{...row(),id:'foreign'}]])assert.equal(validateSupplement({rows},units).allTargetsRegistered,false);});
+test('引用被改写、编号未知或只引上下文时失败',()=>{for(const evidence of [[{unitId:'U1',quote:'不在原文'}],[{unitId:'missing',quote:'证明'}],[{unitId:'ctx',quote:'父标题'}]]){const r=row();r.claims[0].evidence=evidence;assert.equal(validateSupplement({rows:[r]},units,[{id:'ctx',text:'父标题'}]).handledCount,0);}});
+test('候选无事实、空理由、背景偷夹事实和半截rows均失败',()=>{for(const r of [{...row(),claims:[]},{...row(),reason:''},{...row(),disposition:'background'}])assert.equal(validateSupplement({rows:[r]},units).handledCount,0);assert.throws(()=>validateSupplement({rows:null},units));const r={id:'U1',disposition:'uncertain',reason:'缺少列头，保留待核',claims:[]};assert(validateSupplement({rows:[r]},units).allTargetsRegistered);});
