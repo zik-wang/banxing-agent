@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs';
+import {observed,fingerprint} from './qa-events.mjs';
 import JSZip from 'jszip';
 import mammoth from 'mammoth';
 import {Document,Packer,Paragraph,TextRun,HeadingLevel,Table,TableRow,TableCell,WidthType,PageOrientation,Footer,PageNumber,AlignmentType} from 'docx';
@@ -98,6 +99,9 @@ export async function renderWorkbook(spec){
  return Buffer.from(await book.xlsx.writeBuffer());
 }
 export async function validateDelivery(format,bytes,spec){
+ return observed('file_readback',{metadata:{format,bytes:bytes.length,sha256:fingerprint(bytes),columnCounts:spec.sheets?.map(s=>s.headers.length)||[]}},()=>validateDeliveryContent(format,bytes,spec));
+}
+async function validateDeliveryContent(format,bytes,spec){
  if(format==='docx'){
   const zip=await JSZip.loadAsync(bytes);if(!zip.file('word/document.xml'))throw Error('Word文件结构无效');
   const text=(await mammoth.extractRawText({buffer:bytes})).value,compact=s=>String(s??'').replace(/\s/g,'');if(!compact(text).includes(compact(spec.title)))throw Error('Word回读缺少标题');

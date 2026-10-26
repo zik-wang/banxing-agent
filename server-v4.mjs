@@ -1,4 +1,6 @@
 import {acquireDataLease} from './data-lease.mjs';
+import {installObserver,conversationDiagnostics} from './qa-observer.mjs';
+import {versionManifest} from './qa-version.mjs';
 import {revisionState,selectRevision} from './work-revisions.mjs';
 import {startOffice} from './conversation-work.mjs';
 import {randomUUID} from 'node:crypto';
@@ -50,8 +52,11 @@ harness.runtimeBuild=runtimeBuild;
 const delegations=new Delegations(store,workspace),multimodal=new MultimodalJobs(store,workspace,harness);
 const directories=new DirectoryConnections(store);harness.directories=directories;
 harness.chatActions=new ConversationActions(store,workspace,harness,delegations);harness.chatActions.calendarService=calendarService;
+const qaObserver=process.env.QA_NAMESPACE?installObserver(store,harness,workspace,process.env.QA_NAMESPACE):null;
+harness.qaObserver=qaObserver;
+const qaLoadedVersion=qaObserver?versionManifest(ROOT):null;
 const assets={'/work-ui.js':['work-ui.js','text/javascript; charset=utf-8'],'/product-ui.js':['product-ui.js','text/javascript; charset=utf-8'],'/product.css':['product.css','text/css; charset=utf-8'],'/semantic-review.js':['semantic-review.js','text/javascript; charset=utf-8'],'/directory-ui.js':['directory-ui.js','text/javascript; charset=utf-8'],'/chat-jobs.js':['chat-jobs.js','text/javascript; charset=utf-8'],'/grok.css':['grok.css','text/css; charset=utf-8'],'/grok-shell.js':['grok-shell.js','text/javascript; charset=utf-8'],'/':['index.html','text/html; charset=utf-8'],'/app.js':['app-v3.js','text/javascript; charset=utf-8'],'/conversations.js':['conversations.js','text/javascript; charset=utf-8'],'/proactive.js':['proactive.js','text/javascript; charset=utf-8'],'/chat-files.js':['chat-files.js','text/javascript; charset=utf-8'],'/local-tools.js':['local-tools.js','text/javascript; charset=utf-8'],'/workbench.js':['workbench.js','text/javascript; charset=utf-8'],'/reminders.js':['reminders.js','text/javascript; charset=utf-8'],'/style.css':['style.css','text/css; charset=utf-8']};
-const json=(res,value,status=200)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value));};
+const json=(res,value,status=200)=>{if(res.qaRequest)qaObserver?.emit({...res.qaRequest,stage:'request_intake',status:status>=400?'failed':'completed',outputRefs:value?.id?[value.id]:[],metadata:{httpStatus:status,errorCode:status>=400?'REQUEST_REJECTED':null}});res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value));};
 async function body(req,limit){const buffers=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw Error('请求过大');buffers.push(chunk);}try{return JSON.parse(Buffer.concat(buffers).toString('utf8')||'{}');}catch{throw Error('请求不是JSON');}}
 const validToken=value=>typeof value==='string'&&value.length===token.length&&timingSafeEqual(Buffer.from(value),Buffer.from(token));
 export const server=http.createServer(async(req,res)=>{
@@ -59,6 +64,16 @@ export const server=http.createServer(async(req,res)=>{
   try{
     if(req.headers.host!==host||req.headers.origin&&req.headers.origin!==origin||req.headers['sec-fetch-site']==='cross-site')return json(res,{error:'仅允许本机同源访问'},403);
     const pathname=new URL(req.url,origin).pathname;
+    if(req.method==='GET'&&pathname.startsWith('/api/qa/')){
+      if(!qaObserver)return json(res,{error:'QA diagnostics disabled'},404);
+      if(!validToken(req.headers['x-csrf-token']))return json(res,{error:'QA diagnostics require same-origin session token'},403);
+      const query=new URL(req.url,origin).searchParams,cid=query.get('conversationId');
+      if(pathname==='/api/qa/version')return json(res,{loaded:qaLoadedVersion,disk:versionManifest(ROOT),runtimeBuild,telemetry:qaObserver.health()});
+      if(!cid||!store.state.conversations.some(c=>c.id===cid))return json(res,{error:'Conversation required'},404);
+      if(pathname==='/api/qa/conversation')return json(res,conversationDiagnostics(store,qaObserver,cid));
+      if(pathname==='/api/qa/events'){const after=Number(query.get('after')||0),limit=Number(query.get('limit')||500);if(!Number.isSafeInteger(after)||after<0||!Number.isSafeInteger(limit)||limit<1||limit>1000)return json(res,{error:'Invalid cursor'},400);const events=qaObserver.events({conversationId:cid,after,limit});return json(res,{events,nextCursor:events.at(-1)?.sequence||after,telemetry:qaObserver.health()});}
+      return json(res,{error:'Unknown QA endpoint'},404);
+    }
     if(/^\/api\/(?:research|search|news|subscription)(?:\/|$)/.test(pathname))return json(res,{error:'第四版不提供公网搜索、RSS或资讯订阅'},410);
     if(req.method==='GET'&&assets[pathname]){const [file,type]=assets[pathname];res.writeHead(200,{'Content-Type':type});return res.end(fs.readFileSync(path.join(ROOT,'web',file)));}
     if(req.method==='GET'&&pathname==='/api/calendar/status')return json(res,calendarService.status());
@@ -85,6 +100,7 @@ export const server=http.createServer(async(req,res)=>{
     if(req.method!=='POST')return json(res,{error:'没有这个接口'},404);
     if(!validToken(req.headers['x-csrf-token']))return json(res,{error:'页面凭据失效，请刷新'},403);
     const input=await body(req,pathname==='/api/workspace/files'?Math.ceil(MAX_WORKSPACE_FILE/3)*4+2000:pathname==='/api/files/upload'?Math.ceil(MAX_UPLOAD/3)*4+2000:pathname==='/api/workspace/recognize/confirm'?242000:70000);
+    if(qaObserver){res.qaRequest={requestId:randomUUID(),conversationId:typeof input.conversationId==='string'?input.conversationId:null,inputRefs:Array.isArray(input.fileIds)?input.fileIds.filter(x=>typeof x==='string'):[]};qaObserver.emit({...res.qaRequest,stage:'request_intake',status:'started',metadata:{route:pathname}});}
     if(pathname==='/api/services/refresh'){if(workspace.active.size||workspace.recognizing.size||harness.active.size)throw Error('助手正在处理上一项请求，请稍候');await directory.refresh();await directory.discoverMore();return json(res,directory.status());}
     if(pathname.startsWith('/api/directories/')){
       const conversation=resolveConversation(store,input.conversationId);

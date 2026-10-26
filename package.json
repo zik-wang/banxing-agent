@@ -11,7 +11,15 @@
     "test:p4": "node --test tests/p4-product.test.mjs",
     "test:product": "node --test --test-concurrency=2 tests/*.test.mjs",
     "start:legacy": "node server.mjs",
-    "test:release": "node --test tests/release-workflows.test.mjs"
+    "test:release": "node --test tests/release-workflows.test.mjs",
+    "qa:start": "node scripts/start-qa.mjs",
+    "qa:fixtures": "node scripts/qa-fixtures.mjs",
+    "qa:build": "node scripts/qa-run.mjs build",
+    "qa:preflight": "node scripts/qa-run.mjs preflight",
+    "qa:smoke": "node scripts/qa-smoke.mjs",
+    "qa:regression": "node scripts/qa-run.mjs regression",
+    "qa:report": "node scripts/qa-run.mjs report",
+    "qa:handoff": "node scripts/qa-handoff.mjs"
   },
   "engines": {
     "node": ">=22.19.0"
@@ -41,5 +49,8 @@
     "pdfjs-dist": "^6.4.299",
     "typebox": "1.3.27",
     "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
   }
 }

@@ -1,4 +1,5 @@
 import {randomUUID} from 'node:crypto';
+import {emitExecution,observed,fingerprint} from './qa-events.mjs';
 import {inferenceProfile} from './inference-config.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -26,7 +27,7 @@ export function saveDeepSeekSession(store,kind,events){
 // dsh-agent-loop owns model iteration, tool dispatch, steering and cancellation.
 export async function runDeepSeek({connection,systemPrompt,request,tools=[],maxRounds=7,maxCalls=12,maxTokens=3500,timeoutMs=120000,signal,onReady=()=>{},onModel=()=>{},beforeRequest=()=>{},onToolResult=()=>{},onSession=()=>{},repair,settle}){
   const profile=inferenceProfile(connection);
-  const ctx=new Context();let handle,timer,failure,rounds=0,calls=0,aborted=false,sessionSaved=false,settled=null;
+  const ctx=new Context();let handle,timer,failure,rounds=0,calls=0,aborted=false,sessionSaved=false,settled=null,currentModelCallId=null;
   const abort=()=>{aborted=true;handle?.agent.cancel({kind:'user'});};
   signal?.addEventListener('abort',abort,{once:true});
   try{
@@ -41,10 +42,10 @@ export async function runDeepSeek({connection,systemPrompt,request,tools=[],maxR
         if(++calls>maxCalls){failure=Error('工具调用超过限额');agent.cancel({kind:'user'});throw failure;}
         // Raw dsh tool definitions own argument validation; keep it before effects.
         const errors=validateJsonSchemaValue(tool.parameters,args);if(errors.length)throw Error('工具参数不合法：'+errors.join('; '));
-        return tool.execute(exec.callId,args,exec.signal);
+        return observed('tool_call',{toolCallId:exec.callId,modelCallId:currentModelCallId,metadata:{toolName:tool.name,argumentsHash:fingerprint(args)}},()=>tool.execute(exec.callId,args,exec.signal));
       }});
       scope.on('agent/pre-step',async(_event,next)=>{if(aborted||signal?.aborted)return {kind:'reject',messages:[]};if(settle&&!failure){const result=await settle({rounds,calls});if(result?.terminal){settled=result;return {kind:'reject',messages:[]};}}if(rounds>=maxRounds){failure=Object.assign(Error('模型轮次达到上限，尚未完成'),{code:'MODEL_ROUND_LIMIT'});return {kind:'reject',messages:[]};}return next();});
-      scope.on('agent/request',async(_event,next)=>{const config=await next();await beforeRequest({round:rounds+1});onModel(++rounds);return {...config,temperature:profile.temperature};});
+      scope.on('agent/request',async(_event,next)=>{const config=await next();await beforeRequest({round:rounds+1});currentModelCallId=randomUUID();emitExecution('model_request','started',{modelCallId:currentModelCallId,metadata:{round:rounds+1,modelId:connection.modelName,provider:connection.provider||'unknown',promptHash:fingerprint({systemPrompt,request}),maxTokens,timeoutMs}});onModel(++rounds);return {...config,temperature:profile.temperature};});
       scope.on('agent/error',event=>{failure=event.error instanceof Error?event.error:Error(String(event.error));});
       scope.on('tools/result',(exec,result)=>onToolResult(exec.name,result));
       scope.on('agent/turn-stopping',()=>{if(!failure&&!aborted&&!signal?.aborted&&rounds<maxRounds){const prompt=repair?.({rounds,messages:agent.session.deriveMessages()});if(prompt)agent.steer(message(prompt));}});

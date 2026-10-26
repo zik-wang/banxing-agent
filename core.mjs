@@ -53,6 +53,7 @@ export class Store {
     const fd=fs.openSync(temporary,'w');try{fs.writeFileSync(fd,JSON.stringify(this.state,null,2),'utf8');fs.fsyncSync(fd);}finally{fs.closeSync(fd);}
     if(fs.existsSync(this.file))fs.copyFileSync(this.file,this.file+'.bak');
     fs.renameSync(temporary, this.file);
+    this.afterSave?.();
   }
   updateProfile(input) {
     const topics = input.topics;

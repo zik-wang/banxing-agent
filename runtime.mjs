@@ -1,4 +1,5 @@
 import {planOffice,startOffice,recordWork,officeRequest,currentOfficeTools} from './conversation-work.mjs';
+import {executionContext} from './qa-events.mjs';
 import {settleDelivery} from './delivery-settlement.mjs';
 import {resolveAttachmentContext} from './attachment-context.mjs';
 import {findReportHandoff,startReportHandoff} from './report-handoff.mjs';
@@ -57,8 +58,8 @@ export class BusinessRuntime{
     if(files.length)run.sourceFiles=files.map(f=>({id:f.id,name:f.name,sha256:f.sha256}));
     if(attachmentResolution.status==='needs_selection'){run.kind='attachment-clarification';run.modelProvider='program';run.modelLabel='附件范围核对 · 未调用模型';run.status='done';run.finishedAt=now();run.answer=attachmentResolution.unavailable.length?'这次没有继续处理：'+attachmentResolution.unavailable.map(x=>x.reason).join('；')+'。已保存原件和历史结果，请在附件列表明确恢复或选择可用材料。':attachmentResolution.availableFiles.length?'本对话保留了以下材料：'+attachmentResolution.availableFiles.map(f=>f.name).join('、')+'。请说明要继续哪份，或明确使用全部材料。':'本对话目前没有可用于这次请求的附件；已移除的引用不会自动恢复。请明确选择材料。';this.store.state.runs.push(run);this.store.save();return run;}
     if(officePlan?.operation==='semantic_edit')run.officeTargetJobId=officePlan.sourceJob.id;
-    else if(officePlan)return startOffice(this,run,officePlan,files);
-    if(reportInput)return startReportHandoff(this,run,reportInput);
+    else if(officePlan)return executionContext.run({observer:this.qaObserver,refs:{conversationId:run.conversationId,runId:run.id,messageId:'message:'+run.id,workItemId:run.id}},()=>startOffice(this,run,officePlan,files));
+    if(reportInput)return executionContext.run({observer:this.qaObserver,refs:{conversationId:run.conversationId,runId:run.id,messageId:'message:'+run.id,workItemId:run.id}},()=>startReportHandoff(this,run,reportInput));
     if(local){run.kind='local-query';run.modelProvider='local';run.modelLabel='本机记录 · 未调用模型';run.answer=local.answer;run.localJobIds=local.jobIds;if(files.length)run.sourceFiles=files.map(f=>({id:f.id,name:f.name,sha256:f.sha256}));run.status='done';run.finishedAt=now();run.trace.push({type:'local',label:local.mutation?'记录有来源的组织事件':'读取本对话本机记录',detail:'未调用模型，未执行外部写入或新增提醒',at:now()});if(!this.store.state.runs.some(r=>r.conversationId===conversation.id))conversation.title=request.slice(0,28);this.store.state.runs.push(run);this.store.save();return run;}
     if(files.length){run.sourceFiles=files.map(f=>({id:f.id,name:f.name,sha256:f.sha256}));run.intentRequest=intentRequest||request;run.kind='scenario-intent';}
     if(hasSpreadsheet)run.kind='spreadsheet-chat';else if(files.length&&this.chatActions&&hasUserMessage)run.kind='attachment-chat';

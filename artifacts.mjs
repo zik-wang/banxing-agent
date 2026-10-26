@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {emitExecution} from './qa-events.mjs';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
@@ -10,6 +11,8 @@ export async function makeDocx(title,sections){const children=[new Paragraph({te
 export async function makeZip(entries){const zip=new JSZip();for(const [name,bytes] of entries){if(name.startsWith('/')||name.split('/').some(p=>p==='..')||name.includes('\\'))throw new Error('归档路径不合法');zip.file(name,bytes);}return zip.generateAsync({type:'nodebuffer',compression:'DEFLATE'});}
 export function writeArtifact(store,job,name,bytes,kind='file'){
   if(job.status==='cancelled')throw new Error('任务已取消');const artifactId=id(),target=inside(store.directory,'deliverables',job.id,artifactId+'-'+safeName(name));fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,bytes,{flag:'wx'});
-  const result={id:artifactId,name:safeName(name),bytes:Buffer.byteLength(bytes),sha256:digest(bytes),kind,createdAt:now(),relativePath:path.relative(store.directory,target)};job.artifacts.push(result);store.save();return result;
+  const result={id:artifactId,name:safeName(name),bytes:Buffer.byteLength(bytes),sha256:digest(bytes),kind,createdAt:now(),relativePath:path.relative(store.directory,target)};
+  emitExecution('file_generation','completed',{taskId:job.id,conversationId:job.conversationId||null,artifactId,outputRefs:[artifactId],metadata:{sha256:result.sha256,bytes:result.bytes,relativePath:result.relativePath}});
+  job.artifacts.push(result);store.save();return result;
 }
 export function resolveArtifact(store,jobId,artifactId){const job=store.state.jobs.find(j=>j.id===jobId),artifact=job?.artifacts.find(a=>a.id===artifactId);if(!artifact)throw new Error('交付物不存在');const target=inside(store.directory,artifact.relativePath);const bytes=fs.readFileSync(target);if(digest(bytes)!==artifact.sha256)throw new Error('交付物校验失败');return {artifact,bytes};}

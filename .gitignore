@@ -12,3 +12,6 @@ qa-output/
 *.private.json
 backups/
 data-restored/
+.qa-runtime/
+fix-ready.json
+version-manifest.json
