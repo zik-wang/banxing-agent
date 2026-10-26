@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -21,7 +22,7 @@ export function coverageState(c){
  const pages=new Set(c.processedPages);const missing=allPages(c.totalPages).some(n=>!pages.has(n));
  return missing||c.failedPages.length||c.unprocessedPages.length||c.truncated||c.ocrRequiredPages.some(p=>!c.ocrCompletedPages.includes(p))||c.ocrUnreviewedPages?.length||c.attachments?.length?'partial':'complete';
 }
-export async function inspectDocument(store,file,{signal,log=()=>{},onCoverage=()=>{},ocr,maxPages=500,maxCharacters=2000000,maxOcrRequests=2}={}){
+export async function inspectDocument(store,file,{signal,log=()=>{},onCoverage=()=>{},ocr,maxPages=scaledLimit(500),maxCharacters=scaledLimit(2000000),maxOcrRequests=scaledLimit(2)}={}){
  signal?.throwIfAborted();const bytes=readOriginal(store,file),root=path.join(store.directory,'document-pages',file.sha256,DOCUMENT_VERSION),coverage={fileId:file.id,fileName:file.name,sha256:file.sha256,version:DOCUMENT_VERSION,totalPages:null,processedPages:[],failedPages:[],unprocessedPages:[],parsedCharacters:0,truncated:false,ocrRequiredPages:[],ocrCompletedPages:[],ocrFailedPages:[],ocrUnreviewedPages:[],attachments:[],status:'unknown',pages:[],visualLayoutVerified:false,limit:'页面处理记录不等于OCR文字正确或图表、批注、删除线均已核清。'};
  const pages=[];
  coverage.ocrRequests=[];coverage.ocrUnprocessedPages=[];
@@ -122,7 +123,7 @@ export async function documentRequirements(ctx){
  };
  writeArtifact(ctx.store,ctx.job,'分页来源片段清单.json',Buffer.from(JSON.stringify({version:DOCUMENT_VERSION,units},null,2)),'evidence');
  persistAnalysis();
- const batchesFor=pass=>recoveryBatches(allReadable,session,pass,{maxCharacters:6200,maxUnits:12});
+ const batchesFor=pass=>recoveryBatches(allReadable,session,pass,{maxCharacters:scaledLimit(6200),maxUnits:scaledLimit(12)});
  const shape=JSON.stringify({items:[{title:'具体要求',status:'confirmed/needs_clarification',unitIds:['D1'],owner:'',dueText:'',summary:'原文事实与限制'}],dispositions:[{unitIds:['D2'],status:'background/uncertain',reason:'依据'}]});
  async function runTarget(target,pass){
   const todo=new Set(session.remaining(pass));target=target.filter(u=>todo.has(u.id));if(!target.length||!session.canStart())return;
@@ -130,7 +131,7 @@ export async function documentRequirements(ctx){
   calls++;const started=Date.now(),handled=new Set();let failed;
   try{
    const contextReceipt=documentContext(units,p2?target:[],{eligibleUnitIds:allReadable.map(u=>u.id)}),context=contextReceipt.units;
-   const raw=await ctx.analyze({kind:pass==='audit'?'work-21-pages-audit':'work-21-pages',documents:[{id:'page-batch',name:'分页材料',text:target.map(u=>'['+u.id+' 文件'+u.sourceId+' 第'+u.page+'页]\n'+u.text).join('\n'),units:[...target,...context],headingContext:contextReceipt.headingCandidates,omittedContextUnitIds:contextReceipt.omittedContextUnitIds,focusIds:target.map(u=>u.id)}],instruction:'从这些正式目标片段逐条提取需求和验收条件。用户目标：'+ctx.job.rules+'。不得由成员推出责任人，不得把发生日期当截止；保留条件、例外、否定和标题范围。引用只用unitIds；没有明确责任或期限留空。每个目标编号均需事项或dispositions处置；只对本批下结论，不宣称全文完成。'+(pass==='audit'?' 独立重新阅读原文，不提供第一遍答案。重点寻找遗漏要求、条件、例外与反例；contextOnly只读上下文不算目标已处置。':''),shape,timeoutMs:180000,recoveryRequest:()=>session.reserveProvider()});
+   const raw=await ctx.analyze({kind:pass==='audit'?'work-21-pages-audit':'work-21-pages',documents:[{id:'page-batch',name:'分页材料',text:target.map(u=>'['+u.id+' 文件'+u.sourceId+' 第'+u.page+'页]\n'+u.text).join('\n'),units:[...target,...context],headingContext:contextReceipt.headingCandidates,omittedContextUnitIds:contextReceipt.omittedContextUnitIds,focusIds:target.map(u=>u.id)}],instruction:'从这些正式目标片段逐条提取需求和验收条件。用户目标：'+ctx.job.rules+'。不得由成员推出责任人，不得把发生日期当截止；保留条件、例外、否定和标题范围。引用只用unitIds；没有明确责任或期限留空。每个目标编号均需事项或dispositions处置；只对本批下结论，不宣称全文完成。'+(pass==='audit'?' 独立重新阅读原文，不提供第一遍答案。重点寻找遗漏要求、条件、例外与反例；contextOnly只读上下文不算目标已处置。':''),shape,timeoutMs:PROCESSING_LIMITS.modelTimeoutMs,recoveryRequest:()=>session.reserveProvider()});
    if(!Array.isArray(raw.items)||!Array.isArray(raw.dispositions))throw Error('分页模型输出缺少items或dispositions');
    const allowed=new Map([...target,...context].map(u=>[u.id,u])),targetIds=new Set(target.map(u=>u.id));
    for(const [i,row]of raw.items.entries()){

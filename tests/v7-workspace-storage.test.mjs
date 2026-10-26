@@ -12,7 +12,7 @@ test('已有80份原件仍可上传，已有记录保持不变且新原件可回
  const store=new Store(temporary(t,'v7-storage-')),before=seed(store,80);
  const file=await addWorkspaceFile(store,input('新材料.txt'));
  assert.equal(store.state.workspaceFiles.length,81);assert.equal(JSON.stringify(store.state.workspaceFiles.slice(0,80)),before);assert.equal(readOriginal(store,file).toString(),'新的原始材料');
- const state=workspaceStorage(store);assert.equal(state.maxFiles,2000);assert.equal(state.maxBytes,2*1024**3);
+ const state=workspaceStorage(store);assert.equal(state.maxFiles,5000);assert.equal(state.maxBytes,5*1024**3);
 });
 test('压缩包导入使用同一容量规则，不再在80份处截断',async t=>{
  const store=new Store(temporary(t,'v7-storage-'));seed(store,80);const zip=new JSZip();zip.file('第一份.txt','第一份');zip.file('第二份.txt','第二份');

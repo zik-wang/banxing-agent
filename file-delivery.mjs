@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import ExcelJS from 'exceljs';
 import {observed,fingerprint} from './qa-events.mjs';
 import JSZip from 'jszip';
@@ -7,6 +8,7 @@ import {writeArtifact,resolveArtifact} from './artifacts.mjs';
 import {capability,readBinary} from './multimodal.mjs';
 
 export const FILE_FORMATS=['docx','xlsx','pdf'];
+export const DELIVERY_TABLE_LIMITS=Object.freeze({columns:100,rows:3000,cells:30000,sheets:32});
 export const FILE_MIMES={docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',pdf:'application/pdf'};
 const plain=s=>String(s??'').replace(/\*\*(.*?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'$1 ($2)').trim();
 export function requestedFormats(request=''){
@@ -43,20 +45,20 @@ function normalizeSheets(sheets,blocks){
  const tables=[...(sheets||[])],known=new Set(tables.map(tableKey));let heading='';
  for(const b of blocks){if(b.type==='heading')heading=b.text;else if(b.type==='table'&&!known.has(tableKey(b))){tables.push({name:heading||'明细'+(tables.length+1),headers:b.headers,rows:b.rows.map(row=>row.map(value=>/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(value)&&value.replace(/[-.]/g,'').length<16?Number(value):value))});known.add(tableKey(b));}}
  if(!tables.length)return [{name:'正文',headers:['内容'],rows:blocks.filter(b=>b.text).map(b=>[b.text])}];
- if(tables.length>32)throw Error('最多导出32个工作表；总单元格限制仍为30000');
+ if(tables.length>DELIVERY_TABLE_LIMITS.sheets)throw Error('最多导出'+DELIVERY_TABLE_LIMITS.sheets+'个工作表；总单元格限制仍为'+DELIVERY_TABLE_LIMITS.cells);
  let cells=0;const names=new Set();return tables.map((s,i)=>{
-  if(!Array.isArray(s.headers)||!s.headers.length||s.headers.length>30||!Array.isArray(s.rows)||s.rows.length>3000)throw Error('表格需1至30列，每表最多3000行');
+  if(!Array.isArray(s.headers)||!s.headers.length||s.headers.length>DELIVERY_TABLE_LIMITS.columns||!Array.isArray(s.rows)||s.rows.length>DELIVERY_TABLE_LIMITS.rows)throw Error('表格需1至'+DELIVERY_TABLE_LIMITS.columns+'列，每表最多'+DELIVERY_TABLE_LIMITS.rows+'行');
   if(s.rows.some(r=>!Array.isArray(r)||r.length!==s.headers.length))throw Error('表格各行列数不一致');
   const headers=s.headers.map(v=>String(v));if(headers.some(v=>!v.trim()||v.length>200))throw Error('表头需要1至200字符');
   const rows=s.rows.map(r=>r.map(v=>{if(v===null)return null;if(!['string','number','boolean'].includes(typeof v)||typeof v==='number'&&!Number.isFinite(v))throw Error('单元格只支持文字、有限数值、布尔值和空值，不接受公式对象');if(String(v).length>8000)throw Error('单元格超过8000字，请拆分');return v;}));
-  cells+=(rows.length+1)*headers.length;if(cells>30000)throw Error('本次表格超过30000格，请拆分');
+  cells+=(rows.length+1)*headers.length;if(cells>DELIVERY_TABLE_LIMITS.cells)throw Error('本次表格超过'+DELIVERY_TABLE_LIMITS.cells+'格，请拆分');
   let name=String(s.name||'明细'+(i+1)).replace(/[\\/*?:\[\]]/g,' ').replace(/^'+|'+$/g,'').slice(0,27).trim()||'明细';let suffix=1,base=name;while(names.has(name.toLowerCase()))name=base+' '+(++suffix);names.add(name.toLowerCase());
   return {name,headers,rows};
  });
 }
 export function prepareDelivery({title='交付文件',content='',sheets=[]}){
  if(typeof title!=='string'||!title.trim()||title.length>120)throw Error('文件标题需要1至120字');
- if(typeof content!=='string'||content.length>100000)throw Error('正文最多100000字');
+ if(typeof content!=='string'||content.length>scaledLimit(100000))throw Error('正文最多250000字');
  if(!content.trim()&&!sheets?.length)throw Error('需要实际正文或表格，不能创建空文件');
  const blocks=parseDocument(content);if(blocks[0]?.type==='heading'&&blocks[0].level===1)blocks.shift();const tables=normalizeSheets(sheets,blocks);
  const known=new Set(blocks.filter(b=>b.type==='table').map(tableKey));
@@ -122,7 +124,7 @@ export async function generateDeliverables(harness,spec,formats,signal){
  for(const format of formats){try{
   signal?.throwIfAborted();let bytes;
   if(format==='xlsx')bytes=await renderWorkbook(spec);
-  else{word||=await renderWord(spec);if(format==='docx')bytes=word;else{const c=capability(harness,'convert'),form=new FormData();form.append('file',new Blob([word]),'document.docx');bytes=(await readBinary(await fetch(c.baseUrl+'/convert/pdf',{method:'POST',body:form,redirect:'error',signal:AbortSignal.any([...(signal?[signal]:[]),AbortSignal.timeout(90000)])}))).bytes;}}
+  else{word||=await renderWord(spec);if(format==='docx')bytes=word;else{const c=capability(harness,'convert'),form=new FormData();form.append('file',new Blob([word]),'document.docx');bytes=(await readBinary(await fetch(c.baseUrl+'/convert/pdf',{method:'POST',body:form,redirect:'error',signal:AbortSignal.any([...(signal?[signal]:[]),AbortSignal.timeout(scaledLimit(90000))])}))).bytes;}}
   signal?.throwIfAborted();results.push({format,bytes,check:await validateDelivery(format,bytes,spec)});
  }catch(error){if(signal?.aborted)throw error;failures.push({format,message:error.message});}}
  return {results,failures};
@@ -136,10 +138,11 @@ export async function sourceJobContent(store,job){
  const sheets=rows?.length?[{name:'事项明细',headers:['事项','状态','说明','负责人','期限','下一步','原文依据'],rows:rows.map(r=>[r.title,r.status,r.summary||'',r.owner||'',r.dueText||'',r.nextAction||'',[...(r.basis||[]),...(r.evidence||[])].map(e=>e.name+' 第'+e.line+'行：'+e.quote).join('\n')])}]:[];
  if(!content){
   const word=job.artifacts.find(a=>a.name.endsWith('.docx'));if(word)content=(await mammoth.extractRawText({buffer:resolveArtifact(store,job.id,word.id).bytes})).value;
-  for(const artifact of job.artifacts.filter(a=>a.name.endsWith('.xlsx'))){
+  let sourceCells=0;for(const artifact of job.artifacts.filter(a=>a.name.endsWith('.xlsx'))){
    const book=new ExcelJS.Workbook();await book.xlsx.load(resolveArtifact(store,job.id,artifact.id).bytes);
    for(const sheet of book.worksheets){
-    if(sheet.actualColumnCount>30||sheet.rowCount>3001)throw Error('已有表格过大，请按区域拆分后导出');
+    if(sheet.columnCount>DELIVERY_TABLE_LIMITS.columns||sheet.rowCount>DELIVERY_TABLE_LIMITS.rows+1)throw Error('已有表格超过'+DELIVERY_TABLE_LIMITS.columns+'列或'+DELIVERY_TABLE_LIMITS.rows+'行，请按区域拆分后导出');
+    sourceCells+=sheet.columnCount*sheet.rowCount;if(sourceCells>DELIVERY_TABLE_LIMITS.cells)throw Error('已有表格超过'+DELIVERY_TABLE_LIMITS.cells+'格，请按区域拆分后导出');
     const values=[];sheet.eachRow(row=>values.push(Array.from({length:sheet.columnCount},(_,i)=>{const cell=row.getCell(i+1);if(cell.formula&&cell.result===undefined)throw Error('已有文件包含无缓存的公式，不能假装已重算');const v=cell.result??cell.value;if(v===null||['string','number','boolean'].includes(typeof v))return v;return cell.text;})));
     if(values.length)sheets.push({name:sheet.name,headers:values[0].map(v=>String(v??'未命名列')),rows:values.slice(1)});
    }

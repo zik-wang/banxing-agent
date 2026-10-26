@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import ExcelJS from 'exceljs';
 import {parse} from 'csv-parse/sync';
 import {readOriginal,digest} from './workspace-files.mjs';
@@ -8,7 +9,7 @@ import {renderReliabilityItems,expectDelivery} from './reliability.mjs';
 import {locateCitation,validateRelation,validateMissingScope} from './issue-review.mjs';
 import {documentRequirements} from './document-integrity.mjs';
 
-const list=(v,n=150)=>Array.isArray(v)?v.slice(0,n):[];
+const list=(v,n=150)=>Array.isArray(v)?v.slice(0,scaledLimit(n)):[];
 const text=(v,n=2000)=>typeof v==='string'?v.trim().slice(0,n):'';
 const warning=(ctx,s)=>{if(!ctx.job.warnings.includes(s))ctx.job.warnings.push(s);};
 function note(ctx,s){warning(ctx,s);ctx.job.softNotices||=[];if(!ctx.job.softNotices.some(n=>n.text===s))ctx.job.softNotices.push({text:s});}

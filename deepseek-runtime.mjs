@@ -1,6 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {emitExecution,observed,fingerprint} from './qa-events.mjs';
 import {inferenceProfile} from './inference-config.mjs';
+import {PROCESSING_LIMITS} from './processing-capacity.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {Context} from '@deepseek-ai/cordis';
@@ -25,14 +26,14 @@ export function saveDeepSeekSession(store,kind,events){
 
 // This bridge only composes official plugins and application policy. The official
 // dsh-agent-loop owns model iteration, tool dispatch, steering and cancellation.
-export async function runDeepSeek({connection,systemPrompt,request,tools=[],maxRounds=7,maxCalls=12,maxTokens=3500,timeoutMs=120000,signal,onReady=()=>{},onModel=()=>{},beforeRequest=()=>{},onToolResult=()=>{},onSession=()=>{},repair,settle}){
+export async function runDeepSeek({connection,systemPrompt,request,tools=[],maxRounds=PROCESSING_LIMITS.chatRounds,maxCalls=PROCESSING_LIMITS.chatToolCalls,maxTokens=PROCESSING_LIMITS.chatOutputTokens,timeoutMs=PROCESSING_LIMITS.chatTimeoutMs,signal,onReady=()=>{},onModel=()=>{},beforeRequest=()=>{},onToolResult=()=>{},onSession=()=>{},repair,settle}){
   const profile=inferenceProfile(connection);
   const ctx=new Context();let handle,timer,failure,rounds=0,calls=0,aborted=false,sessionSaved=false,settled=null,currentModelCallId=null;
   const abort=()=>{aborted=true;handle?.agent.cancel({kind:'user'});};
   signal?.addEventListener('abort',abort,{once:true});
   try{
     for(const plugin of [Llm,Sessions,Projections,SystemPrompt,Tools,Agents])await ctx.plugin(plugin,plugin===SystemPrompt?{includeHarnessIdentity:false,includeRuntimeContext:false}:{});
-    await ctx.plugin(PiAi,{providers:{'v4-intranet':{displayName:connection.label||'内网 Qwen',api:'openai-completions',baseURL:connection.baseUrl,headers:{Authorization:'Bearer '+(connection.apiKey||'local-keyless')},models:[{id:connection.modelName,name:connection.label||'内网 Qwen',reasoningEfforts:{off:null,low:'low'},input:['text'],contextWindow:128000,maxTokens}],compat:{supportsDeveloperRole:false,supportsReasoningEffort:false,supportsStore:false,maxTokensField:'max_tokens',...(connection.invoiceTextOnly===true?{thinkingFormat:'qwen'}:{thinkingFormat:connection.provider==='siliconflow'?'qwen':'chat-template',chatTemplateKwargs:{enable_thinking:false}})},reasoning:'off',timeoutMs,streamIdleTimeoutMs:timeoutMs}}});
+    await ctx.plugin(PiAi,{providers:{'v4-intranet':{displayName:connection.label||'内网 Qwen',api:'openai-completions',baseURL:connection.baseUrl,headers:{Authorization:'Bearer '+(connection.apiKey||'local-keyless')},models:[{id:connection.modelName,name:connection.label||'内网 Qwen',reasoningEfforts:{off:null,low:'low'},input:['text'],contextWindow:profile.context_window_tokens,maxTokens}],compat:{supportsDeveloperRole:false,supportsReasoningEffort:false,supportsStore:false,maxTokensField:'max_tokens',...(connection.invoiceTextOnly===true?{thinkingFormat:'qwen'}:{thinkingFormat:connection.provider==='siliconflow'?'qwen':'chat-template',chatTemplateKwargs:{enable_thinking:false}})},reasoning:'off',timeoutMs:Math.min(timeoutMs,profile.timeout_ms),streamIdleTimeoutMs:Math.min(timeoutMs,profile.timeout_ms)}}});
     await ctx.plugin(AgentLoop,{agents:[],maxParallelToolCalls:1});
     if(!ctx.agentLoop||!ctx.agents||!ctx.tools)throw Error('DeepSeek Harness组件未就绪');
     handle=await ctx.agents.create({sessionId:randomUUID(),agentOptions:{provider:'v4-intranet',model:connection.modelName,maxTokens},setup:(scope,agent)=>{

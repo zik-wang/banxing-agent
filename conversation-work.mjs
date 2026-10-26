@@ -7,7 +7,7 @@ import {id,now} from './core.mjs';
 import {assertConversationAttachment} from './attachment-context.mjs';
 import {readOriginal} from './workspace-files.mjs';
 import {resolveArtifact} from './artifacts.mjs';
-import {sourceJobContent,requestedFormats} from './file-delivery.mjs';
+import {sourceJobContent,requestedFormats,DELIVERY_TABLE_LIMITS} from './file-delivery.mjs';
 import {settleDelivery,deliveryArtifacts} from './delivery-settlement.mjs';
 
 const time=x=>Date.parse(x?.finishedAt||x?.createdAt||x?.startedAt||'')||0;
@@ -76,7 +76,15 @@ export function officeRequest(store,run){
  return (continuation?'只使用本轮保留的文件，排除的来源及旧结果不可重用。\n':'')+request;
 }
 
-async function workbook(bytes){const b=new ExcelJS.Workbook();await b.xlsx.load(bytes);return b.worksheets.map(s=>{if(s.columnCount>30||s.rowCount>3001)throw Error('表格超过当前转换范围，已保留原件；需明确拆分范围');const rows=[];for(let r=1;r<=s.rowCount;r++){const row=[];for(let c=1;c<=s.columnCount;c++){const cell=s.getCell(r,c);if(cell.formula&&cell.result===undefined)throw Error('原表公式没有缓存结果，不能宣称计算或数据无损');const v=cell.result??cell.value;row.push(v===undefined?null:v instanceof Date?v.toISOString():v!==null&&typeof v==='object'?cell.text:v);}rows.push(row);}return {name:s.name,headers:(rows.shift()||[]).map((v,i)=>String(v??'列'+(i+1))),rows};});}
+async function workbook(bytes){
+ const b=new ExcelJS.Workbook();await b.xlsx.load(bytes);let cells=0;
+ return b.worksheets.map(s=>{
+  if(s.columnCount>DELIVERY_TABLE_LIMITS.columns||s.rowCount>DELIVERY_TABLE_LIMITS.rows+1)throw Error('表格超过'+DELIVERY_TABLE_LIMITS.columns+'列或'+DELIVERY_TABLE_LIMITS.rows+'行，已保留原件；需明确拆分范围');
+  cells+=s.columnCount*s.rowCount;if(cells>DELIVERY_TABLE_LIMITS.cells)throw Error('表格超过'+DELIVERY_TABLE_LIMITS.cells+'格，已保留原件；需明确拆分范围');
+  const rows=[];for(let r=1;r<=s.rowCount;r++){const row=[];for(let c=1;c<=s.columnCount;c++){const cell=s.getCell(r,c);if(cell.formula&&cell.result===undefined)throw Error('原表公式没有缓存结果，不能宣称计算或数据无损');const v=cell.result??cell.value;row.push(v===undefined?null:v instanceof Date?v.toISOString():v!==null&&typeof v==='object'?cell.text:v);}rows.push(row);}
+  return {name:s.name,headers:(rows.shift()||[]).map((v,i)=>String(v??'列'+(i+1))),rows};
+ });
+}
 async function inputFor(h,run,plan,files){
  const input=await rawInputFor(h,run,plan,files);
  const records=recipientEvidence(h.store,run.conversationId,plan.sourceJob?.dataScope||files);
@@ -90,9 +98,19 @@ async function rawInputFor(h,run,plan,files){
  const sheets=[];for(const f of files){if(f.extension!=='.xlsx')throw Error('此操作需要已选 Excel 文件；没有重新解析其他材料');sheets.push(...(await workbook(readOriginal(h.store,f))).map(s=>({...s,sourceFileName:f.name})));}if(!sheets.length)throw Error('没有可转换的当前表格，请明确选择已有成果或文件');return {title:files.map(f=>f.name.replace(/\.xlsx$/i,'')).join('与').slice(0,80),content:'',sheets};
 }
 function merge(input,files){
- const headers=[...new Set(input.sheets.flatMap(s=>s.headers))];if(headers.length>27)throw Error('合并后的列数超出当前30列边界，请明确拆分范围');const rows=[];
- input.sheets.forEach((s,i)=>s.rows.forEach((r,n)=>rows.push([...headers.map(h=>s.headers.includes(h)?r[s.headers.indexOf(h)]??null:null),s.sourceFileName||files[i]?.name||s.name,s.name,n+2])));
- return {...input,title:'合并报表',content:'原始记录按字段名称合并；不同字段保留空位，没有猜测业务等价字段。来源文件、工作表与原始行号保留。',sheets:[{name:'合并明细',headers:[...headers,'来源文件','来源工作表','来源行号'],rows}]};
+ const detail=[],supplemental=[];
+ for(const [index,s]of input.sheets.entries()){
+  const report=/^报告正文(?:附)*$/.test(s.name)&&s.headers.length===1&&s.headers[0]==='内容';
+  const keyValueSummary=/汇总|小计|summary|total/i.test(s.name)&&s.headers.length===2&&/^(项目|指标|item|metric)$/i.test(s.headers[0])&&/^(数值|值|value)$/i.test(s.headers[1]);
+  const hasDetail=s.sourceFileName&&input.sheets.some(other=>other!==s&&other.sourceFileName===s.sourceFileName&&other.headers.length>s.headers.length);
+  (report||keyValueSummary&&hasDetail?supplemental:detail).push({sheet:s,index});
+ }
+ const headers=[...new Set(detail.flatMap(({sheet:s})=>s.headers))],sourceHeaders=['来源文件','来源工作表','来源行号'];
+ if(headers.length+sourceHeaders.length>DELIVERY_TABLE_LIMITS.columns)throw Error('合并后含来源字段共'+(headers.length+sourceHeaders.length)+'列，超过当前'+DELIVERY_TABLE_LIMITS.columns+'列上限，请明确拆分范围');
+ const withSource=(s,index,r,n)=>[s.sourceFileName||files[index]?.name||s.name,s.name,n+2];
+ const rows=detail.flatMap(({sheet:s,index})=>s.rows.map((r,n)=>[...headers.map(h=>s.headers.includes(h)?r[s.headers.indexOf(h)]??null:null),...withSource(s,index,r,n)]));
+ const supplements=supplemental.map(({sheet:s,index},i)=>({name:'原表'+(i+1)+'_'+s.name,headers:[...s.headers,...sourceHeaders],rows:s.rows.map((r,n)=>[...r,...withSource(s,index,r,n)])}));
+ return {...input,title:'合并报表',content:'原始明细按同名字段合并；不同字段保留空位，没有猜测业务等价字段。来源文件、工作表与原始行号保留。'+(supplements.length?'原表的键值汇总和报告正文单独保留，未当作明细记录合并。':''),sheets:[...(detail.length?[{name:'合并明细',headers:[...headers,...sourceHeaders],rows}]:[]),...supplements]};
 }
 function dedupe(input){let removed=0;return {...input,content:input.content+'\n仅移除所有业务列完全相同的记录；语义相似但不同的记录保留；重复来源另表保留。',sheets:input.sheets.flatMap(s=>{const indices=s.headers.map((h,i)=>/^来源/.test(h)?-1:i).filter(i=>i>=0),seen=new Set(),duplicates=[],rows=s.rows.filter(r=>{const key=JSON.stringify(indices.map(i=>r[i]));if(seen.has(key)){duplicates.push(r);removed++;return false;}seen.add(key);return true;});return [{...s,rows},...(duplicates.length?[{name:s.name+'重复来源',headers:s.headers,rows:duplicates}]:[])];}),dedupeRemoved:removed};}
 function group(input){const s=input.sheets.find(s=>s.headers.some(h=>/^部门(?:名称)?$/.test(h)));if(!s)throw Error('当前报表没有明确的部门列，请指定分组字段；原报表保留，没有猜测部门');const groupCol=s.headers.findIndex(h=>/^部门(?:名称)?$/.test(h)),numeric=s.headers.map((h,i)=>({h,i})).filter(x=>/金额|费用|成本|数量|支出|收入|价税合计/.test(x.h)&&!/来源|序号|编号|代码|比例|百分|单价|率$|%/.test(x.h)&&s.rows.some(r=>typeof r[x.i]==='number')&&s.rows.every(r=>r[x.i]===null||r[x.i]===''||typeof r[x.i]==='number')),groups=new Map();for(const r of s.rows){const key=String(r[groupCol]??'未填写'),values=groups.get(key)||[0,...numeric.map(()=>0)];values[0]++;numeric.forEach((x,i)=>{const n=r[x.i]||0;if(!Number.isSafeInteger(Math.round(n*100)))throw Error('数值超过可精确汇总范围');values[i+1]+=Math.round(n*100);});groups.set(key,values);}return {...input,sheets:[...input.sheets,{name:'部门统计',headers:['部门','记录数',...numeric.map(x=>x.h+'合计')],rows:[...groups].map(([k,v])=>[k,v[0],...v.slice(1).map(n=>n/100)])}],content:input.content+'\n部门统计只汇总有明确数值的列，保留全部明细。'};}

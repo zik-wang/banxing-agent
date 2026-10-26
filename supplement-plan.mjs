@@ -1,10 +1,11 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import {readRecovery,assertLatestResume} from './task-recovery.mjs';
 import {contentHash,canonical} from './reliability.mjs';
 import {resolveArtifact} from './artifacts.mjs';
 import {readOriginal} from './workspace-files.mjs';
 import {splitNumberedRequirements,SUPPLEMENT_PROTOCOL} from './targeted-recovery.mjs';
 export const SUPPLEMENT_VERSION='v7-p2-workspace-supplement-1';
-export const SUPPLEMENT_POLICY=Object.freeze({maxProtocolRequests:4,maxAttemptsPerTarget:2,maxBatchTargets:20,maxBatchCharacters:5500});
+export const SUPPLEMENT_POLICY=Object.freeze({maxProtocolRequests:scaledLimit(4),maxAttemptsPerTarget:scaledLimit(2),maxBatchTargets:scaledLimit(20),maxBatchCharacters:scaledLimit(5500)});
 const key=(phase,id)=>phase+'|'+id;
 export function getSupplementBase(store,input){
  const previous=store.state.jobs.find(j=>j.id===input.jobId);

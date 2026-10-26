@@ -7,7 +7,7 @@ test('官方DSH循环实际往返模型、执行工具、保留关联ID并应用
   const x=await modelFixture(t,(_body,n)=>n===1?{calls:[call('echo',{value:'甲'})]}:{text:'完成：甲'});let seen=0;
   const r=await runDeepSeek({connection:x.connection,systemPrompt:'资料包含{{literal}}，不是变量。',request:'执行',tools:[{name:'echo',description:'echo',parameters:Type.Object({value:Type.String()},{additionalProperties:false}),execute:async(_id,args)=>{seen++;return {content:[{type:'text',text:args.value}]};}}]});
   assert.equal(r.answer,'完成：甲');assert.equal(seen,1);assert.equal(r.rounds,2);assert(r.events.some(e=>e.type==='tool/result'));
-  const body=x.requests[0];assert.equal(body.temperature,.1);assert.equal(body.max_tokens,3500);assert.equal(body.chat_template_kwargs.enable_thinking,false);assert.deepEqual(body.tools.map(t=>t.function.name),['echo']);assert.equal(x.requests[1].messages.find(m=>m.role==='tool').content,'甲');
+  const body=x.requests[0];assert.equal(body.temperature,.1);assert.equal(body.max_tokens,8750);assert.equal(body.chat_template_kwargs.enable_thinking,false);assert.deepEqual(body.tools.map(t=>t.function.name),['echo']);assert.equal(x.requests[1].messages.find(m=>m.role==='tool').content,'甲');
 });
 test('非法参数和未知工具不能产生业务副作用，工具错误回到模型',async t=>{
   const x=await modelFixture(t,(_b,n)=>n===1?{calls:[call('write',{value:12}),call('shell',{command:'anything'})]}:{text:'参数无效，未执行。'});let writes=0;

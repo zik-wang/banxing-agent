@@ -1,4 +1,5 @@
-export function recoveryBatches(units,session,phase,{maxCharacters=6200,maxUnits=12}={}){
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
+export function recoveryBatches(units,session,phase,{maxCharacters=scaledLimit(6200),maxUnits=scaledLimit(12)}={}){
  const remaining=new Set(session.remaining(phase)),batches=[];let group=[],characters=0,groupCharacterLimit=maxCharacters,groupUnitLimit=maxUnits;
  for(const unit of units.filter(u=>remaining.has(u.id))){
   const attempts=session.byId.get(unit.id)?.stages[phase]?.attemptCount||0;

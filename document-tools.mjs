@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import {parallelListWarnings} from './source-field-guard.mjs';
 import JSZip from 'jszip';
 import {now} from './core.mjs';
@@ -17,21 +18,21 @@ export async function imageFromConverted(bytes){
  const image=await zip.files[names[0]].async('nodebuffer');if(!imageKind(image))throw Error('PDF转图片没有得到PNG或JPEG');
  return {bytes:image,count:names.length};
 }
-export async function ocrForChat(workspace,fileId,signal=AbortSignal.timeout(180000),log=()=>{}){
+export async function ocrForChat(workspace,fileId,signal=AbortSignal.timeout(PROCESSING_LIMITS.modelTimeoutMs),log=()=>{}){
  const file=workspace.store.state.workspaceFiles.find(f=>f.id===fileId);if(!file)throw new Error('文件不存在');
  if(!VISUAL_EXTENSIONS.includes(file.extension))throw new Error('OCR只接受PDF、PNG、JPG');
  if(file.parseStatus==='needs_ocr')return workspace.recognizeForChat(fileId,signal,log);
  if(file.ocrSupplement?.originalSha256===file.sha256&&file.ocrSupplement.text)return ocrReceipt(file,true);
  const result=await workspace.recognize(file,signal,log);if(signal.aborted)throw new Error('识别已取消');
- const text=result.content;if(typeof text!=='string'||!text.trim()||text.length>60000)throw new Error('需要不超过60000字符的有效识别文字');
+ const text=result.content;if(typeof text!=='string'||!text.trim()||text.length>PROCESSING_LIMITS.parsedTextChars)throw new Error('需要不超过150000字符的有效识别文字');
  file.ocrSupplement={originalSha256:file.sha256,text,model:result.model||'内网 MinerU',at:now()};workspace.store.save();
  return ocrReceipt(file,false);
 }
-function ocrReceipt(file,cached){return {fileId:file.id,name:file.name,worker:'intranet-ocr',model:file.ocrSupplement.model,reviewed:false,cached,relationWarnings:parallelListWarnings(file.ocrSupplement.text),text:file.ocrSupplement.text,preview:clip(file.ocrSupplement.text),textLayer:file.parseStatus==='ready'&&file.content?file.content.slice(0,8000):null,note:'这是OCR的独立第二遍，不是最终结论。号码、日期、金额、抬头要和多模态第一遍逐项对照。相同才写成确定值并标明两边一致；不同就并列两份原文，标待核对。不要折中，不要默认只信OCR。'};}
-export async function lookForChat(workspace,fileId,question,signal=AbortSignal.timeout(180000),log=()=>{}){
+function ocrReceipt(file,cached){return {fileId:file.id,name:file.name,worker:'intranet-ocr',model:file.ocrSupplement.model,reviewed:false,cached,relationWarnings:parallelListWarnings(file.ocrSupplement.text),text:file.ocrSupplement.text,preview:clip(file.ocrSupplement.text),textLayer:file.parseStatus==='ready'&&file.content?file.content.slice(0,PROCESSING_LIMITS.inlineTextChars):null,note:'这是OCR的独立第二遍，不是最终结论。号码、日期、金额、抬头要和多模态第一遍逐项对照。相同才写成确定值并标明两边一致；不同就并列两份原文，标待核对。不要折中，不要默认只信OCR。'};}
+export async function lookForChat(workspace,fileId,question,signal=AbortSignal.timeout(PROCESSING_LIMITS.modelTimeoutMs),log=()=>{}){
  const file=workspace.store.state.workspaceFiles.find(f=>f.id===fileId);if(!file)throw new Error('文件不存在');
  if(!VISUAL_EXTENSIONS.includes(file.extension))throw new Error('多模态阅读只接受PDF、PNG、JPG');
- const asked=typeof question==='string'&&question.trim()?question.trim().slice(0,800):'请读出可见的发票号码、日期、销售方、金额和币种。看不清就写不确定，不要编。';
+ const asked=typeof question==='string'&&question.trim()?question.trim().slice(0,scaledLimit(800)):'请读出可见的发票号码、日期、销售方、金额和币种。看不清就写不确定，不要编。';
  const describe=workspace.describeImage||describeImageBytes;let bytes,note;
  if(file.extension==='.pdf'){log('step','把PDF转成图片',file.name);const converted=await (workspace.convertFile||convertFile)(workspace.harness,workspace.store,file,'png',signal);const image=await imageFromConverted(converted);bytes=image.bytes;note='这是多模态第一遍，只发送'+(image.count>1?`按文件名排序的第一张（共${image.count}张）`:'转出的这一张')+'。它不是最终结论，读完后还要做OCR，再逐项对照。';}
  else {bytes=readOriginal(workspace.store,file);note='这是多模态第一遍，不是最终结论。读完后还要做OCR，再逐项对照。相同才写成确定值；不同就并列两份原文，标待核对。';}

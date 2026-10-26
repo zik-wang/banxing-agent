@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import {revisionRequest} from './delivery-settlement.mjs';
 import {readOriginal,digest} from './workspace-files.mjs';
 
@@ -42,7 +43,7 @@ export function setConversationAttachment(store,conversationId,fileId,status){
 
 export function conversationAttachmentState(store,conversationId){migrateAttachmentReferences(store,conversationId);return {version:ATTACHMENT_CONTEXT_VERSION,conversationId,files:rows(store,conversationId).map(r=>({fileId:r.fileId,name:r.name,sha256:r.sha256,status:r.status,origin:r.origin,available:!!fileRecord(store,r.fileId)}))};}
 
-function ids(value,label){if(!Array.isArray(value)||value.length>20||value.some(x=>typeof x!=='string')||new Set(value).size!==value.length)throw Error(label+'须为最多20个不同文件ID');return value;}
+function ids(value,label){if(!Array.isArray(value)||value.length>PROCESSING_LIMITS.attachmentCount||value.some(x=>typeof x!=='string')||new Set(value).size!==value.length)throw Error(label+'须为最多50个不同文件ID');return value;}
 const referenceRequest=s=>/(?:做成|整理成|生成|导出|转成)\s*(?:excel|excal|xlsx|word|docx|pdf)|转\s*(?:word|docx|pdf)|弄成|第[一二12]个|第[一二12]份|刚才|刚刚|上[一轮次个份]|之前|继续|接着|重试|重新|再分析|这些|这[份个两几]|那[份个]|附件|文件|材料|原文|报告|汇报|改成|改为|调整|补充|对比|比较|归档|台账|总结/i.test(s);
 const escapeRegex=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 
@@ -67,7 +68,7 @@ export function resolveAttachmentContext(store,{conversationId,request='',fileId
  const unavailable=[],files=[];if(ordinal&&!excludingOrdinal&&!fileIds.length&&(!ordinalRef||ordinalRef.status!=='active')){requested=[];unavailable.push({fileId:ordinalRef?.fileId||null,reason:'指定序号的附件不存在或已排除，未替换为其他文件'});}
  for(const fileId of [...new Set(requested)]){try{files.push(assertConversationAttachment(store,conversationId,fileId));}catch(error){unavailable.push({fileId,reason:error.message});}}
  const invalidNamed=mentioned.filter(r=>r.status!=='active'&&!negative.includes(r));for(const r of invalidNamed)unavailable.push({fileId:r.fileId,reason:'该附件已从本对话排除或删除，请先明确恢复'});
- const blocked=unavailable.length>0||requested.length>20;
+ const blocked=unavailable.length>0||requested.length>PROCESSING_LIMITS.attachmentCount;
  const needsSelection=blocked||(reason==='ambiguous_or_missing_context'&&useContext);
  const resolvedFileIds=blocked?[]:files.map(f=>f.id),sourceRefs=blocked?[]:files.map(f=>{const ref=references.find(r=>r.fileId===f.id)||rows(store,conversationId).find(r=>r.fileId===f.id);return{fileId:f.id,sha256:f.sha256,origin:reason,referenceOrigin:ref?.origin,sourceId:ref?.sourceId||null,parsedTextSha256:typeof f.content==='string'?digest(Buffer.from(f.content)):null,parseStatus:f.parseStatus,reusedParsedContent:true};});
  const result={version:ATTACHMENT_CONTEXT_VERSION,conversationId,status:needsSelection?'needs_selection':'ready',resolvedFileIds,reason,sources:sourceRefs,excludedFileIds:rows(store,conversationId).filter(r=>r.status!=='active').map(r=>r.fileId),unavailable,availableFiles:active.map(r=>({id:r.fileId,name:r.name})),selectedFromRunId:c.attachmentContext.lastRunId||[...(store.state.runs||[])].reverse().find(r=>r.conversationId===conversationId&&r.sourceFiles?.length)?.id||null,relatedJobIds:(store.state.jobs||[]).filter(j=>j.conversationId===conversationId&&resolvedFileIds.length&&j.dataScope?.length===resolvedFileIds.length&&j.dataScope.every(f=>sourceRefs.some(s=>s.fileId===f.id&&s.sha256===f.sha256))).map(j=>j.id),resolvedAt:stamp()};

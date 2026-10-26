@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -27,7 +28,7 @@ export class LocalMediaRuntime{
     const finish=(error,payload)=>{if(finished)return;finished=true;clearTimeout(timer);signal?.removeEventListener('abort',abort);if(error)child?.kill();Object.assign(receipt,{status:error?'failed':'succeeded',finishedAt:new Date().toISOString(),error:error?.message||null});write(path.join(directory,'receipt.json'),receipt);fs.writeFileSync(path.join(directory,'stdout.json'),stdout);fs.writeFileSync(path.join(directory,'stderr.log'),stderr);error?reject(error):resolve({...payload,provider:'local',localCallId:id,receipt:path.join(directory,'receipt.json')});};
     const abort=()=>finish(Error('本地识别已取消，工作进程已停止'));
     try{child=this.spawn(this.config.python,['-u',path.join(ROOT,'scripts/local-media-worker.py')],{cwd:directory,windowsHide:true,env:environment,stdio:['pipe','pipe','pipe']});}catch(error){finish(error);return;}
-    timer=setTimeout(()=>finish(Error('本地识别超时，保留原件和失败记录')),180000);signal?.addEventListener('abort',abort,{once:true});
+    timer=setTimeout(()=>finish(Error('本地识别超时，保留原件和失败记录')),PROCESSING_LIMITS.modelTimeoutMs);signal?.addEventListener('abort',abort,{once:true});
     child.stdin.on('error',()=>{});child.stdout.on('data',chunk=>{stdout+=chunk.toString('utf8');if(Buffer.byteLength(stdout)>4*1024*1024)finish(Error('本地识别结果超过预算，请拆分材料'));});child.stderr.on('data',chunk=>{const text=chunk.toString('utf8');stderr=(stderr+text).slice(-128000);for(const line of text.split('\n'))if(line.startsWith('MEDIA_EVENT '))try{const e=JSON.parse(line.slice(12));log('progress',String(e.label).slice(0,200),'本机模型执行');}catch{}});
     child.on('error',error=>finish(error));child.on('close',(code,exitSignal)=>{if(finished)return;receipt.exitCode=code;receipt.exitSignal=exitSignal;if(!stdout.trim()){finish(Error('本地识别进程退出且未返回JSON（退出码 '+code+'）；失败记录 '+id));return;}try{const payload=JSON.parse(stdout.trim().split('\n').at(-1));if(code!==0||!payload.ok)throw Error(payload.error||'本地识别进程异常');if(typeof payload.content!=='string'||!payload.content.trim())throw Error('本地识别没有返回有效文字');readOriginal(store,file);if(sha(fs.readFileSync(inputFile))!==receipt.workerInputSha256)throw Error('识别输入副本发生变化');finish(null,payload);}catch(error){finish(error);}});
     if(signal?.aborted){abort();return;}child.stdin.end(JSON.stringify(request));

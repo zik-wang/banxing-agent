@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import {taskAttachmentResolution,assertConversationAttachment,bindConversationFiles} from './attachment-context.mjs';
 import {ensureHtmlReport} from './presentation.mjs';
 import {reimburseBatch,validateInvoiceResume} from './invoice-batch.mjs';
@@ -78,16 +79,16 @@ export class Workspace {
     const parent=context.parentRunId?this.store.state.runs.find(r=>r.id===context.parentRunId&&r.status==='running'&&this.harness.active.has(r.id)):null;
     if(context.parentRunId&&!parent)throw Error('聊天任务上下文已失效');
     if(this.active.size||[...this.harness.active.keys()].some(id=>id!==parent?.id)||this.recognizing.size)throw new Error('助手正在处理上一项请求，请稍候或停止');
-    if(!Array.isArray(input.fileIds)||(!input.fileIds.length&&!['01','11','20'].includes(scenario.id))||input.fileIds.length>20||new Set(input.fileIds).size!==input.fileIds.length)throw new Error('请选择1至20个不同文件；简报、周报和内网巡检可不选文件');
+    if(!Array.isArray(input.fileIds)||(!input.fileIds.length&&!['01','11','20'].includes(scenario.id))||input.fileIds.length>PROCESSING_LIMITS.attachmentCount||new Set(input.fileIds).size!==input.fileIds.length)throw new Error('请选择1至50个不同文件；简报、周报和内网巡检可不选文件');
     const files=input.fileIds.map(fileId=>{const file=this.store.state.workspaceFiles.find(f=>f.id===fileId);if(!file)throw new Error('所选文件不存在');readOriginal(this.store,file);return file;});
     if(parent?.attachmentResolution)for(const file of files){if(!parent.resolvedFileIds.includes(file.id))throw Error('任务文件不在本轮已解析附件范围内');assertConversationAttachment(this.store,parent.conversationId,file.id);}
     const awaitingReview=f=>(f.recognition&&!f.recognition.confirmedAt)||f.parseStatus==='audio'||f.parseStatus==='needs_ocr',chatUsable=f=>!!(f.recognition?.dispatchedByChat&&f.content);
     if(scenario.id!=='07'&&files.some(f=>awaitingReview(f)&&!(scenario.id==='09'&&['.pdf','.png','.jpg','.jpeg'].includes(f.extension))&&!(scenario.id==='21'&&f.extension==='.pdf')&&!(parent&&chatUsable(f))))throw new Error(parent?'材料尚未识别或核对。请先调用 recognize_attachment 交给内网识别，不要让用户离开对话，也不要生成结果。':'需要先核对并确认录音转写或OCR文字，再开始处理任务');
     if(scenario.id==='08'&&files.length!==2)throw new Error('版本比较需要两份文件，按勾选顺序为旧版、新版');
-    const rules=typeof input.rules==='string'?input.rules.trim():'';if(rules.length>3000)throw new Error('执行规则最多3000字');
+    const rules=typeof input.rules==='string'?input.rules.trim():'';if(rules.length>scaledLimit(3000))throw new Error('执行规则最多7500字');
     const sourceOptions=input.options&&typeof input.options==='object'?input.options:{};
     if(sourceOptions.asrProvider&&sourceOptions.asrProvider!=='intranet')throw new Error('第三版只调用内网识别服务');
-    const options={selfName:String(sourceOptions.selfName||'').slice(0,80),allowAsr:sourceOptions.allowAsr===true,asrProvider:sourceOptions.asrProvider||'intranet',templateId:String(sourceOptions.templateId||''),sheetName:String(sourceOptions.sheetName||'').slice(0,100),headerRow:Number(sourceOptions.headerRow||1),dedupeColumns:String(sourceOptions.dedupeColumns||'').slice(0,500),clipRanges:Array.isArray(sourceOptions.clipRanges)?sourceOptions.clipRanges.slice(0,12).map(r=>({start:Number(r.start),end:Number(r.end)})):[],previousJobId:String(sourceOptions.previousJobId||'')};
+    const options={selfName:String(sourceOptions.selfName||'').slice(0,80),allowAsr:sourceOptions.allowAsr===true,asrProvider:sourceOptions.asrProvider||'intranet',templateId:String(sourceOptions.templateId||''),sheetName:String(sourceOptions.sheetName||'').slice(0,100),headerRow:Number(sourceOptions.headerRow||1),dedupeColumns:String(sourceOptions.dedupeColumns||'').slice(0,500),clipRanges:Array.isArray(sourceOptions.clipRanges)?sourceOptions.clipRanges.slice(0,scaledLimit(12)).map(r=>({start:Number(r.start),end:Number(r.end)})):[],previousJobId:String(sourceOptions.previousJobId||'')};
     if(scenario.id==='09'){options.invoiceResumeFrom=String(sourceOptions.invoiceResumeFrom||'');options.invoiceRetryFileIds=Array.isArray(sourceOptions.invoiceRetryFileIds)?sourceOptions.invoiceRetryFileIds:undefined;options.invoiceRetryPages=sourceOptions.invoiceRetryPages&&typeof sourceOptions.invoiceRetryPages==='object'?sourceOptions.invoiceRetryPages:undefined;}
     options.executionRecoveryVersion=['08','24','21'].includes(scenario.id)?'v7-p2':null;
     options.executionResumeFrom=String(sourceOptions.executionResumeFrom||'');
@@ -124,7 +125,7 @@ export class Workspace {
   }
   async execute(job,files,controller){
     const signal=controller.signal,log=(type,label,detail='')=>{if(job.status==='cancelled')return;job.trace.push({type,label,detail:String(detail).slice(0,1500),at:now()});this.store.save();};
-    const timer=setTimeout(()=>controller.abort(Object.assign(new Error('执行超时，请缩小任务'),{code:'WORKSPACE_TIMEOUT'})),job.scenarioId==='09'?INVOICE_POLICY.batchMs+INVOICE_POLICY.deliveryMs+30000:['08','24'].includes(job.scenarioId)?900000:job.scenarioId==='21'?600000:300000);
+    const timer=setTimeout(()=>controller.abort(Object.assign(new Error('执行超时，请缩小任务'),{code:'WORKSPACE_TIMEOUT'})),job.scenarioId==='09'?INVOICE_POLICY.batchMs+INVOICE_POLICY.deliveryMs+scaledLimit(30000):scaledLimit(['08','24'].includes(job.scenarioId)?900000:job.scenarioId==='21'?600000:300000));
     try{
       const invoiceRuntime=job.scenarioId==='09'?this.invoiceRuntimeFactory(this.store,this.harness):null;
       const taskHarness=invoiceRuntime?.harness||this.harness;
@@ -154,7 +155,7 @@ export class Workspace {
       const failure=['08','24','21'].includes(job.scenarioId)?executionFailure(job,signal,error):null;
       if(failure){job.status=failure.status;job.error=failure.message;job.executionStopReason=failure.timedOut?'timeout':'user_cancelled';}
       else if(signal.aborted||job.status==='cancelled'){job.status='cancelled';job.error='已取消，原件保留；已有交付物和已确认待办不会被撤销。';}
-      else{job.status=/需要|请选择|补充|超过60000|正文|不受支持|目前支持|最多500秒/.test(error.message)?'waiting_input':'failed';job.error=String(error.message).slice(0,800);}
+      else{job.status=/需要|请选择|补充|超过150000|正文|不受支持|目前支持|最多\d+秒/.test(error.message)?'waiting_input':'failed';job.error=String(error.message).slice(0,800);}
       try{await finishVerification(this.store,job,files,{error,cancelled:failure?failure.cancelled:signal.aborted||job.status==='cancelled'});}catch(receiptError){job.reliability&&(job.reliability.quality='failed');job.warnings.push('完成核查回执保存失败：'+receiptError.message);}
       job.nextTrigger=job.status==='waiting_input'?'补充输入后新建任务重试':'用户决定是否重试';job.trace.push({type:'error',label:STATUS_LABELS[job.status],detail:job.error,at:now()});job.finishedAt=now();
     }finally{if(this.store.presentationEnabled&&job.artifacts.length&&job.status!=='cancelled')try{await ensureHtmlReport(this.store,job);}catch(e){job.warnings.push('HTML预览未生成；原始交付保留：'+e.message);}clearTimeout(timer);this.active.delete(job.id);this.store.save();}

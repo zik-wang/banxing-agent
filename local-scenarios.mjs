@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import vm from 'node:vm';
 import {createPatch} from 'diff';
 import {SCENARIOS,LOCAL_SCOPES} from './scenarios.mjs';
@@ -5,7 +6,7 @@ import {readOriginal,safeName,digest} from './workspace-files.mjs';
 import {makeZip,writeArtifact} from './artifacts.mjs';
 import {splitWav} from './wav.mjs';
 import {indexFiles,searchKnowledge} from './knowledge.mjs';
-const array=(v,max=100)=>Array.isArray(v)?v.slice(0,max):[];
+const array=(v,max=100)=>Array.isArray(v)?v.slice(0,scaledLimit(max)):[];
 const str=(v,max=1500)=>typeof v==='string'?v.slice(0,max):'';
 const iso=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d(?::\d\d)?(?:Z|[+-]\d\d:\d\d)$/.test(v)&&Number.isFinite(Date.parse(v));
 const escaped=v=>str(v).replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,');
@@ -61,10 +62,10 @@ export async function localReport(ctx){
 export async function knowledgeTask(ctx){requireText(ctx.files);const indexed=await indexFiles(ctx.store,ctx.harness,ctx.files,ctx.signal);const query=ctx.job.rules||ctx.files[0].content.slice(0,80);const result=await searchKnowledge(ctx.store,ctx.harness,query,ctx.signal);writeArtifact(ctx.store,ctx.job,'知识入库与检索回执.json',Buffer.from(JSON.stringify({indexed,query,...result},null,2)),'receipt');if(!result.items.length){const text='入库已完成，但检索没有回读到片段，请换一个更贴近原文的问题';ctx.job.softNotices=[{text}];ctx.job.warnings.push(text);ctx.job.checks.push({label:'已写入索引；这次检索没有回读到片段',passed:false});ctx.job.status='partial';ctx.job.summary='已新增'+indexed.added+'个知识片段；检索没有回读到内容，回执已交付。';return;}ctx.job.checks.push({label:'已写入持久化索引并通过真实内网检索返回来源',passed:true});ctx.job.status='completed';ctx.job.summary='已新增'+indexed.added+'个知识片段，检索回读'+result.items.length+'条。';}
 export function clipPcmWav(bytes,start,end){const parts=splitWav(bytes,500),full=parts[0];if(!full||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start||end>full.end)throw Error('需要在原WAV范围内的有效起止秒数');const rate=full.bytes.readUInt32LE(28),align=full.bytes.readUInt16LE(32),a=Math.floor(start*rate/align)*align,b=Math.floor(end*rate/align)*align,data=full.bytes.subarray(44+a,44+b);if(!data.length)throw Error('片段为空');const header=Buffer.from(full.bytes.subarray(0,44));header.writeUInt32LE(36+data.length,4);header.writeUInt32LE(data.length,40);return Buffer.concat([header,data]);}
 export async function mediaClips(ctx){
- if(ctx.files.length!==1||ctx.files[0].extension!=='.wav'||!ctx.files[0].recognition?.confirmedAt)throw Error('需要单个已回听核对的16位PCM WAV，最长500秒');const f=ctx.files[0],ranges=ctx.job.options.clipRanges;if(!Array.isArray(ranges)||!ranges.length||ranges.length>12)throw Error('请填写1至12个起止片段，例如0-5,5-10');const original=readOriginal(ctx.store,f),index=[],failed=[];
+ if(ctx.files.length!==1||ctx.files[0].extension!=='.wav'||!ctx.files[0].recognition?.confirmedAt)throw Error('需要单个已回听核对的16位PCM WAV，最长1250秒');const f=ctx.files[0],ranges=ctx.job.options.clipRanges;if(!Array.isArray(ranges)||!ranges.length||ranges.length>scaledLimit(12))throw Error('请填写1至30个起止片段，例如0-5,5-10');const original=readOriginal(ctx.store,f),index=[],failed=[];
  for(const [i,r] of ranges.entries()){try{const audio=clipPcmWav(original,r.start,r.end),name=String(i+1).padStart(2,'0')+'_'+r.start+'-'+r.end+'秒.wav';writeArtifact(ctx.store,ctx.job,name,audio,'audio');index.push({...r,name,sourceId:f.id,sha256:digest(audio)});}catch(error){failed.push(r.start+'-'+r.end+'秒没有导出：'+error.message);}}
  if(!index.length)throw Error(failed[0]||'没有能导出的有效片段');writeArtifact(ctx.store,ctx.job,'时间线与已核对转写.txt',Buffer.from(f.content),'transcript');writeArtifact(ctx.store,ctx.job,'实际片段索引.json',Buffer.from(JSON.stringify({index,failed},null,2)),'evidence');
- ctx.job.softNotices=failed.map(text=>({text}));for(const text of failed)ctx.job.warnings.push(text);ctx.job.status=failed.length?'partial':'completed';ctx.job.summary='实际导出'+index.length+'段WAV'+(failed.length?'，另有'+failed.length+'段范围无效，已在醒目提示标出':'')+'，保留来源秒数与核对稿；范围需回听验证。';ctx.job.warnings.push('仅支持≤500秒WAV，暂不支持视频或两小时媒体；片段范围由用户明确选择，转写时间不是逐字对齐。');ctx.job.checks.push({label:'按PCM采样边界实际裁剪并回读WAV参数',passed:true});
+ ctx.job.softNotices=failed.map(text=>({text}));for(const text of failed)ctx.job.warnings.push(text);ctx.job.status=failed.length?'partial':'completed';ctx.job.summary='实际导出'+index.length+'段WAV'+(failed.length?'，另有'+failed.length+'段范围无效，已在醒目提示标出':'')+'，保留来源秒数与核对稿；范围需回听验证。';ctx.job.warnings.push('仅支持≤1250秒WAV，暂不支持视频或两小时媒体；片段范围由用户明确选择，转写时间不是逐字对齐。');ctx.job.checks.push({label:'按PCM采样边界实际裁剪并回读WAV参数',passed:true});
 }
 export async function codePatch(ctx){
  requireText(ctx.files);if(ctx.files.length>5)throw Error('代码修复每次最多5个源码文件');const raw=await ctx.analyze({kind:'限定上传代码修复副本',instruction:ctx.job.rules+'。只修所述问题，不运行任何代码；每个修改的before必须在原文唯一出现，after为修正代码。',documents:ctx.files.map(f=>({id:f.id,name:f.name,text:f.content})),shape:'{"changes":[{"sourceId":"原件ID","before":"唯一原文片段","after":"替换片段","reason":"修改原因"}],"tests":["待人工运行的测试建议"]}'});const entries=[],changes=[];

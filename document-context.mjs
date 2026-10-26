@@ -1,6 +1,7 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 // Candidate heading inheritance only. Text patterns cannot certify legal or
 // business scope; retain exact source units and expose omitted context.
-export function documentContext(units,targets,{eligibleUnitIds=units.map(u=>u.id),maxCharacters=2800}={}){
+export function documentContext(units,targets,{eligibleUnitIds=units.map(u=>u.id),maxCharacters=scaledLimit(2800)}={}){
  const eligible=new Set(eligibleUnitIds),targetIds=new Set(targets.map(u=>u.id)),wanted=new Map(),headings=[],omitted=[];
  for(const target of targets){
   const index=units.findIndex(u=>u.id===target.id),prior=units.slice(0,index).filter(u=>u.sourceId===target.sourceId&&eligible.has(u.id));

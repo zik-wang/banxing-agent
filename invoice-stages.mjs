@@ -1,6 +1,7 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import fs from 'node:fs';import path from 'node:path';import {randomUUID} from 'node:crypto';
 export const BATCH_VERSION='v7-09-batch-1';
-export const POLICY=Object.freeze({queueMs:30000,parseMs:20000,renderMs:20000,ocrMs:120000,visionMs:45000,llmMs:45000,harnessMs:60000,fileMs:240000,batchMs:600000,deliveryMs:60000,maxRequests:60,maxRetries:2,concurrency:1,maxPages:10,maxBytes:20*1024*1024});
+export const POLICY=Object.freeze(Object.fromEntries(Object.entries({queueMs:30000,parseMs:20000,renderMs:20000,ocrMs:120000,visionMs:45000,llmMs:45000,harnessMs:60000,fileMs:240000,batchMs:600000,deliveryMs:60000,maxRequests:60,maxRetries:2,concurrency:1,maxPages:10,maxBytes:20*1024*1024}).map(([key,value])=>[key,key==='concurrency'?value:scaledLimit(value)])));
 export function atomicJson(file,value){fs.mkdirSync(path.dirname(file),{recursive:true});const tmp=file+'.'+randomUUID()+'.tmp';fs.writeFileSync(tmp,JSON.stringify(value,null,2));fs.renameSync(tmp,file);}
 export function typedError(code,message){return Object.assign(Error(message||code),{code});}
 export function timeoutCode(error,fallback){const code=error?.code||error?.cause?.code;if(['queue_wait_timeout','ocr_timeout','vision_timeout','llm_timeout','harness_timeout','workspace_timeout','frontend_timeout','file_timeout'].includes(code))return code;if(code==='WORKSPACE_TIMEOUT')return 'workspace_timeout';if(code==='HARNESS_TIMEOUT')return 'harness_timeout';if(/超时|timeout|timed out/i.test(String(error?.message)))return fallback||'harness_timeout';return null;}

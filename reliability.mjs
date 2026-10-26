@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
@@ -20,7 +21,7 @@ export function beginVerification(store,job,files,harness){
   const snapshot=scopeContent(job,files),scopeHash=contentHash(snapshot);
   const comparisonMode=job.scenarioId==='21'?'not_applicable':job.options?.comparisonMode||(/更正公告|补充公告/.test(job.rules||'')?'amendment':'unknown');
   job.reliability={runtimeBuild:harness?.runtimeBuild||null,version:RELIABILITY_VERSION,scopeHash,comparisonMode,runId:randomUUID(),modelName:modelName(harness),analysisMode:harness?.modelStatus?.()?.analysisMode||'native-tools',cacheNamespace:job.id,
-    quality:'not_evaluated',execution:'running',snapshot,analysisSessions:0,providerRequests:0,maxProviderRequests:80,modelCalls:[],gates:[],issues:[],deliveryExpectation:null};
+    quality:'not_evaluated',execution:'running',snapshot,analysisSessions:0,providerRequests:0,maxProviderRequests:scaledLimit(80),modelCalls:[],gates:[],issues:[],deliveryExpectation:null};
   atomicJson(path.join(folder(store,job),'scope.json'),{scopeHash,comparisonMode,...snapshot});
   reliabilityEvent(store,job,'scope_frozen',{scopeHash,comparisonMode});
 }

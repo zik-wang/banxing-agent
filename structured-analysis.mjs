@@ -1,3 +1,4 @@
+import {PROCESSING_LIMITS} from './processing-capacity.mjs';
 import {createHash} from 'node:crypto';
 import {SOURCE_JSON_PROTOCOL} from './analysis-protocol.mjs';
 import {inferenceProfile,estimateContext} from './inference-config.mjs';
@@ -7,7 +8,7 @@ export function parseStructuredObject(answer){
  let value=String(answer).trim();if(/^```(?:json)?\s*\n/i.test(value)&&/\n```$/.test(value))value=value.replace(/^```(?:json)?\s*\n/i,'').replace(/\n```$/,'').trim();
  const result=JSON.parse(value);if(!result||Array.isArray(result)||typeof result!=='object')throw Error('结果必须是完整JSON对象');return result;
 }
-export async function analyzeStructured(harness,{connection,kind,instruction,documents,shape,signal,timeoutMs=120000,onEvent=()=>{},audit}){
+export async function analyzeStructured(harness,{connection,kind,instruction,documents,shape,signal,timeoutMs=PROCESSING_LIMITS.modelTimeoutMs,onEvent=()=>{},audit}){
  onEvent('context','程序装配本次授权输入',documents.map(d=>d.name).join('、'));
  try{
  const references=kind==='work-22'?referenceInput(documents):null;
@@ -22,7 +23,7 @@ export async function analyzeStructured(harness,{connection,kind,instruction,doc
  const request='本次明确授权且由程序读取的材料：\n'+JSON.stringify(selectedDocuments),admission=estimateContext(systemPrompt,request,profile.max_output_tokens);
  audit?.configuration?.({profile,inputProjection:profile.input_projection,admission});
  if(admission.inputCharacterUpperBound+admission.outputTokenBudget>profile.context_budget_tokens)throw Object.assign(Error('上下文保守预算不足，需缩小当前批次；未截断正文'),{code:'CONTEXT_ADMISSION'});
- const result=await(harness.runAgent||runDeepSeek)({connection,tools:[],maxRounds:1,maxCalls:0,maxTokens:profile.max_output_tokens,timeoutMs:Math.min(180000,Math.max(1000,timeoutMs)),signal,systemPrompt,
+ const result=await(harness.runAgent||runDeepSeek)({connection,tools:[],maxRounds:1,maxCalls:0,maxTokens:profile.max_output_tokens,timeoutMs:Math.min(PROCESSING_LIMITS.modelTimeoutMs,Math.max(1000,timeoutMs)),signal,systemPrompt,
   request,beforeRequest:()=>audit?.beforeRequest(),onModel:n=>onEvent('model',connection.label+' · 结构化提取第'+n+'轮','DeepSeek Harness，单次JSON模式'),onSession:events=>{const receipt=saveDeepSeekSession(harness.store,'structured-extraction',events);if(receipt){audit?.session(receipt);onEvent('harness','DeepSeek Harness执行记录',receipt.file);}}});
  signal?.throwIfAborted();audit?.response?.({answerCharacters:result.answer.length,finishReasons:result.events?.filter(e=>e.type==='turn/end').map(e=>e.data?.reason)||[]});let parsed;try{parsed=parseStructuredObject(result.answer);}catch(error){error.code='OUTPUT_JSON_INVALID';throw error;}if(references)parsed=restoreReferences(parsed,references.units);audit?.submitted(parsed);return parsed;
  }catch(error){throw Object.assign(Error(connection.apiKey?String(error.message).split(connection.apiKey).join('[已隐藏密钥]'):String(error.message)),{code:error.code||'ANALYSIS_FAILED'});}

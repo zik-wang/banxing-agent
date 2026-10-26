@@ -1,10 +1,11 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 import {atomicJson,canonical,contentHash} from './reliability.mjs';
 export const RECOVERY_VERSION='v7-p2-recovery-3';
 const clone=value=>structuredClone(value),stamp=()=>new Date().toISOString();
-export const RECOVERY_POLICY=Object.freeze({maxAttemptsPerUnitStage:4,maxRequestsPerRound:12,maxAnalysisPerRound:12,maxCumulativeRequests:128,maxCumulativeAnalysis:128,maxRounds:32,maxCumulativeWallMs:21600000,concurrency:2});
+export const RECOVERY_POLICY=Object.freeze({maxAttemptsPerUnitStage:scaledLimit(4),maxRequestsPerRound:scaledLimit(12),maxAnalysisPerRound:scaledLimit(12),maxCumulativeRequests:scaledLimit(128),maxCumulativeAnalysis:scaledLimit(128),maxRounds:scaledLimit(32),maxCumulativeWallMs:scaledLimit(21600000),concurrency:2});
 const safeId=id=>{if(!/^[A-Za-z0-9_-]{1,100}$/.test(id))throw Error('恢复任务编号无效');return id;};
 export function assertLatestResume(store,from,currentTaskId){
  const jobs=store.state.jobs,byId=new Map(jobs.map(j=>[j.id,j]));
@@ -28,7 +29,7 @@ export function readRecovery(store,previous){
 }
 export class RecoverySession{
  constructor({store,job,units,phases=['extract','audit'],identity,previous,adopted={},payload={},policy={},blockedUnitIds=[]}){
-  this.store=store;this.job=job;this.policy={...RECOVERY_POLICY,roundTimeMs:job.scenarioId==='21'?600000:900000,requestWindowMs:180000,deliveryReserveMs:15000,...policy};this.started=Number.isFinite(Date.parse(job.startedAt))?Date.parse(job.startedAt):Date.now();this.currentAnalysis=0;this.currentRequests=0;this.phases=phases;this.identity=identity;this.payload=payload;
+  this.store=store;this.job=job;this.policy={...RECOVERY_POLICY,roundTimeMs:scaledLimit(job.scenarioId==='21'?600000:900000),requestWindowMs:scaledLimit(180000),deliveryReserveMs:scaledLimit(15000),...policy};this.started=Number.isFinite(Date.parse(job.startedAt))?Date.parse(job.startedAt):Date.now();this.currentAnalysis=0;this.currentRequests=0;this.phases=phases;this.identity=identity;this.payload=payload;
   this.root=path.join(store.directory,'task-recovery',safeId(job.id));this.runId=job.reliability?.runId||randomUUID();
   const old=previous?readRecovery(store,previous):null;
   if(old&&(old.identity.scopeHash!==identity.scopeHash||old.identity.unitsHash!==identity.unitsHash))throw Error('恢复检查点原文或任务范围已改变');

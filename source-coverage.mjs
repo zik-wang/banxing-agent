@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import {SOURCE_JSON_PROTOCOL} from './analysis-protocol.mjs';
 import {RecoverySession} from './task-recovery.mjs';
 import {recoveryBatches} from './recovery-batches.mjs';
@@ -40,7 +41,7 @@ export function sourceInventory(files,{unitChars=1400}={}){
   return {version:COVERAGE_VERSION,files:files.map(f=>({id:f.id,name:f.name,sha256:f.sha256,textHash:hash(f.content||''),characters:(f.content||'').length,truncated:!!f.truncated})),units,regions,whitespaceLines,limitations};
 }
 
-export function scheduleSource(inventory,{maxChars=6200,maxUnits=120}={}){
+export function scheduleSource(inventory,{maxChars=scaledLimit(6200),maxUnits=scaledLimit(120)}={}){
   const lookup=new Map(inventory.units.map(u=>[u.id,u])),batches=[];let group=[],size=0;
   const flush=()=>{if(group.length)batches.push(group);group=[];size=0;};
   for(const region of inventory.regions){
@@ -55,7 +56,7 @@ function documentsFor(files,inventory,focus){
   const byId=new Map(inventory.units.map(u=>[u.id,u])),ids=new Set(focus.map(u=>u.id));
   // A complete natural region supplies context for a split clause, within a
   // fixed budget. Any context not supplied is visible in the batch receipt.
-  const regionIds=new Set(focus.map(u=>u.regionId));let extraBudget=2800;
+  const regionIds=new Set(focus.map(u=>u.regionId));let extraBudget=scaledLimit(2800);
   const context=[];
   for(const region of inventory.regions.filter(r=>regionIds.has(r.id)))for(const id of region.unitIds){const u=byId.get(id);if(!ids.has(id)&&u.text.length<=extraBudget){context.push(u);extraBudget-=u.text.length;}}
   // Comparison needs a counterpart. Short files fit in full; for larger files
@@ -123,12 +124,12 @@ export function normalizeDisposition(value){
  if(['unaffected','unchanged','no_change'].includes(value.status))return {...value,status:'uncertain',modelStatus:value.status,normalizationRule:'negative-claim-requires-review-v1',reason:'模型声称无变化，尚未独立核验：'+value.reason};
  return null;
 }
-export async function coveredAnalysis(ctx,{kind,instruction,maxCalls=16,useCache=true}={}){
+export async function coveredAnalysis(ctx,{kind,instruction,maxCalls=scaledLimit(16),useCache=true}={}){
   const inventory=sourceInventory(ctx.files);Object.defineProperty(inventory,'_files',{value:ctx.files});
   const byId=new Map(inventory.units.map(u=>[u.id,u])),byAlias=new Map(inventory.units.map(u=>[u.alias,u]));
   const identity=sourceRecoveryIdentity(ctx,inventory,instruction),resumed=restoreSourceRecovery(ctx,inventory,identity);
   const candidates=resumed?.candidates||[],dispositions=resumed?.dispositions||[],receipts=resumed?.receipts||[],pending=resumed?.pending||[];let calls=0;
-  const session=new RecoverySession({store:ctx.store,job:ctx.job,units:inventory.units,identity,previous:resumed?.previous,adopted:resumed?.adopted,payload:{inventory,candidates,dispositions,receipts,pending},policy:{maxCumulativeRequests:64,maxCumulativeAnalysis:64,maxRounds:10}});
+  const session=new RecoverySession({store:ctx.store,job:ctx.job,units:inventory.units,identity,previous:resumed?.previous,adopted:resumed?.adopted,payload:{inventory,candidates,dispositions,receipts,pending},policy:{maxCumulativeRequests:scaledLimit(64),maxCumulativeAnalysis:scaledLimit(64),maxRounds:scaledLimit(10)}});
   if(session.invalidations.length){const retired=dispositions.filter(d=>session.invalidations.some(i=>i.unitId===d.unitId&&i.phase===d.pass));session.payload.retiredDispositions=retired;for(let i=dispositions.length-1;i>=0;i--)if(retired.includes(dispositions[i]))dispositions.splice(i,1);session.save();}
   const model=ctx.harness?.modelStatus?.()?.modelName||'configured-model';
   const cacheRoot=path.join(ctx.store.directory,'source-coverage-cache');
@@ -150,7 +151,7 @@ export async function coveredAnalysis(ctx,{kind,instruction,maxCalls=16,useCache
     let raw,error,errorCode,cacheOrigin,cached=false;const receiptId='B-'+cryptoReceipt();
     try{
       if(useCache&&fs.existsSync(cache)){const saved=JSON.parse(fs.readFileSync(cache,'utf8'));if(saved.key===key&&saved.rawHash===contentHash(saved.raw)){raw=saved.raw;cacheOrigin=saved.origin;cached=true;}else throw Error('缓存身份或内容哈希无效');}
-      else{if(calls>=maxCalls||!session.begin(pass,[...target])){pending.push({pass,unitIds:[...target],reason:'已达本次调用预算，未静默跳过'});save();return;}calls++;emit('model',pass==='audit'?'从原文独立复核':'分段提取并登记来源',`第${calls}次调用，${focus.length}个目标片段`);raw=await ctx.analyze({kind:callKind,instruction:modelRules,documents,shape:batchShape,timeoutMs:180000,recoveryRequest:()=>session.reserveProvider(),coverage:{version:COVERAGE_VERSION,pass,focusIds:[...target]}});}
+      else{if(calls>=maxCalls||!session.begin(pass,[...target])){pending.push({pass,unitIds:[...target],reason:'已达本次调用预算，未静默跳过'});save();return;}calls++;emit('model',pass==='audit'?'从原文独立复核':'分段提取并登记来源',`第${calls}次调用，${focus.length}个目标片段`);raw=await ctx.analyze({kind:callKind,instruction:modelRules,documents,shape:batchShape,timeoutMs:PROCESSING_LIMITS.modelTimeoutMs,recoveryRequest:()=>session.reserveProvider(),coverage:{version:COVERAGE_VERSION,pass,focusIds:[...target]}});}
       if(!raw||!Array.isArray(raw.items))throw Error('模型没有返回事项数组，不能当作空材料');
     }catch(e){if(ctx.signal?.aborted&&ctx.signal.reason?.code!=='WORKSPACE_TIMEOUT')throw e;errorCode=e.code||(ctx.signal?.reason?.code==='WORKSPACE_TIMEOUT'?'WORKSPACE_TIMEOUT':/超时|timeout/i.test(e.message)?'MODEL_TIMEOUT':'ANALYSIS_FAILED');error=ctx.signal?.reason?.code==='WORKSPACE_TIMEOUT'?'执行超时：时间预算耗尽；在途调用失败，候选和未处置记录保留':String(e.message);pending.push({pass,unitIds:[...target],reason:error});}
     const receipt={id:receiptId,taskId:ctx.job.id,runId:ctx.job.reliability?.runId,pass,repair,focusIds:[...target],allowedIds:[...allowed],cached,raw:raw??null,error:error||null,errorCode:errorCode||null,cacheOrigin:cacheOrigin||null,modelCallId:raw?.__auditId||cacheOrigin?.modelCallId||'not_recorded',promptHash:contentHash({rules:modelRules,shape:batchShape,adapterProtocol:SOURCE_JSON_PROTOCOL}),model,recordedAt:new Date().toISOString()};receipts.push(receipt);
@@ -178,7 +179,7 @@ export async function coveredAnalysis(ctx,{kind,instruction,maxCalls=16,useCache
     if(missing.length&&!repair&&!error)await run(missing,pass,true);
   }
   const pendingInventory=pass=>{const ids=new Set(session.remaining(pass));return {...inventory,units:inventory.units.filter(u=>ids.has(u.id)),regions:inventory.regions.map(r=>({...r,unitIds:r.unitIds.filter(id=>ids.has(id))})).filter(r=>r.unitIds.length)};};
-  const first=recoveryBatches(inventory.units,session,'extract',{maxCharacters:4000,maxUnits:40}),second=recoveryBatches(inventory.units,session,'audit',{maxCharacters:4000,maxUnits:40}).reverse();
+  const first=recoveryBatches(inventory.units,session,'extract',{maxCharacters:scaledLimit(4000),maxUnits:scaledLimit(40)}),second=recoveryBatches(inventory.units,session,'audit',{maxCharacters:scaledLimit(4000),maxUnits:scaledLimit(40)}).reverse();
   // Separate model sessions; at most two in flight. State/file writes are
   // synchronous on this event loop and the next pass waits for both workers.
   for(let at=0;at<first.length;at+=2){const settled=await Promise.allSettled(first.slice(at,at+2).map(batch=>run(batch,'extract')));const failed=settled.find(r=>r.status==='rejected');if(failed)throw failed.reason;}

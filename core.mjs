@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -65,7 +66,7 @@ export class Store {
     this.save();
   }
   saveNote(input) {
-    const note = { id: id(), title: text(input.title, 100), body: text(input.body, 16000), updatedAt: now() };
+    const note = { id: id(), title: text(input.title, 100), body: text(input.body, scaledLimit(16000)), updatedAt: now() };
     if (this.state.notes.length >= 40) throw new Error('Demo 最多保存 40 份笔记');
     this.state.notes.push(note); this.save(); return note;
   }

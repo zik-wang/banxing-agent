@@ -1,3 +1,4 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import {appendStructuredLedger} from './structured-ledger.mjs';
 import ExcelJS from 'exceljs';
 import {comparisonPreflight} from './comparison-preflight.mjs';
@@ -8,7 +9,7 @@ import {makeWorkbook,makeDocx,makeZip,writeArtifact} from './artifacts.mjs';
 import {coveredAnalysis,coverageMarkdown,transitionMarkdown,writeCoverageArtifacts} from './source-coverage.mjs';
 import {renderReliabilityItems,expectDelivery} from './reliability.mjs';
 
-const bounded=(value,max=200)=>Array.isArray(value)?value.slice(0,max):[];
+const bounded=(value,max=200)=>Array.isArray(value)?value.slice(0,scaledLimit(max)):[];
 const str=(value,max=5000)=>typeof value==='string'?value.slice(0,max):'';
 const sourceOf=(files,id)=>files.find(f=>f.id===id);
 const cited=(file,quote)=>!!file&&typeof quote==='string'&&quote.trim().length>=3&&file.content.includes(quote);

@@ -1,14 +1,15 @@
+import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import {SCENARIOS} from './scenarios.mjs';
 import {readOriginal} from './workspace-files.mjs';
 
 export function selectedChatFiles(store,fileIds){
- if(!Array.isArray(fileIds)||!fileIds.length||fileIds.length>20||new Set(fileIds).size!==fileIds.length||fileIds.some(id=>typeof id!=='string'))throw Error('请选择1至20个不同附件');
+ if(!Array.isArray(fileIds)||!fileIds.length||fileIds.length>PROCESSING_LIMITS.attachmentCount||new Set(fileIds).size!==fileIds.length||fileIds.some(id=>typeof id!=='string'))throw Error('请选择1至50个不同附件');
  return fileIds.map(id=>{const file=store.state.workspaceFiles?.find(f=>f.id===id);if(!file)throw Error('聊天附件已不存在，请重新上传');readOriginal(store,file);return file;});
 }
 export function intentDocuments(files){
  // Unconfirmed recognition drafts never enter the language model.
- return files.map(f=>{const readable=f.parseStatus==='ready'&&(!f.recognition||f.recognition.confirmedAt),content=readable?f.content||'':'';
-  return {fileId:f.id,name:f.name,extension:f.extension,parseStatus:f.parseStatus,needsReview:!readable,characters:content.length,truncated:!!f.truncated||content.length>2400,content:content.slice(0,2400)};
+ return files.map(f=>{const readable=f.parseStatus==='ready'&&(!f.recognition||f.recognition.confirmedAt),content=readable?f.content||'':'',preview=f.extension==='.xlsx'?2400:scaledLimit(2400);
+  return {fileId:f.id,name:f.name,extension:f.extension,parseStatus:f.parseStatus,needsReview:!readable,characters:content.length,truncated:!!f.truncated||content.length>preview,content:content.slice(0,preview)};
  });
 }
 const short=(value,max)=>typeof value==='string'?value.trim().slice(0,max):'';
@@ -23,7 +24,7 @@ export function validateIntent(result,documents){
  });
  const needsClarification=result.needsClarification===true||!candidates.length||candidates[0].confidence==='low',unread=documents.length>0&&documents.every(d=>d.needsReview);
  const question=unread&&candidates.length?'直接告诉我要转写、整理还是计算，我会在这段对话里交给对应处理。':needsClarification?(short(result.question,350)||'你希望如何处理这些附件，最终得到什么结果？'):short(result.question,350);
- return {summary:unread?'附件正文还没识别。你说要做什么，我会在这段对话里交给内网识别或对应任务。':short(result.summary,700)||'已根据所选附件初步判断，请确认希望完成的任务。',candidates,needsClarification,question,limitations:documents.filter(d=>d.needsReview||d.truncated).map(d=>({fileId:d.fileId,name:d.name,message:d.needsReview?'未读取正文：由对话判断后交给内网识别，当前仅参考文件名、类型与用户描述。':'正文仅使用前2400字；判断可能不完整。'}))};
+ return {summary:unread?'附件正文还没识别。你说要做什么，我会在这段对话里交给内网识别或对应任务。':short(result.summary,700)||'已根据所选附件初步判断，请确认希望完成的任务。',candidates,needsClarification,question,limitations:documents.filter(d=>d.needsReview||d.truncated).map(d=>({fileId:d.fileId,name:d.name,message:d.needsReview?'未读取正文：由对话判断后交给内网识别，当前仅参考文件名、类型与用户描述。':'正文仅使用所示预览范围；判断可能不完整。'}))};
 }
 export async function classifyIntent(harness,run,files,signal,onEvent){
  const documents=intentDocuments(files),analyze=harness.intentAnalyze||((args)=>import('./workflow-ai.mjs').then(m=>m.analyzeTask(harness,args)));
@@ -35,5 +36,5 @@ export function chatHandoff(store,{runId,scenarioId}){
  if(!run||!scene)throw Error('找不到这次场景分析，请重新发送附件');
  const files=selectedChatFiles(store,run.sourceFiles.map(f=>f.id));
  if(files.some(f=>run.sourceFiles.find(s=>s.id===f.id)?.sha256!==f.sha256))throw Error('附件版本发生变化，请重新分析');
- return {scenario:scene,fileIds:files.map(f=>f.id),files:files.map(f=>({id:f.id,name:f.name})),rules:(run.intentRequest||run.request).slice(-3000),needsReview:files.some(f=>f.parseStatus!=='ready'||f.recognition&&!f.recognition.confirmedAt)};
+ return {scenario:scene,fileIds:files.map(f=>f.id),files:files.map(f=>({id:f.id,name:f.name})),rules:(run.intentRequest||run.request).slice(-7500),needsReview:files.some(f=>f.parseStatus!=='ready'||f.recognition&&!f.recognition.confirmedAt)};
 }
