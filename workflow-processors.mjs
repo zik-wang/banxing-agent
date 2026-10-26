@@ -1,3 +1,4 @@
+import {appendStructuredLedger} from './structured-ledger.mjs';
 import ExcelJS from 'exceljs';
 import {comparisonPreflight} from './comparison-preflight.mjs';
 import {guardInterpretationFields} from './field-relations.mjs';
@@ -156,7 +157,7 @@ export async function reimburse(ctx){
 export function snapshotCells(workbook,limits){return workbook.worksheets.map(sheet=>({name:sheet.name,merges:[...(sheet.model.merges||[])].sort(),cells:(()=>{const out=[];sheet.eachRow({includeEmpty:true},(row,n)=>{if(limits&&n>(limits[sheet.name]||0))return;row.eachCell({includeEmpty:true},cell=>out.push({address:cell.address,value:cell.value,style:cell.style}));});return out;})()}));}
 export async function ledger(ctx){
   const baseline=ctx.files.find(f=>f.id===ctx.job.options.templateId);if(!baseline||baseline.extension!=='.xlsx')throw new Error('请选择现有XLSX台账作为模板/历史版本');
-  const sources=ctx.files.filter(f=>f.id!==baseline.id);if(!sources.length)throw new Error('还需要选择要追加的审查文件');requireText(sources);
+  const sources=ctx.files.filter(f=>f.id!==baseline.id);if(!sources.length)throw new Error('还需要选择要追加的审查文件');if(sources.every(f=>f.extension==='.xlsx'))return appendStructuredLedger(ctx,baseline,sources);requireText(sources);
   const book=new ExcelJS.Workbook();await book.xlsx.load(readOriginal(ctx.store,baseline));const sheet=ctx.job.options.sheetName?book.getWorksheet(ctx.job.options.sheetName):book.worksheets[0];if(!sheet)throw new Error('找不到指定工作表');
   const headerRow=Number(ctx.job.options.headerRow||1);if(!Number.isInteger(headerRow)||headerRow<1||headerRow>50)throw new Error('表头行应为1至50');
   const headers=sheet.getRow(headerRow).values.slice(1).map(v=>String(v??'').trim());if(!headers.length||headers.some(h=>!h)||new Set(headers).size!==headers.length)throw new Error('表头必须连续、非空且不重复');if(sheet.rowCount>10000||headers.length>50)throw new Error('台账超出演示范围（10000行/50列）');

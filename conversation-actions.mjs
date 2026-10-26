@@ -1,3 +1,5 @@
+import {resolveLedgerBindings} from './ledger-bindings.mjs';
+import {guardExportFields} from './source-field-guard.mjs';
 import {exportFormats,deliveryArtifacts,revisionRequest} from './delivery-settlement.mjs';
 import {resolvedRunSources,taskAttachmentResolution} from './attachment-context.mjs';
 import {buildTaskIntake,intakeTool} from './task-intake.mjs';
@@ -43,7 +45,8 @@ export class ConversationActions{
   const requested=args.scenario_id==='20'?[]:args.file_ids??sources.map(f=>f.id);
   if(!Array.isArray(requested)||requested.some(id=>!allowed.has(id)))throw Error('只能使用当前对话明确提交的这一批附件');
   const ids=[...requested];
-  const options={selfName:args.self_name||this.store.state.profile.name,templateId:args.template_file_id||'',sheetName:args.sheet_name||'',dedupeColumns:args.dedupe_columns||'',clipRanges:args.clip_ranges||[],previousJobId:args.previous_job_id||'',outputFormats:deliveryFormats(args.output_formats,run.request)};
+  let options={selfName:args.self_name||this.store.state.profile.name,templateId:args.template_file_id||'',sheetName:args.sheet_name||'',dedupeColumns:args.dedupe_columns||'',clipRanges:args.clip_ranges||[],previousJobId:args.previous_job_id||'',outputFormats:deliveryFormats(args.output_formats,run.request)};
+  if(args.scenario_id==='10')options=resolveLedgerBindings(ids.map(id=>this.store.state.workspaceFiles.find(f=>f.id===id)).filter(Boolean),run.request,options);
   if(options.previousJobId)this.job(run,options.previousJobId);
   if(args.scenario_id==='10'&&!options.templateId){
     const candidates=ids.map(id=>this.store.state.workspaceFiles.find(f=>f.id===id)).filter(f=>f?.extension==='.xlsx');
@@ -62,6 +65,7 @@ export class ConversationActions{
  receipt(job){return {job_id:job.id,status:job.status,title:job.title,waitForNextTurn:true,message:'任务已排队。本轮回复结束之后后台才会执行，现在请直接告知已排队并结束回复；不要在本轮轮询结果。进度和文件将回到聊天。'};}
  async exportFile(run,args){
   if(run.status!=='running'||!this.harness.active.has(run.id))throw Error('本次请求已停止');
+  if(['append_ledger','patch_code'].includes(run.requiredWorkflow))throw Error('本轮必须使用run_workflow的'+run.requiredWorkflow+'处理实际原件并交付副本；不能用export_file重建原始数据。');
   if(!args.source_job_id&&!args.use_last_answer&&Object.values(ACTION_PHRASES).some(p=>run.request.startsWith(p))&&!/不要执行|先别|仅建议|只建议|先不/.test(run.request))throw Error('用户已明确交办业务任务，请调用run_workflow并在output_formats指定下载格式；不能用直接撰稿绕过来源校验');
   const previous=this.jobs(run).find(j=>j.chatRunId===run.id);
   if(previous)return {status:previous.status,message:'本轮已创建文件任务，请勿重复导出；后台处理任务请在output_formats中指定格式。',job_id:previous.id};
@@ -72,8 +76,11 @@ export class ConversationActions{
   else input={title:args.title,content:args.content||'',sheets:args.sheets||[]};
   if(args.source_job_id&&run.attachmentResolution){const scope=this.job(run,args.source_job_id).dataScope||[];if(scope.some(f=>!run.resolvedFileIds.includes(f.id)))throw Error('已有结果的来源不属于本轮已绑定附件，请先明确选择材料');}
   if(args.title)input.title=args.title;
+  const fieldCheck=guardExportFields(input,conversationSources(this.store,run).map(s=>this.store.state.workspaceFiles.find(f=>f.id===s.id)).filter(Boolean));input=fieldCheck.input;
   const job={id:id(),scenarioId:'export',title:input.title||'交付文件',goal:run.request,conversationId:run.conversationId,chatRunId:run.id,status:'running',createdAt:now(),startedAt:now(),trace:[],artifacts:[],checks:[],warnings:[],actions:[],evidence:[],summary:'',error:null,exportSource:input,sourceJobId:args.source_job_id||null};
   job.dataScope=args.source_job_id?this.job(run,args.source_job_id).dataScope||[]:conversationSources(this.store,run).map(f=>({id:f.id,name:f.name,sha256:f.sha256}));job.resolvedFileIds=job.dataScope.map(f=>f.id);job.attachmentResolution=taskAttachmentResolution(run,job.dataScope,'export_matching_result');job.rules=run.request;job.options={outputFormats:formats};job.authorization='只在本次交付目录创建新文件，不覆盖原件，不写外部系统。';job.nextTrigger='本轮文件导出结束，不自动周期执行';
+  if(run.materialIssues?.length)job.warnings.push('部分来源识别受限，未完成双重核验；仅按实际可读材料交付。');
+  if(fieldCheck.issues.length){job.warnings.push('部分字段缺少对应原文依据，已留空/待核，不采用其他字段的日期。');job.fieldSourceIssues=fieldCheck.issues;}
   if(revisionRequest(run.request)&&args.source_job_id)job.warnings.push('本次仅重导出旧结果，不能证明新增字段或修改要求已经落实；需要继续读取原件并修订内容');
   this.store.state.jobs.unshift(job);run.localJobIds=[...(run.localJobIds||[]),job.id];this.store.save();
   const controller=new AbortController();this.workspace.active.set(job.id,controller);

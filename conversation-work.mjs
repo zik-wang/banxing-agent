@@ -1,3 +1,4 @@
+import {attachmentExclusionRequest} from './attachment-selection.mjs';
 import {recipientEvidence} from './office-source-evidence.mjs';
 import {applyOfficeEdits,parseOfficeRequest,describeWorkbook,AGGREGATE_METRICS} from './office-edits.mjs';
 import {advanceRevision,selectRevision,eligibleRevision} from './work-revisions.mjs';
@@ -46,7 +47,7 @@ export function planOffice(store,cid,request,options={}){
   if(failed.scenarioId==='export'&&failed.exportSource)return {operation:'retry',sourceJob:failed,retryOfJobId:failed.id,formats:failed.options.outputFormats,requirement:failed.goal};
   return {operation:'blocked_retry',sourceJob:failed,message:'最近失败的是“'+failed.title+'”。它需要原业务恢复入口，请在该任务卡重试；没有改为重新分析最初附件。'};
  }
- if((/不要(?:使用|用)?|不用|不再用|排除/.test(request))&&/文件|\.pdf|\.md|\.xlsx/i.test(request))return {operation:'selection'};
+ if(attachmentExclusionRequest(request))return {operation:'selection'};
  const parsed=parseOfficeRequest(request);
  if(parsed.complete&&(latest||options.fileIds?.length||namedSources.length)){
   const first=parsed.steps[0]?.type,operation=parsed.steps.length===0?'convert':parsed.steps.length===1?({recipient:'modify',legacy_sum:'modify',legacy_group:'group',legacy_dedupe:'dedupe',report:'report'}[first]||'edit'):'edit';

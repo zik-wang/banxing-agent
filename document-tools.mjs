@@ -1,3 +1,4 @@
+import {parallelListWarnings} from './source-field-guard.mjs';
 import JSZip from 'jszip';
 import {now} from './core.mjs';
 import {readOriginal} from './workspace-files.mjs';
@@ -26,7 +27,7 @@ export async function ocrForChat(workspace,fileId,signal=AbortSignal.timeout(180
  file.ocrSupplement={originalSha256:file.sha256,text,model:result.model||'内网 MinerU',at:now()};workspace.store.save();
  return ocrReceipt(file,false);
 }
-function ocrReceipt(file,cached){return {fileId:file.id,name:file.name,worker:'intranet-ocr',model:file.ocrSupplement.model,reviewed:false,cached,text:file.ocrSupplement.text,preview:clip(file.ocrSupplement.text),textLayer:file.parseStatus==='ready'&&file.content?file.content.slice(0,8000):null,note:'这是OCR的独立第二遍，不是最终结论。号码、日期、金额、抬头要和多模态第一遍逐项对照。相同才写成确定值并标明两边一致；不同就并列两份原文，标待核对。不要折中，不要默认只信OCR。'};}
+function ocrReceipt(file,cached){return {fileId:file.id,name:file.name,worker:'intranet-ocr',model:file.ocrSupplement.model,reviewed:false,cached,relationWarnings:parallelListWarnings(file.ocrSupplement.text),text:file.ocrSupplement.text,preview:clip(file.ocrSupplement.text),textLayer:file.parseStatus==='ready'&&file.content?file.content.slice(0,8000):null,note:'这是OCR的独立第二遍，不是最终结论。号码、日期、金额、抬头要和多模态第一遍逐项对照。相同才写成确定值并标明两边一致；不同就并列两份原文，标待核对。不要折中，不要默认只信OCR。'};}
 export async function lookForChat(workspace,fileId,question,signal=AbortSignal.timeout(180000),log=()=>{}){
  const file=workspace.store.state.workspaceFiles.find(f=>f.id===fileId);if(!file)throw new Error('文件不存在');
  if(!VISUAL_EXTENSIONS.includes(file.extension))throw new Error('多模态阅读只接受PDF、PNG、JPG');
