@@ -10,7 +10,44 @@ body.grok-ui.product-ui #page-chat .chat-message.user .message-body{display:bloc
 .product-ui .topbar{background:#f4f6f3;color:#23352c;border-bottom:1px solid #e1e7df}.product-ui .bot-header{background:#e9efe8;color:#294b34;border-color:#d8e3d5}.product-ui .topbar-actions button{color:#526b57}.product-ui .topbar-actions b{background:#e3eae0;color:#36573e}.product-ui #mobile-menu{color:#355640}.product-ui .settings-bar h2,.product-ui .wb-panel-heading h2,.product-ui .section-heading h1{color:#23352c}.product-ui .wb-label,.product-ui .settings-main label{color:#465f4b}.product-ui .settings-main input,.product-ui .settings-main textarea,.product-ui .settings-main select{background:#fff;color:#23352c;border-color:#cbd8c6}
 
 #product-report header{background:#f8faf6;color:#23352c}#product-report header h2{color:#23352c}#product-report header a{color:#35674a}.product-ui .file-meta{font-size:11px;color:#5d7263}
-.product-ui .retry-notice{padding:14px;background:#fcf3e8;border:1px solid #e7ceb1;border-radius:12px;font-size:13px}.product-ui .retry-notice button{background:#fff;border:1px solid #cfb18c;color:#795428;padding:8px 12px;border-radius:8px}
+/* Failure feedback keeps the cause and recovery actions together. */
+body.grok-ui.product-ui{--feedback-error:#89462f;--feedback-surface:#fffaf5;--feedback-line:#eadbcc;--feedback-copy:#45443d;--feedback-muted:#626b63;--feedback-action:#315842}
+.product-ui .run-failure{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 24px;align-items:start;padding:20px;border:1px solid var(--feedback-line);border-radius:12px;background:var(--feedback-surface);margin-bottom:10px}
+.product-ui .run-failure-main{display:flex;align-items:flex-start;gap:11px;min-width:0}
+.product-ui .run-failure-icon{flex:none;width:21px;height:21px;margin-top:2px;color:var(--feedback-error)}
+.product-ui .run-failure-copy{min-width:0;overflow-wrap:anywhere}
+.product-ui .run-failure-title{color:var(--feedback-error);font-size:15px;font-weight:600;line-height:1.6}
+.product-ui .run-failure-reason{color:var(--feedback-copy);font-size:14px;line-height:1.7;margin:5px 0 0}
+.product-ui .run-failure-hint{color:var(--feedback-muted);font-size:12px;line-height:1.7;margin:8px 0 0}
+.product-ui .run-failure-actions{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.product-ui .run-failure-actions button{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:10px 14px;margin:0;border:1px solid transparent;border-radius:8px;line-height:1.4;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background-color .15s,color .15s}
+.product-ui .run-failure-actions .failure-primary{background:var(--feedback-action);border-color:var(--feedback-action);color:#fff}
+.product-ui .run-failure-actions .failure-primary:hover:not(:disabled){background:#254633;border-color:#254633}
+.product-ui .run-failure-actions .failure-secondary{background:transparent;color:#425e4a}
+.product-ui .run-failure-actions .failure-secondary:hover:not(:disabled){background:#edf2eb}
+.product-ui .run-failure-details{margin-top:3px;color:var(--feedback-muted);font-size:12px;line-height:1.6}
+.product-ui .run-failure-details>summary{width:fit-content;min-height:36px;align-content:center;padding:5px 0;cursor:pointer}
+.product-ui .run-failure-details pre{max-width:100%;max-height:160px;overflow:auto;margin:0 0 4px;padding:9px 11px;background:#f4ede5;border:1px solid var(--feedback-line);border-radius:7px;color:#655143;font:12px/1.7 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+body.grok-ui.product-ui #page-chat .product-stage[data-stage="failed"]{color:var(--feedback-error)}
+body.grok-ui.product-ui #page-chat .product-stage[data-stage="warning"]{color:#855b22}
+body.grok-ui.product-ui #page-chat .product-stage[data-stage="cancelled"]{color:#657168}
+.product-ui .product-stage:is([data-stage="failed"],[data-stage="warning"],[data-stage="cancelled"]) .stage-dot{background:currentColor}
+body.grok-ui.product-ui #page-chat .chat-message.assistant:has(.run-failure)>.message-body:empty{display:none}
+body.grok-ui.product-ui #page-chat .run-source-list{margin:0;border:0;color:var(--product-muted);font-size:12px}
+body.grok-ui.product-ui #page-chat .run-source-list>summary{display:flex;align-items:center;gap:10px;min-height:44px;padding:10px 4px;list-style:none;cursor:pointer;color:#516257}
+body.grok-ui.product-ui #page-chat .run-source-list>summary::-webkit-details-marker{display:none}
+body.grok-ui.product-ui #page-chat .run-source-list>summary::before{content:"";width:6px;height:6px;flex:none;margin:0 2px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg)}
+body.grok-ui.product-ui #page-chat .run-source-list[open]>summary::before{transform:rotate(45deg)}
+.product-ui .run-source-count{color:var(--product-muted);font-size:12px;font-weight:400}
+body.grok-ui.product-ui #page-chat .run-source-list .chat-source-files{display:flex;flex-direction:column;max-width:none;margin:0 0 8px;gap:0}
+body.grok-ui.product-ui #page-chat .run-source-list .chat-source-files .source-file-card{padding:9px 10px;gap:10px;border:0;border-radius:8px;background:#f7f9f5}
+body.grok-ui.product-ui #page-chat .run-source-list .chat-source-files .source-file-card+.source-file-card{margin-top:4px}
+body.grok-ui.product-ui #page-chat .run-source-list .chat-source-files .source-file-icon{flex:0 0 28px;width:28px;height:32px;background:transparent;color:#64776a}
+body.grok-ui.product-ui #page-chat .run-source-list .source-file-icon svg{width:18px;height:21px}
+body.grok-ui.product-ui #page-chat .run-source-list .source-file-kind{margin-top:1px;font-size:11px}
+body.grok-ui.product-ui #page-chat .chat-message.assistant:has(.run-failure)>.trace{margin-top:8px;border:0;border-top:1px solid var(--product-line);border-radius:0;background:transparent}
+body.grok-ui.product-ui #page-chat .chat-message.assistant:has(.run-failure)>.trace>summary{min-height:44px;padding:10px 4px;color:#596a5e;font-size:12px;font-weight:400}
+@media(max-width:600px){.product-ui .run-failure{grid-template-columns:minmax(0,1fr);gap:14px;padding:16px}.product-ui .run-failure-actions{flex-direction:row;flex-wrap:wrap;gap:8px;padding-left:32px}.product-ui .run-failure-actions button{flex:1;padding:10px 12px;white-space:nowrap;min-width:90px}.product-ui .run-failure-details>summary{min-height:44px}.product-ui .run-failure-reason{font-size:14px}}
 
 @media(hover:none){.product-ui [data-conversation-more]{min-width:44px;min-height:44px}}
 
