@@ -151,7 +151,7 @@ export async function sourceJobContent(store,job){
 }
 export async function attachDeliverables(store,harness,job,input,formats,signal){
  const spec=prepareDelivery(input),result=await generateDeliverables(harness,spec,formats,signal);signal?.throwIfAborted();
- for(const {format,bytes,check}of result.results){writeArtifact(store,job,spec.title+'.'+format,bytes,'document');job.checks.push({label:format.toUpperCase()+'文件生成并回读校验通过',passed:true,...check});}
+ for(const {format,bytes,check}of result.results){writeArtifact(store,job,spec.title.replace(/(?:\.(?:xlsx|docx|pdf))+$/i,'')+'.'+format,bytes,'document');job.checks.push({label:format.toUpperCase()+'文件生成并回读校验通过',passed:true,...check});}
  for(const failure of result.failures){job.warnings.push(failure.format.toUpperCase()+'未交付：'+failure.message);job.checks.push({label:failure.format.toUpperCase()+'文件交付',passed:false,error:failure.message});}
  return result;
 }

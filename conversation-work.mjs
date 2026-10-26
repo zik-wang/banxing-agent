@@ -1,4 +1,5 @@
-import {applyOfficeEdits,parseOfficeRequest,describeWorkbook} from './office-edits.mjs';
+import {recipientEvidence} from './office-source-evidence.mjs';
+import {applyOfficeEdits,parseOfficeRequest,describeWorkbook,AGGREGATE_METRICS} from './office-edits.mjs';
 import {advanceRevision,selectRevision,eligibleRevision} from './work-revisions.mjs';
 import ExcelJS from 'exceljs';
 import {id,now} from './core.mjs';
@@ -9,7 +10,7 @@ import {sourceJobContent,requestedFormats} from './file-delivery.mjs';
 import {settleDelivery,deliveryArtifacts} from './delivery-settlement.mjs';
 
 const time=x=>Date.parse(x?.finishedAt||x?.createdAt||x?.startedAt||'')||0;
-const retrieval=s=>/文件呢|文件在哪|下载在哪|下载链接|下载.*哪里|刚才生成的.*呢/.test(s);
+const retrieval=s=>/文件呢|文件在哪|下载在哪|下载链接|下载.*哪里|刚才生成的.*呢|(?:之前|刚才|已有|原来)的?\s*(?:Excel|xlsx|Word|docx|PDF|文件).*(?:给我|下载|发我)/i.test(s);
 const retry=s=>/^\s*(?:请)?(?:再试一次|重试|重新试|再试试)[。！!？?\s]*$/.test(s);
 const formats=s=>requestedFormats(s).length?requestedFormats(s):/转\s*(?:word|docx)/i.test(s)?['docx']:/转\s*pdf/i.test(s)?['pdf']:[];
 const jobs=(store,cid)=>store.state.jobs.filter(j=>j.conversationId===cid).sort((a,b)=>time(b)-time(a));
@@ -21,14 +22,15 @@ export function workContext(store,cid){
 }
 export function planOffice(store,cid,request,options={}){
  if(!store.productExperience)return null;
+ const positional=/第[一二12](?:个|份)|最新(?:的)?文件/.test(request);
  const ctx=workContext(store,cid),namedSources=(store.state.conversationAttachments||[]).filter(f=>f.conversationId===cid&&f.name&&request.includes(f.name));
- let latest=options.fileIds?.length||namedSources.length?undefined:jobs(store,cid).find(j=>j.id===ctx.latestTaskId);
+ let latest=positional||options.fileIds?.length||namedSources.length?undefined:jobs(store,cid).find(j=>j.id===ctx.latestTaskId);
  const namedOutputs=jobs(store,cid).filter(j=>j.artifacts?.some(a=>request.includes(a.name)));
  if(!options.fileIds?.length&&!namedSources.length&&namedOutputs.length===1)latest=namedOutputs[0];
  if(namedOutputs.length>1)return {operation:'blocked_retry',message:'多个版本使用相同文件名，请在当前成果中选择要修改的版本。'};
  if(latest&&/^(?:撤销上一步|恢复上一版|回到上一版)[。\s]*$/.test(request)){const parent=jobs(store,cid).find(j=>j.id===latest.parentJobId);return parent?{operation:'restore',sourceJob:parent}:{operation:'blocked_retry',message:'当前成果没有可恢复的上一版。'};}
  const conversation=store.state.conversations.find(c=>c.id===cid);if(/下周.*下午.*会/.test(request)||conversation.calendarDraft&&/午休|一小时|半小时|就这个|安排吧/.test(request))return {operation:'schedule'};
- if(retrieval(request))return {operation:'delivery',sourceJob:latest};
+ if(retrieval(request)){const wanted=formats(request);const source=wanted.length?jobs(store,cid).find(j=>eligibleRevision(store,cid,j)&&j.dataScope?.every(f=>ctx.activeSourceFileIds.includes(f.id))&&wanted.every(ext=>deliveryArtifacts(store,j).artifacts.some(a=>a.name.toLowerCase().endsWith('.'+ext)))):latest;return {operation:'delivery',sourceJob:source};}
  const lastOperation=store.state.runs.filter(r=>r.conversationId===cid).at(-1);if(/^继续[。\s]*$/.test(request)&&lastOperation?.operation==='selection'&&latest)return {operation:'convert',sourceJob:latest,formats:latest.options?.outputFormats?.length?latest.options.outputFormats:['docx']};
  if(retry(request)||options.retryOperationRunId){
   const runs=store.state.runs.filter(r=>r.conversationId===cid),failedRun=runs.filter(r=>r.status==='failed'&&r.officeOperation&&(!options.retryOperationRunId||r.id===options.retryOperationRunId)&&!runs.some(n=>n.retryOfRunId===r.id&&n.status==='done')).sort((a,b)=>time(b)-time(a))[0];
@@ -42,7 +44,7 @@ export function planOffice(store,cid,request,options={}){
   if(failed.scenarioId==='export'&&failed.exportSource)return {operation:'retry',sourceJob:failed,retryOfJobId:failed.id,formats:failed.options.outputFormats,requirement:failed.goal};
   return {operation:'blocked_retry',sourceJob:failed,message:'最近失败的是“'+failed.title+'”。它需要原业务恢复入口，请在该任务卡重试；没有改为重新分析最初附件。'};
  }
- if((/不要用|不用|不再用|排除/.test(request))&&/文件|\.pdf|\.md|\.xlsx/i.test(request))return {operation:'selection'};
+ if((/不要(?:使用|用)?|不用|不再用|排除/.test(request))&&/文件|\.pdf|\.md|\.xlsx/i.test(request))return {operation:'selection'};
  const parsed=parseOfficeRequest(request);
  if(parsed.complete&&(latest||options.fileIds?.length||namedSources.length)){
   const first=parsed.steps[0]?.type,operation=parsed.steps.length===0?'convert':parsed.steps.length===1?({recipient:'modify',legacy_sum:'modify',legacy_group:'group',legacy_dedupe:'dedupe',report:'report'}[first]||'edit'):'edit';
@@ -73,6 +75,11 @@ export function officeRequest(store,run){
 
 async function workbook(bytes){const b=new ExcelJS.Workbook();await b.xlsx.load(bytes);return b.worksheets.map(s=>{if(s.columnCount>30||s.rowCount>3001)throw Error('表格超过当前转换范围，已保留原件；需明确拆分范围');const rows=[];for(let r=1;r<=s.rowCount;r++){const row=[];for(let c=1;c<=s.columnCount;c++){const cell=s.getCell(r,c);if(cell.formula&&cell.result===undefined)throw Error('原表公式没有缓存结果，不能宣称计算或数据无损');const v=cell.result??cell.value;row.push(v===undefined?null:v instanceof Date?v.toISOString():v!==null&&typeof v==='object'?cell.text:v);}rows.push(row);}return {name:s.name,headers:(rows.shift()||[]).map((v,i)=>String(v??'列'+(i+1))),rows};});}
 async function inputFor(h,run,plan,files){
+ const input=await rawInputFor(h,run,plan,files);
+ const records=recipientEvidence(h.store,run.conversationId,plan.sourceJob?.dataScope||files);
+ input.recipientRecords=[...(input.recipientRecords||[]).filter(r=>!records.some(n=>n.fileName===r.fileName)),...records];return input;
+}
+async function rawInputFor(h,run,plan,files){
  if(plan.sourceJob?.officeSnapshot){const j=plan.sourceJob;for(const f of j.dataScope||[])assertConversationAttachment(h.store,run.conversationId,f.id);if(j.conversationId!==run.conversationId||deliveryArtifacts(h.store,j).issues.length)throw Error('当前成果不可访问或已变化');return structuredClone(j.officeSnapshot);}
  if(plan.sourceJob){const j=plan.sourceJob;if(j.conversationId!==run.conversationId)throw Error('禁止跨对话使用成果');for(const f of j.dataScope||[])assertConversationAttachment(h.store,run.conversationId,f.id);const verified=deliveryArtifacts(h.store,j);if(plan.operation!=='retry'&&verified.issues.length)throw Error('上一成果文件已缺失或变化，请明确恢复；未擅自替换输入');if(!j.exportSource&&plan.operation!=='retry'){
  const excel=j.artifacts.filter(a=>a.name.endsWith('.xlsx'));if(excel.length){const sheets=[];for(const a of excel)sheets.push(...await workbook(resolveArtifact(h.store,j.id,a.id).bytes));let recipientRecords=[];const ledgerArtifact=j.artifacts.find(a=>a.name==='票据证据与字段账本.json');if(ledgerArtifact){const ledger=JSON.parse(resolveArtifact(h.store,j.id,ledgerArtifact.id).bytes.toString('utf8'));recipientRecords=(ledger.documents||[]).filter(d=>d.fields?.buyer?.businessRoles?.includes('invoice_recipient')&&d.fields.buyer.value&&d.fields.buyer.choices?.length===1).map(d=>({fileName:d.fileName,value:d.fields.buyer.value,sourceId:d.fields.buyer.relationIds?.join(',')||'',status:d.fields.buyer.status}));}return {recipientRecords,title:j.title,content:'依据已交付表格继续处理。原表的全部工作表、待核状态和证据列保留。\n'+(j.summary||''),sheets};}
@@ -131,11 +138,20 @@ export async function executeOfficeDelivery(h,run,plan,files=[]){
  run.answer=result.answer+'\n'+run.requirementResults.map(x=>x.detail).join('；');run.status=result.delivery.state==='failed'?'failed':'done';if(run.status==='failed')run.error=job.error||'请求格式未交付';else advanceRevision(store,run,job,plan.sourceJob);recordWork(store,run,plan);store.save();return {...receipt,requirements:run.requirementResults};
 }
 
+export function officeEditStepSchema(Type){
+ const str=Type.String(),column=Type.String({description:'要统计的列名或字段ID，来自 describe_current_work；例如 金额 或 c3'});
+ const aggregate={type:Type.Literal('aggregate'),sheet:Type.Optional(str),groupBy:Type.Optional(Type.Array(str,{description:'分组列名或字段ID；币种由程序自动隔离'})),outputName:Type.Optional(str)};
+ return {oneOf:[
+  Type.Object({...aggregate,column,metric:Type.String({enum:AGGREGATE_METRICS.filter(m=>m!=='count'),description:'统计运算：sum求和、mean平均、min最小、max最大。列名填column，不使用operator。'})},{additionalProperties:false}),
+  Type.Object({...aggregate,metric:Type.Literal('count',{description:'统计记录数，无需数值列'}),column:Type.Optional(column)},{additionalProperties:false}),
+  Type.Object({type:Type.String({enum:['add_column','set_cell','rename_column','sort','filter','recipient','report']}),sheet:Type.Optional(str),column:Type.Optional(str),name:Type.Optional(str),row:Type.Optional(str),value:Type.Optional(Type.Union([str,Type.Number(),Type.Boolean(),Type.Null()])),direction:Type.Optional(Type.Union([Type.Literal('asc'),Type.Literal('desc')])),operator:Type.Optional(str),groupBy:Type.Optional(Type.Array(str)),metric:Type.Optional(str),outputName:Type.Optional(str)},{additionalProperties:false})
+ ]};
+}
 export function currentOfficeTools(h,run,Type){
  if(!h.store.productExperience)return [];const context=workContext(h.store,run.conversationId),job=jobs(h.store,run.conversationId).find(j=>j.id===(run.officeTargetJobId||context.latestTaskId));
  if(!job||!job.dataScope?.every(f=>run.resolvedFileIds?.includes(f.id)))return [];
  let described=false,applied=false;const plan={operation:'edit',sourceJob:job};
- const str=Type.String(),step=Type.Object({type:Type.Union(['add_column','set_cell','rename_column','sort','filter','aggregate','recipient','report'].map(Type.Literal)),sheet:Type.Optional(str),column:Type.Optional(str),name:Type.Optional(str),row:Type.Optional(str),value:Type.Optional(Type.Union([str,Type.Number(),Type.Boolean(),Type.Null()])),direction:Type.Optional(Type.Union([Type.Literal('asc'),Type.Literal('desc')])),operator:Type.Optional(str),groupBy:Type.Optional(Type.Array(str)),metric:Type.Optional(str),outputName:Type.Optional(str)},{additionalProperties:false});
+ const str=Type.String(),step=officeEditStepSchema(Type);
  return [{name:'describe_current_work',label:'读取本对话当前成果的工作表、稳定字段编号和前5行；修改成果前必须调用；无需重跑原件OCR',parameters:Type.Object({},{additionalProperties:false}),action:async()=>{const input=await inputFor(h,run,plan,[]);described=true;return {jobId:job.id,title:job.title,sheets:describeWorkbook(input),request:run.request};}},
  {name:'edit_current_work',label:'一次提交用户本轮全部修改与格式，程序应用、回读并主动交付。所有行号为数据行（不含表头）。无依据不填值；不支持的要求必须列入unhandled，不能重导出伪装完成。仅接受用户明确给出的更正值。',parameters:Type.Object({steps:Type.Array(step,{minItems:1,maxItems:12}),formats:Type.Array(Type.Union(['xlsx','docx','pdf'].map(Type.Literal)),{minItems:1,maxItems:3}),unhandled:Type.Array(str,{maxItems:12})},{additionalProperties:false}),action:async args=>{if(!described)throw Error('先读取当前成果字段');if(applied)throw Error('本轮已有交付，请返回已有下载');if(args.unhandled.length)throw Error('本轮尚未明确的要求：'+args.unhandled.join('；'));const result=await executeOfficeDelivery(h,run,{...plan,steps:args.steps,formats:args.formats},[]);applied=true;return result;}}];
 }

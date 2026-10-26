@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+export const AGGREGATE_METRICS=Object.freeze(['sum','mean','count','min','max']);
 const clean=s=>String(s??'').trim().replace(/^[“"'「]|[”"'」]$/g,'');
 const numeric=v=>typeof v==='number'&&Number.isFinite(v);
 export function describeWorkbook(input){return (input.sheets||[]).map((s,i)=>({sheetId:'s'+(i+1),name:s.name,rowCount:s.rows.length,columns:s.headers.map((name,c)=>({columnId:'c'+(c+1),name})),sample:s.rows.slice(0,5),rowReference:'r1 = first data row, excluding header'}));}
@@ -17,8 +18,8 @@ export function applyOfficeEdits(original,steps,request){
    const s=input.sheets.find(s=>s.headers.some(h=>/账单编号|票据号码|发票号码|收票人|金额|价税合计/.test(h)));if(!s)throw Error('当前成果没有可对应的发票明细');
    let col=s.headers.findIndex(h=>/^收票人|^收件人/.test(h));if(col<0){col=s.headers.length;s.headers.push('收票人（原标签）');for(const r of s.rows)r.push(null);}
    let evidence=s.headers.indexOf('收票人依据');if(evidence<0){evidence=s.headers.length;s.headers.push('收票人依据');for(const r of s.rows)r.push(null);}
-   const fileCol=s.headers.findIndex(h=>['原始文件','来源文件'].includes(h));let missing=0;
-   for(const r of s.rows){if(r[col]!==null&&r[col]!==''&&r[col]!==undefined)continue;const matches=(input.recipientRecords||[]).filter(x=>fileCol>=0&&x.fileName===r[fileCol]);if(matches.length===1){r[col]=matches[0].value;r[evidence]='原文角色依据：'+matches[0].sourceId+'；'+matches[0].status;}else{missing++;r[evidence]='待补：没有可核实收票人依据';}}
+   const fileCol=s.headers.findIndex(h=>['原始文件','来源文件'].includes(h)),invoiceCol=s.headers.findIndex(h=>/^(?:发票号码|票据号码|账单编号|Invoice Number)$/i.test(h));let missing=0;
+   for(const r of s.rows){if(r[col]!==null&&r[col]!==''&&r[col]!==undefined)continue;const matches=(input.recipientRecords||[]).filter(x=>(fileCol>=0&&x.fileName===r[fileCol]&&(invoiceCol<0||!x.invoiceNumber||String(r[invoiceCol])===x.invoiceNumber))||(fileCol<0&&invoiceCol>=0&&x.invoiceNumber&&String(r[invoiceCol])===x.invoiceNumber));if(matches.length===1){r[col]=matches[0].value;r[evidence]='原文角色依据：'+matches[0].sourceId+'；'+matches[0].status;}else{missing++;r[evidence]='待补：没有可核实收票人依据';}}
    state=missing?'needs_input':'applied';detail='已保留收票人字段；'+missing+'条仍缺少明确角色依据';
   }else if(step.type==='report'){
    const main=input.sheets.filter(s=>!/^报告正文|^正文$|重复来源$/.test(s.name)),counts=main.map(s=>s.name+'：'+s.rows.length+'条'),missing=main.reduce((n,s)=>n+s.rows.filter(r=>r.some(v=>v===null||v==='')).length,0);
@@ -40,7 +41,7 @@ export function applyOfficeEdits(original,steps,request){
     for(const r of s.rows){const x=r[col];let ok;if(['gt','gte','lt','lte'].includes(step.operator)){if(!numeric(v))throw Error('大小比较的阈值必须为数字');ok=numeric(x)&&({gt:x>v,gte:x>=v,lt:x<v,lte:x<=v})[step.operator];}else ok=step.operator==='contains'?String(x??'').includes(String(v)):step.operator==='eq'?x===v:x!==v;(ok?kept:excluded).push(r);}
     const name=s.name+'筛除记录';if(input.sheets.some(x=>x.name===name))throw Error('已有同名筛除记录，请明确新的筛选范围');s.rows=kept;if(excluded.length)input.sheets.push({name,headers:[...s.headers],rows:excluded});detail='保留'+kept.length+'条，筛除'+excluded.length+'条另表保留';
    }else if(step.type==='aggregate'){
-    const metric=step.metric||'sum';if(!['sum','mean','count','min','max'].includes(metric))throw Error('统计类型不支持');const col=metric==='count'?-1:column(s,step.column);if(metric==='sum'&&/%|百分|比例|单价|平均|率$/.test(s.headers[col])&&!request.includes('求和'))throw Error('该列不能默认求和，请明确统计口径');
+    const metric=step.metric??'sum';if(!AGGREGATE_METRICS.includes(metric))throw Error('统计类型不支持：metric 仅支持 '+AGGREGATE_METRICS.join('/')+'；统计列名或字段ID请放在 column，operator 仅用于筛选');const col=metric==='count'?-1:column(s,step.column);if(metric==='sum'&&/%|百分|比例|单价|平均|率$/.test(s.headers[col])&&!request.includes('求和'))throw Error('该列不能默认求和，请明确统计口径');
     const grouped=(step.groupBy||[]).map(c=>column(s,c)),currency=s.headers.findIndex(h=>h==='币种');if(currency>=0&&metric!=='count'&&!grouped.includes(currency))grouped.push(currency);
     const groups=new Map();for(const r of s.rows){const key=JSON.stringify(grouped.map(i=>r[i]??null)),g=groups.get(key)||{keys:grouped.map(i=>r[i]??null),values:[]};g.values.push(col<0?1:r[col]);groups.set(key,g);}
     const rows=[...groups.values()].map(g=>{let value;if(metric==='count')value=g.values.length;else{if(g.values.some(v=>!numeric(v)))throw Error('统计列包含空值或非数值，未生成不完整汇总');value=metric==='sum'?decimalSum(g.values):metric==='mean'?decimalSum(g.values)/g.values.length:metric==='min'?Math.min(...g.values):Math.max(...g.values);}return [...g.keys,value];});
@@ -59,8 +60,8 @@ export function parseOfficeRequest(text){
  const clauses=request.split(/[，,；;。\n]|然后|并且|并转/).map(s=>s.trim()).filter(Boolean),steps=[],unknown=[];let conversion=false;
  for(let clause of clauses){clause=clause.replace(/^(?:请|帮我|麻烦|把|再|也|并|最后|同时)+/g,'').trim();let m;
   if(/^(?:(?:上一轮|刚才|当前|这个|这份|上一个)的?(?:成果|文件|表格|表)?\s*)?(?:转(?:换)?(?:成|为)?|做成|弄成|导出(?:成|为)?|生成|给我|来(?:一份)?|保存(?:成|为)?)?\s*(?:word|docx|pdf|excel|excal|xlsx)(?:文件|格式|版本|吧|一下|可以吗|好吗|吗|\s)*$/i.test(clause)){conversion=true;continue;}
-  if(/^(?:我觉得还不够|还不够|还需要|我需要)$/.test(clause))continue;
-  if(/^(?:你需要)?(?:把)?(?:收件人|收票人)(?:信息|之类的)?(?:也)?(?:加上|补上|补齐|加一下|补充)(?:一下|吧)?$|^(?:加上|补上|增加)(?:收件人|收票人)(?:信息)?$/.test(clause)){steps.push({type:'recipient'});continue;}
+  if(/^(?:我觉得还不够|还不够|还需要|我需要|修改上一个)$/.test(clause))continue;
+  if(/^(?:你需要)?(?:把)?(?:收件人|收票人)(?:信息|之类的)?(?:也)?(?:加上|加进去|补上|补齐|加一下|补充)(?:一下|吧)?$|^(?:加上|补上|增加)(?:收件人|收票人)(?:信息)?$/.test(clause)){steps.push({type:'recipient'});continue;}
   if((m=clause.match(/^(?:新增|增加|加|补)(?:一)?列[“"']?([^“”"'，,]+?)[”"']?(?:列)?(?:[，,]?全部(?:填|设为|填写)(.+))?$/))){steps.push({type:'add_column',name:clean(m[1]),...(m[2]?{value:clean(m[2])}:{})});continue;}
   if((m=clause.match(/^第(\d+)(?:行|条)(?:记录)?(?:的)?[“"']?(.+?)[”"']?(?:改为|改成|更正为|设为)(.+)$/))){const raw=clean(m[3]);steps.push({type:'set_cell',row:'r'+m[1],column:clean(m[2]),value:/^-?\d+(?:\.\d+)?$/.test(raw)?Number(raw):raw});continue;}
   if((m=clause.match(/^[“"']?(.+?)[”"']?(?:列)?(?:改名为|重命名为)(.+)$/))){steps.push({type:'rename_column',column:clean(m[1]),name:clean(m[2])});continue;}
@@ -68,7 +69,7 @@ export function parseOfficeRequest(text){
   if((m=clause.match(/^(?:只保留|筛选)(.+?)(大于等于|小于等于|大于|小于|等于|不等于)(.+?)(?:的记录|的行)?$/))){const raw=clean(m[3]);steps.push({type:'filter',column:clean(m[1]),operator:({'大于等于':'gte','小于等于':'lte','大于':'gt','小于':'lt','等于':'eq','不等于':'neq'})[m[2]],value:/^-?\d+(?:\.\d+)?$/.test(raw)?+raw:raw});continue;}
   if((m=clause.match(/^按(.+?)(?:分组)?(?:汇总|求和|合计)(.+)$/))){steps.push({type:'aggregate',groupBy:[clean(m[1])],column:clean(m[2]),metric:'sum'});continue;}
   if((m=clause.match(/^(?:汇总|合计|求和)(.+?)(?:一下|吧)?$/))&&!/一下/.test(m[1])){steps.push({type:'aggregate',column:clean(m[1]),metric:'sum'});continue;}
-  if(/^(?:金额给我汇总一下|金额汇总|合计一下|汇总一下)$/.test(clause)){steps.push({type:'legacy_sum'});continue;}
+  if(/^(?:金额给我汇总一下|金额汇总|合计一下|汇总一下|(?:算|计算)(?:一下)?总金额)$/.test(clause)){steps.push({type:'legacy_sum'});continue;}
   if(/^(?:重复的不要|去重|去掉重复项|删除重复记录)$/.test(clause)){steps.push({type:'legacy_dedupe'});continue;}
   if(/^(?:部门分开统计一下|按部门统计|按部门分组统计)$/.test(clause)){steps.push({type:'legacy_group'});continue;}
   if(/领导.*(?:报告|版本|看)|(?:报告|版本).*领导/.test(clause)){steps.push({type:'report'});continue;}

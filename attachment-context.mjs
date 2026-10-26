@@ -48,7 +48,7 @@ const escapeRegex=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 
 export function resolveAttachmentContext(store,{conversationId,request='',fileIds=[],intentContextRunId,excludedFileIds=[],attachmentInheritance='auto'}){
  const c=migrateAttachmentReferences(store,conversationId);ids(fileIds,'附件列表');ids(excludedFileIds,'排除列表');if(!['auto','none','all'].includes(attachmentInheritance))throw Error('附件继承方式无效');
- let references=rows(store,conversationId);const ordinal=/(?:第([一二12])(?:个|份)(?:文件)?)/.exec(request);const ordinalIndex=ordinal?({'一':0,'1':0,'二':1,'2':1}[ordinal[1]]):null;const ordinalRef=ordinalIndex!==null?references.filter(r=>r.status==='active')[ordinalIndex]:null;if(ordinalRef&&/不要用|不再用|排除|不用/.test(request)){setConversationAttachment(store,conversationId,ordinalRef.fileId,'excluded');}const mentioned=references.filter(r=>r.name&&request.includes(r.name)),negative=mentioned.filter(r=>new RegExp('(?:不要(?:使用|用|分析|引用)?|排除|忽略|移除|删除|删掉|不再(?:使用|用))\\s*(?:附件|文件)?[“"「『\\s]*'+escapeRegex(r.name)).test(request));
+ let references=rows(store,conversationId);const ordinal=/(?:第([一二12])(?:个|份)(?:文件)?)/.exec(request);const ordinalIndex=ordinal?({'一':0,'1':0,'二':1,'2':1}[ordinal[1]]):null;const ordinalRef=ordinalIndex!==null?references[ordinalIndex]:null;const excludingOrdinal=!!ordinal&&/不要(?:使用|用)?|不再用|排除|不用/.test(request);if(ordinalRef&&excludingOrdinal){setConversationAttachment(store,conversationId,ordinalRef.fileId,'excluded');}const mentioned=references.filter(r=>r.name&&request.includes(r.name)),negative=mentioned.filter(r=>new RegExp('(?:不要(?:使用|用|分析|引用)?|排除|忽略|移除|删除|删掉|不再(?:使用|用))\\s*(?:附件|文件)?[“"「『\\s]*'+escapeRegex(r.name)).test(request));
  for(const fileId of [...new Set([...excludedFileIds,...negative.map(r=>r.fileId)])])setConversationAttachment(store,conversationId,fileId,'excluded');
  let reason='no_attachment_needed',requested=[],previous=null;
  if(intentContextRunId){previous=store.state.runs.find(r=>r.id===intentContextRunId&&r.conversationId===conversationId&&r.status!=='running'&&r.sourceFiles?.length);if(!previous)throw Error('待补充的分析不属于当前对话或尚未结束');if(fileIds.length)throw Error('补充分析时请先结束旧附件上下文再添加新附件');requested=previous.sourceFiles.map(f=>f.id);reason='explicit_run_reference';}
@@ -58,12 +58,13 @@ export function resolveAttachmentContext(store,{conversationId,request='',fileId
  const combine=/结合|加上|一起|同时|对照|比较|对比|合并/.test(request)&&/刚才|之前|原[来有]|上[一轮次份]|历史/.test(request);
  if(fileIds.length&&combine){requested=[...new Set([...oldActive,...requested])];reason='explicit_plus_previous';}
  else if(!fileIds.length&&!previous&&ordinalRef?.status==='active'){requested=[ordinalRef.fileId];reason='ordinal_reference';}
+ else if(!fileIds.length&&!previous&&/最新(?:的)?文件/.test(request)&&active.length){requested=[active.at(-1).fileId];reason='latest_file_reference';}
  else if(!fileIds.length&&!previous&&named.length){requested=named.map(r=>r.fileId);reason='named_reference';}
  else if(!fileIds.length&&!previous&&(attachmentInheritance==='all'||(/全部|所有|两份|两[个份]|这[两几]份/.test(request)&&referenceRequest(request)))){requested=active.map(r=>r.fileId);reason='all_conversation_files';}
  else if(!requested.length&&!previous&&attachmentInheritance==='auto'&&useContext){requested=oldActive.length?oldActive:active.length===1?[active[0].fileId]:[];reason=requested.length?(revisionRequest(request)?'followup_revision':'active_context'):'ambiguous_or_missing_context';}
  if(attachmentInheritance==='none'||/不要(?:使用|用|引用)(?:任何|这些|所有)?附件|不(?:用|使用)附件/.test(request)){requested=[];reason='explicit_no_inheritance';}
  const singularAmbiguous=!fileIds.length&&!previous&&!named.length&&requested.length>1&&/那个文件|这个文件|那一份|其中一份|其中一个|某个文件/.test(request);if(singularAmbiguous){requested=[];reason='ambiguous_or_missing_context';}
- const unavailable=[],files=[];
+ const unavailable=[],files=[];if(ordinal&&!excludingOrdinal&&!fileIds.length&&(!ordinalRef||ordinalRef.status!=='active')){requested=[];unavailable.push({fileId:ordinalRef?.fileId||null,reason:'指定序号的附件不存在或已排除，未替换为其他文件'});}
  for(const fileId of [...new Set(requested)]){try{files.push(assertConversationAttachment(store,conversationId,fileId));}catch(error){unavailable.push({fileId,reason:error.message});}}
  const invalidNamed=mentioned.filter(r=>r.status!=='active'&&!negative.includes(r));for(const r of invalidNamed)unavailable.push({fileId:r.fileId,reason:'该附件已从本对话排除或删除，请先明确恢复'});
  const blocked=unavailable.length>0||requested.length>20;
