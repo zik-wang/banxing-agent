@@ -19,6 +19,29 @@ if job['operation'] == 'inspect':
             result = {'kind': 'pdf', 'pages': len(doc)}
     else:
         result = {'kind': 'image', 'pages': 1, **describe(source)}
+elif job['operation'] == 'pdf_text':
+    with pdfium.PdfDocument(source) as doc:
+        number = job['page']
+        if not 1 <= number <= len(doc):
+            raise ValueError('PAGE_OUT_OF_RANGE')
+        page = doc[number - 1]
+        textpage = page.get_textpage()
+        result = {'text': textpage.get_text_range(), 'page': number, 'totalPages': len(doc)}
+        textpage.close(); page.close()
+elif job['operation'] == 'inspect_xlsx':
+    from openpyxl import load_workbook
+    book = load_workbook(source, read_only=True, data_only=False)
+    sheets = []
+    for sheet in book.worksheets:
+        if sheet.max_row is None or sheet.max_column is None:
+            sheet.calculate_dimension(force=True)
+        if sheet.max_row > 600 or sheet.max_column > 40:
+            raise ValueError('READBACK_SIZE_LIMIT')
+        rows = [[cell.value for cell in row] for row in sheet.iter_rows()]
+        formulas = [cell.coordinate for row in sheet.iter_rows() for cell in row if cell.data_type == 'f']
+        sheets.append({'name':sheet.title,'rows':rows,'formulas':formulas})
+    book.close()
+    result = {'sheets':sheets, 'contentVerified':False}
 elif job['operation'] == 'render':
     with pdfium.PdfDocument(source) as doc:
         number = job['page']

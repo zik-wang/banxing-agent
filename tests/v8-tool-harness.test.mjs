@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {ToolHarness,runToolAgent} from '../v8-tools/harness.mjs';
+import {ToolHarness,runToolAgent,chatApi} from '../v8-tools/harness.mjs';
 import {DocumentTools,imageQuality} from '../v8-tools/document-tools.mjs';
 
 function fixture(t) { const root=fs.mkdtempSync(path.join(os.tmpdir(),'v8-tools-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));return root; }
@@ -40,6 +40,15 @@ test('agent loop returns errors to the policy and allows a different next tool',
 test('synthetic repeated output and length are flagged, not certified',()=>{
  const q=imageQuality(Array(20).fill('>80 >80 >80 >80').join('\n'),'length');assert(q.warnings.includes('REPETITIVE_OUTPUT'));assert(q.warnings.includes('OUTPUT_TRUNCATED'));assert.equal(q.contentVerified,false);
  assert(imageQuality('','stop').warnings.includes('EMPTY_OUTPUT'));
+});
+test('provider thinking settings are opt-in and truncated raw receipts survive failure',async t=>{
+ const folder=fixture(t),sent=[];
+ const fetchImpl=async (_url,options)=>{sent.push(JSON.parse(options.body));return new Response(JSON.stringify({choices:[{finish_reason:'length',message:{role:'assistant',content:''}}],usage:{completion_tokens:7000,completion_tokens_details:{reasoning_tokens:7000}}}),{status:200});};
+ await assert.rejects(chatApi({baseUrl:'http://fixture.invalid/v1',model:'fixture',fetchImpl,logDirectory:folder})([],[],new AbortController().signal),e=>e.code==='MODEL_OUTPUT_TRUNCATED');
+ assert.equal('chat_template_kwargs' in sent[0],false);
+ await assert.rejects(chatApi({baseUrl:'http://fixture.invalid/v1',model:'fixture',enableThinking:false,maxTokens:7000,fetchImpl,logDirectory:folder})([],[],new AbortController().signal),e=>e.code==='MODEL_OUTPUT_TRUNCATED');
+ assert.equal(sent[1].chat_template_kwargs.enable_thinking,false);assert.equal(sent[1].max_tokens,7000);
+ const receipts=fs.readdirSync(folder).map(n=>JSON.parse(fs.readFileSync(path.join(folder,n),'utf8')));assert.equal(receipts.length,2);assert(receipts.every(r=>r.response.usage.completion_tokens_details.reasoning_tokens===7000));
 });
 test('PDF input is rejected locally before making any vision network request',async t=>{
  const root=fixture(t),pdf=path.join(root,'source.pdf');fs.writeFileSync(pdf,'%PDF-1.7\n');let posts=0;

@@ -1,6 +1,7 @@
 V8通用工具执行原型（独立于V7产品入口）
 
 已实现7个真实业务基础工具：list_materials、inspect_material、render_pdf_page、split_image、vision_extract、read_result、processing_status；另有discover_tools能力发现工具，共8个。
+配置documentExtras:true另启用extract_pdf_text、export_xlsx、validate_artifact，共11个已实现接口。它们不含场景编号或预置业务答案。
 ToolHarness接收任意工具数组；模型选择调用顺序。没有场景编号、PDF固定顺序或按业务标题分派。
 MCP仅提供listTools()/mcpCall()结果适配；尚未启动MCP stdio/HTTP服务，不声称MCP部署完成。
 
@@ -10,6 +11,10 @@ node v8-tools/run.mjs <operator-config.json>
 配置由宿主提供，包含：directory（必须是新的独立运行目录）、inputs（授权文件绝对路径数组）、python、request、chat、vision。
 chat/vision都包含baseUrl（以/v1结尾）、model，可选apiKey；不要把含密钥配置提交进Git。
 可配置maxCalls、maxRounds、maxVisionCalls。仅宿主可配置API地址，模型参数不能重定向请求。
+chat.maxTokens可配置规划模型单轮输出上限，默认仍2000；真实09/15实验使用7000。模型回执记录在model-responses，截断仍报错，不冒充完整回答。
+chat.enableThinking是可选宿主配置，只向支持的服务传递chat_template_kwargs.enable_thinking；不是所有模型的通用参数。未设置时保持上游默认。本机Qwen已通过无材料短探针核实false返回0 reasoning tokens；旧V7运行器亦设置关闭思考。focusedGuidance:true启用通用任务聚焦/不猜关系/导出预算指导，无场景编号或原件答案。
+文档扩展需要openpyxl（仅回读），artifactModule由宿主指定已安装的@oai/artifact-tool入口绝对路径。当前测试使用Codex随附运行库；没有打成可移机V8便携产品。
+export_xlsx使用真实xlsx格式，单元格暂按文字保留，防止编号前导零、并列日期和年精度被改写；不提供数值公式计算。validate_artifact核对所有保存单元格是否等于导出参数，不证明这些参数符合源文件。预览只渲染每页前13行，完整内容仍逐单元格回读。
 Ctrl+C取消；运行目录保存原件副本、图像、状态、逐次工具回执、原始API响应和模型工具链记录。
 
 行为
@@ -30,4 +35,4 @@ node --test tests/v8-tool-harness.test.mjs
 这是CLI工具运行原型，尚未接入产品UI；仅支持PDF/PNG/JPEG输入族，未实现所有规划工具。
 没有持久化恢复后的自动续跑、跨页表格合并或语义缺行的完整检测；这些保留为后续工作。
 已实现基础按需发现：注册工具超过可见数量阈值后先提供discover_tools，名称/描述关键词检索并分页激活有限数量的schema；50个合成处理器用于发现机制测试，不算已实现50个业务工具。语义检索及更复杂授权分组仍待实现。
-catalog.json列出8个已实现工具和各能力族后续清单；待接入条目不注册为可调用工具。
+catalog.json列出11个已实现工具和46项待接入清单；待接入条目不注册为可调用工具。

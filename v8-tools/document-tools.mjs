@@ -49,7 +49,7 @@ export class DocumentTools {
   publicAsset(a) { const {path: ignored, ...publicFields} = a; return publicFields; }
   async worker(job, signal) {
     return new Promise((resolve, reject) => {
-      const child = spawn(this.python, [workerPath], {windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'], signal});
+      const child = spawn(this.python, [workerPath], {windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'], env:{...process.env,PYTHONUTF8:'1'}, signal});
       let stdout = '', stderr = '', settled = false;
       const timer = setTimeout(() => { child.kill(); finish(new ToolError('CONVERSION_TIMEOUT', 'Local conversion exceeded 60 seconds')); }, 60000);
       const finish = (error, result) => { if (settled) return; settled = true; clearTimeout(timer); error ? reject(error) : resolve(result); };
@@ -123,7 +123,7 @@ export class DocumentTools {
     return {resultId, assetId: a.id, sourceId: a.sourceId, page: a.page, rootBox: a.rootBox, partial: quality.warnings.length > 0, quality, finishReason: record.finishReason, text: answer.slice(0,5000), totalChars: answer.length, nextOffset: answer.length > 5000 ? 5000 : null};
   }
   status() {
-    return {visionCalls: this.visionCalls, maxVisionCalls: this.maxVisionCalls, contentVerified: false, files: [...this.assets.values()].filter(a => a.id === a.sourceId).map(a => ({assetId: a.id, name: a.name, totalPages: a.pages || null, renderedPages: [...new Set([...this.assets.values()].filter(x => x.sourceId === a.id && x.kind === 'image').map(x => x.page))], pagesWithReturnedText: [...new Set([...this.results.values()].filter(r => r.sourceId === a.id && typeof r.answer === 'string' && r.answer.trim()).map(r => r.page))], note: 'Rendered/returned pages are not verified pages; region coverage and semantic completeness remain unverified.'}))};
+    return {visionCalls: this.visionCalls, maxVisionCalls: this.maxVisionCalls, contentVerified: false, files: [...this.assets.values()].filter(a => a.id === a.sourceId).map(a => ({assetId: a.id, name: a.name, totalPages: a.pages || null, renderedPages: [...new Set([...this.assets.values()].filter(x => x.sourceId === a.id && x.kind === 'image').map(x => x.page))], pagesWithReturnedText: [...new Set([...this.results.values()].filter(r => r.sourceId === a.id && typeof r.answer === 'string' && r.answer.trim()).map(r => r.page))], textLayerPages:[...new Set([...this.results.values()].filter(r=>r.sourceId===a.id&&r.method==='pdf_text'&&r.answer?.trim()).map(r=>r.page))],visionReturnedPages:[...new Set([...this.results.values()].filter(r=>r.sourceId===a.id&&r.imageSha256&&r.answer?.trim()).map(r=>r.page))], note: 'Rendered/returned pages are not verified pages; region coverage and semantic completeness remain unverified.'}))};
   }
   tools() {
     return [
