@@ -2,6 +2,8 @@ V8通用工具执行原型（独立于V7产品入口）
 
 已实现7个真实业务基础工具：list_materials、inspect_material、render_pdf_page、split_image、vision_extract、read_result、processing_status；另有discover_tools能力发现工具，共8个。
 配置documentExtras:true另启用extract_pdf_text、export_xlsx、validate_artifact，共11个已实现接口。它们不含场景编号或预置业务答案。
+配置workbookTools:true再启用read_workbook、merge_tables、export_table（也启用文档扩展），共14个。read_workbook保留数值类型和源行；merge_tables按列名对齐，默认append不去重，仅模型显式选择deduplicate才按选定键处理，非空值冲突保留原记录；export_table直接导出表ID，避免模型重打几十行数据。
+工作表枚举由inspect_material支持，去重由merge_tables支持，因此规划中的list_workbook_sheets、deduplicate_rows能力已覆盖，未另立同名接口。追加原工作簿、公式引用改写及样式保留尚未实现；含公式的表格合并会明确拒绝。
 ToolHarness接收任意工具数组；模型选择调用顺序。没有场景编号、PDF固定顺序或按业务标题分派。
 MCP仅提供listTools()/mcpCall()结果适配；尚未启动MCP stdio/HTTP服务，不声称MCP部署完成。
 
@@ -32,7 +34,7 @@ node --test tests/v8-tool-harness.test.mjs
 这个集成测试的视觉HTTP响应是明确注入的故障/成功桩，不能当成真实模型识别质量证据。
 
 当前边界
-这是CLI工具运行原型，尚未接入产品UI；仅支持PDF/PNG/JPEG输入族，未实现所有规划工具。
+这是CLI工具运行原型，尚未接入产品UI；支持PDF/PNG/JPEG/XLSX输入族，未实现所有规划工具。
 没有持久化恢复后的自动续跑、跨页表格合并或语义缺行的完整检测；这些保留为后续工作。
 已实现基础按需发现：注册工具超过可见数量阈值后先提供discover_tools，名称/描述关键词检索并分页激活有限数量的schema；50个合成处理器用于发现机制测试，不算已实现50个业务工具。语义检索及更复杂授权分组仍待实现。
-catalog.json列出11个已实现工具和46项待接入清单；待接入条目不注册为可调用工具。
+catalog.json列出14个已实现工具和44项待接入清单；待接入条目不注册为可调用工具。

@@ -17,6 +17,14 @@ if job['operation'] == 'inspect':
     if pdf:
         with pdfium.PdfDocument(source) as doc:
             result = {'kind': 'pdf', 'pages': len(doc)}
+    elif source.suffix.lower() == '.xlsx':
+        from openpyxl import load_workbook
+        book = load_workbook(source, read_only=True, data_only=False)
+        result = {'kind':'workbook','sheets':[]}
+        for sheet in book.worksheets:
+            if sheet.max_row is None: sheet.calculate_dimension(force=True)
+            result['sheets'].append({'name':sheet.title,'rows':sheet.max_row,'columns':sheet.max_column})
+        book.close()
     else:
         result = {'kind': 'image', 'pages': 1, **describe(source)}
 elif job['operation'] == 'pdf_text':
@@ -28,7 +36,7 @@ elif job['operation'] == 'pdf_text':
         textpage = page.get_textpage()
         result = {'text': textpage.get_text_range(), 'page': number, 'totalPages': len(doc)}
         textpage.close(); page.close()
-elif job['operation'] == 'inspect_xlsx':
+elif job['operation'] in ['inspect_xlsx','read_workbook']:
     from openpyxl import load_workbook
     book = load_workbook(source, read_only=True, data_only=False)
     sheets = []

@@ -89,7 +89,7 @@ export class DocumentExtras {
       const expected=a.expected[i],actual=readback.sheets[i];
       if(!actual||actual.name!==expected.name||actual.rows.length!==expected.raw.length) discrepancies.push({sheet:expected.name,issue:'shape mismatch'});
       if(actual?.formulas.length) discrepancies.push({sheet:expected.name,issue:'unexpected formulas',cells:actual.formulas});
-      expected.raw.forEach((row,r)=>row.forEach((value,c)=>{if((actual?.rows[r]?.[c]??'')!==value) discrepancies.push({sheet:expected.name,row:r+1,column:c+1,expected:value,actual:actual?.rows[r]?.[c]??null});}));
+      expected.raw.forEach((row,r)=>row.forEach((value,c)=>{if((actual?.rows[r]?.[c]??'')!==(value??'')) discrepancies.push({sheet:expected.name,row:r+1,column:c+1,expected:value,actual:actual?.rows[r]?.[c]??null});}));
     }
     const resultId=randomUUID(),answer=JSON.stringify({sheets:readback.sheets},null,2);
     this.docs.results.set(resultId,{resultId,answer,method:'artifact_readback',status:'returned_unverified',artifactId:a.artifactId});this.docs.save();

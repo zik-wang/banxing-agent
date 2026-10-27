@@ -3,6 +3,7 @@ import path from 'node:path';
 import {DocumentTools} from './document-tools.mjs';
 import {ToolHarness, runToolAgent, chatApi, FOCUSED_DOCUMENT_GUIDANCE} from './harness.mjs';
 import {DocumentExtras} from './document-extras.mjs';
+import {WorkbookTools} from './workbook-tools.mjs';
 
 const configPath = process.argv[2];
 if (!configPath) throw new Error('Usage: node v8-tools/run.mjs <operator-config.json>');
@@ -14,8 +15,9 @@ const documents = new DocumentTools({...config, directory});
 const controller = new AbortController();
 process.once('SIGINT', () => controller.abort());
 const timer = setTimeout(() => controller.abort(), config.timeoutMs || 600000);
-const extras = config.documentExtras ? new DocumentExtras(documents,config) : null;
-const harness = new ToolHarness({directory, tools: [...documents.tools(),...(extras?.tools()||[])], maxCalls: config.maxCalls || 24, maxVisibleTools:config.maxVisibleTools||12, signal:controller.signal});
+const extras = config.documentExtras || config.workbookTools ? new DocumentExtras(documents,config) : null;
+const workbooks = config.workbookTools ? new WorkbookTools(documents,extras,config) : null;
+const harness = new ToolHarness({directory, tools: [...documents.tools(),...(extras?.tools()||[]),...(workbooks?.tools()||[])], maxCalls: config.maxCalls || 24, maxVisibleTools:config.maxVisibleTools||12, signal:controller.signal});
 try {
   const result = await runToolAgent({harness, next:chatApi({...config.chat,logDirectory:path.join(directory,'model-responses')}), request:config.request, guidance:config.focusedGuidance?FOCUSED_DOCUMENT_GUIDANCE:'', maxRounds:config.maxRounds || 16, context:{materials:[...documents.assets.values()].map(a=>documents.publicAsset(a)),visionLimits:{maxImageBytes:config.vision?.maxImageBytes || 5242880}}});
   console.log(JSON.stringify({status:result.status,calls:result.calls,answer:result.answer,report:path.join(directory,'agent-run.json')},null,2));
