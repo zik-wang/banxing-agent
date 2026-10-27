@@ -2,8 +2,9 @@
 
 这是独立的新版本开发目录，分支 codex/banxing-v8-tools。
 起点：V7代码提交 93ec2295ef08e8987c994768d00c2d556e9c63ab。
-状态：版本已建立，架构方向已确定；通用工具运行时尚未完成迁移。
+状态：独立CLI工具运行原型已实现；8个工具可调用，工具库规划另有49个待接入。尚未迁移产品页面、完整业务工具及生产运行能力。
 本目录当前继承的 start-product.mjs 仍执行V7产品流程，不能把它作为V8新架构已完成的演示。
+新的独立入口：node v8-tools/run.mjs <operator-config.json>。配置和边界见v8-tools/README.txt；工具目录见v8-tools/catalog.json。
 
 V7继续保留于 D:\pro222\pccr-eye-gaze\banxing-v7-dev。
 冻结备份位于 D:\pro222\pccr-eye-gaze\qa-output\v7-supervisor\v7-preserved-before-v8-20261027。
