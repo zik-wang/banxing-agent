@@ -5,6 +5,9 @@ import {ToolHarness, runToolAgent, chatApi, FOCUSED_DOCUMENT_GUIDANCE} from './h
 import {DocumentExtras} from './document-extras.mjs';
 import {WorkbookTools} from './workbook-tools.mjs';
 import {TextTools} from './text-tools.mjs';
+import {KnowledgeTools} from './knowledge-tools.mjs';
+import {DeliveryTools} from './delivery-tools.mjs';
+import {AudioTools} from './audio-tools.mjs';
 
 const configPath = process.argv[2];
 if (!configPath) throw new Error('Usage: node v8-tools/run.mjs <operator-config.json>');
@@ -17,13 +20,14 @@ const texts=new TextTools(documents);
 const controller = new AbortController();
 process.once('SIGINT', () => controller.abort());
 const timer = setTimeout(() => controller.abort(), config.timeoutMs || 600000);
-const extras = config.documentExtras || config.workbookTools ? new DocumentExtras(documents,config) : null;
+const extras = new DocumentExtras(documents,config);
 const workbooks = config.workbookTools ? new WorkbookTools(documents,extras,config) : null;
-const harness = new ToolHarness({directory, tools: [...documents.tools(),...texts.tools(),...(extras?.tools()||[]),...(workbooks?.tools()||[])], maxCalls: config.maxCalls || 24, maxVisibleTools:config.maxVisibleTools||12, maxNoProgress:config.maxNoProgress||5,signal:controller.signal});
+const knowledge=new KnowledgeTools(documents,texts,config),delivery=new DeliveryTools(documents,extras,texts),audio=new AudioTools(documents,delivery,config);
+const harness = new ToolHarness({directory, tools: [...documents.tools(),...texts.tools(),...extras.tools(),...(workbooks?.tools()||[]),...knowledge.tools(),...delivery.tools(),...audio.tools()], maxCalls: config.maxCalls || 24, maxVisibleTools:config.maxVisibleTools||12, maxNoProgress:config.maxNoProgress||5,signal:controller.signal});
 try {
   const result = await runToolAgent({harness, next:chatApi({...config.chat,logDirectory:path.join(directory,'model-responses')}), request:config.request, guidance:config.focusedGuidance?FOCUSED_DOCUMENT_GUIDANCE:'', maxRounds:config.maxRounds || 16, context:{materials:[...documents.assets.values()].map(a=>documents.publicAsset(a)),visionLimits:{maxImageBytes:config.vision?.maxImageBytes || 5242880}}});
   console.log(JSON.stringify({status:result.status,calls:result.calls,answer:result.answer,report:path.join(directory,'agent-run.json')},null,2));
 } catch (error) {
   fs.writeFileSync(path.join(directory,'run-error.json'),JSON.stringify({code:error.code||'RUN_FAILED',message:error.message,contentVerified:false},null,2));
   console.error(error.message);process.exitCode=1;
-} finally { clearTimeout(timer);fs.writeFileSync(path.join(directory,'final-status.json'),JSON.stringify(documents.status(),null,2)); }
+} finally { clearTimeout(timer);fs.writeFileSync(path.join(directory,'final-status.json'),JSON.stringify({...documents.status(),audio:audio.status()},null,2)); }

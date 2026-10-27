@@ -18,7 +18,14 @@
     "export_table",
     "read_text_range",
     "read_json_range",
-    "search_document"
+    "search_document",
+    "store_knowledge",
+    "search_knowledge",
+    "export_document",
+    "apply_patch_copy",
+    "inspect_media",
+    "split_audio",
+    "transcribe_audio"
   ],
   "plannedGroups": [
     {
@@ -79,9 +86,6 @@
     {
       "family": "音视频",
       "tools": [
-        "inspect_media",
-        "split_audio",
-        "transcribe_audio",
         "extract_video_frames",
         "align_transcript"
       ]

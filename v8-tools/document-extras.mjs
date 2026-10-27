@@ -83,6 +83,11 @@ export class DocumentExtras {
     const a=this.artifacts.get(artifact_id);
     if(!a) throw new ToolError('UNKNOWN_ARTIFACT','Use an artifact ID returned by export_xlsx');
     if(digest(fs.readFileSync(a.path))!==a.sha256) throw new ToolError('ARTIFACT_CHANGED','Exported artifact changed');
+    if(a.kind==='text'){
+      const bytes=fs.readFileSync(a.path),exportIntegrityPassed=digest(bytes)===a.expectedBytesSha256;
+      const result={artifactId:a.artifactId,path:a.path,sha256:a.sha256,exportIntegrityPassed,bytes:bytes.length,contentVerified:false,note:'Actual text/patch bytes reopened; save integrity does not prove factual or code correctness.'};
+      a.saveReadbackPassed=exportIntegrityPassed;this.save();fs.writeFileSync(path.join(path.dirname(a.path),'readback.json'),JSON.stringify(result,null,2));return result;
+    }
     const readback=await this.docs.worker({operation:'inspect_xlsx',input:a.path},signal);
     const discrepancies=[];
     for(let i=0;i<a.expected.length;i++) {
@@ -94,7 +99,7 @@ export class DocumentExtras {
     const resultId=randomUUID(),answer=JSON.stringify({sheets:readback.sheets},null,2);
     this.docs.results.set(resultId,{resultId,answer,method:'artifact_readback',status:'returned_unverified',artifactId:a.artifactId});this.docs.save();
     const result={artifactId:a.artifactId,path:a.path,exportIntegrityPassed:discrepancies.length===0,discrepancies,resultId,text:answer.slice(0,5000),totalChars:answer.length,nextOffset:answer.length>5000?5000:null,contentVerified:false,note:'Checks saved cells against export arguments only. This is not independent source verification.'};
-    fs.writeFileSync(path.join(path.dirname(a.path),'readback.json'),JSON.stringify({...result,sheets:readback.sheets},null,2));return result;
+    a.saveReadbackPassed=result.exportIntegrityPassed;this.save();fs.writeFileSync(path.join(path.dirname(a.path),'readback.json'),JSON.stringify({...result,sheets:readback.sheets},null,2));return result;
   }
   tools() {
     return [
