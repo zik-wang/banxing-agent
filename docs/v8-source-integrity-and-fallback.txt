@@ -1,0 +1,15 @@
+V8-TOOLS-FIX-R1 来源字段、交付结算与Provider切换
+
+read_source_records/export_source_records是通用印刷key:value投影，不按业务场景或专名路由。记录原文标题、标签、值、源SHA、页/字符跨度；并列原值保持整体，不推断配对。未知标签不会用相近角色字段代填，缺值留空。主表未选记录及未结构化原句在待核表保留，日期字面值单独标识year_only等精度，未证明为到期判断。分页/原文范围和语义正确率分开。
+
+CLI启用来源约束：工作簿数值操作用表ID及export_table；PDF字段提取优先注册来源记录投影。旧文字型Excel导出不能用来重抄数值表或绕过PDF字段来源。自由报告仍是模型生成内容，来源回读不是语义证明。
+
+原文全称/and恢复来自实际源标题映射，保留原有专名&，原缩写歧义不猜。说明、回执与文件使用同一来源记录。表格合并记录实际原空值补入单元格、来源行和数值类型。最终聊天交付说明由真实artifact重新回读并生成，原模型答复另存审计；没有有效文件不能显示已交付。
+
+内网与公网均使用同一工具框架。公网apiKeyEnv从环境读入，密钥不写配置/日志/HTML；原生模型回执包含原始API响应/HTTP错误并对凭据脱敏。SiliconFlow关闭思考用enable_thinking，内网用chat_template_kwargs；服务端量化/模板未知时不推断。
+
+host inputClassification必须显式为public/synthetic/private_metadata_only。私有音频仅本地ASR，公网规划器只能得到文件/段ID、实际覆盖和保存回执；read_result拒绝读取私有转写，export_document以result_ids在本地生成真实TXT/SRT，不允许模型编造替代正文。SRT依据实际切段/本地子段边界，不称词级对齐。
+
+本地ASR为1.7B，不加载27B权重；host配置python/modelPath/device/ffmpeg。一个batch只加载一次ASR权重，使用已有安全原权重loader；进程禁用网络，HF离线。每次执行保存原始stdout/stderr、模型加载/推理次数、缺段、耗时和GPU峰值。内网不可达是当前探测结果，不据用户所在地或历史HTTP200推断。
+
+真实十场景和用户09短句回归另建运行目录，旧14工具基线及旧交付不覆盖。所有开发自测仍等待独立QA；不承诺语义零遗漏。

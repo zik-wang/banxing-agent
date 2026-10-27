@@ -1,0 +1,13 @@
+import fs from 'node:fs';import path from 'node:path';
+export async function settleDelivery({docs,extras,records},modelAnswer,run){
+ const cards=[],failed=[];
+ for(const a of extras.artifacts.values())try{const check=await extras.inspect({artifact_id:a.artifactId},{signal:AbortSignal.timeout(30000)});if(!check.exportIntegrityPassed)throw Error('保存后回读不一致');cards.push({artifactId:a.artifactId,title:a.title,path:a.path,sha256:a.sha256,kind:a.kind||'xlsx',deliveryFacts:a.deliveryFacts,sourceProjection:a.sourceProjection,readbackPassed:true});}catch(e){failed.push({artifactId:a.artifactId,error:e.message});}
+ const originalAnswer=modelAnswer,presentation=records.guardPresentation(modelAnswer);let answer=presentation.text;
+ if(cards.length){const lines=['已交付 '+cards.length+' 个真实文件（存在、哈希和保存后回读已核对；源事实正确性与业务关系仍需另行核查）。'];for(const c of cards){lines.push('\n'+c.title+'\n'+c.path+'\nSHA256: '+c.sha256);const f=c.deliveryFacts;if(f){lines.push('输入行数：'+f.inputTableRows.join(' + ')+'；去重 '+f.removedRows+' 行；输出 '+f.dataRows+' 行 × '+f.columns+' 列；冲突键 '+f.conflictingKeys+'。');for(const e of f.enrichedColumns)lines.push('补入原空值：'+e.column+'，'+e.rows.length+' 个单元格；输出数据行 '+e.rows.join('、')+'。');for(const n of f.numericColumns)lines.push('数值类型：'+n.name+' '+n.numericCells+' 个数值单元格。');}if(c.sourceProjection){lines.push('原文记录 '+c.sourceProjection.recordCount+' 条；全称、原标签、原有and/&及并列值由程序保留。');if(c.sourceProjection.unresolvedFields.length)lines.push('未提供字段留空待核：'+c.sourceProjection.unresolvedFields.join('、'));lines.push('未结构化原句、年份精度及未确认关系保留在“原文与待核”表；不按机构所在地补时区，不用品牌/协议名补供应商，不按顺序配对并列值。');}}
+  if(docs.audioTools){const s=docs.audioTools.status();if(s.sources.length){lines.push('\n转写覆盖（不是准确率）：');for(const a of s.sources)lines.push(a.name+'：'+a.textReturnedCount+'/'+a.expectedSegmentCount+' 段有识别文字；缺段 '+a.missingSegments.length+'；分段时长一致 '+a.segmentationDurationConsistent+'。所有文字未经人工核听，时间是输入切段边界。');}}
+  if(run.termination)lines.push('\n原任务仍未完成：'+run.termination.reason+'；已验证文件保留为部分交付。');if(failed.length)lines.push('\n另有 '+failed.length+' 个产物未通过回读，不作为成功交付。');answer=lines.join('\n');
+ }
+ if(!cards.length&&failed.length)answer='本次没有可确认交付的文件：'+failed.map(f=>f.error).join('；')+'。模型此前的完成表述不作为交付凭据，原材料和执行记录仍保留。';
+ const result={answer,originalModelAnswer:originalAnswer,presentationCorrections:presentation.corrections,unresolvedPresentation:presentation.ambiguous,verifiedArtifacts:cards,failedArtifacts:failed,state:cards.length?(run.termination||failed.length?'partially_delivered':'delivered_with_unverified_content'):failed.length?'failed_delivery':run.status,contentVerified:false};
+ fs.writeFileSync(path.join(docs.directory,'delivery-settlement.json'),JSON.stringify(result,null,2));return result;
+}

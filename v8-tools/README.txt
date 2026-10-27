@@ -1,6 +1,8 @@
 V8通用工具执行原型（独立于V7产品入口）
 
-当前P0版本：在下述14工具基线之上，无条件注册read_text_range、read_json_range、search_document，完整配置共17工具。文本/代码只读数据，JSON按结构/字符分页；inspect_material识别text/audio等，不再把其当PIL图片。默认相同失败最多两次、连续五次无进展停止并保存blocked/partial正文。P0细节见docs/v8-p0-text-and-recovery.txt。下文14工具与格式限制描述属于dev.3基础能力；当前文本读取以本段及catalog.json为准。P1能力还未验收。
+当前FIX-R1版本：完整配置26工具，包含原14基线及通用文本/JSON读取、源句检索、持久知识、补丁副本、文字导出、音频时长/切段/转写和来源字段直接投影。源码只作数据不执行；相同失败最多两次、连续五次无进展停止，保存blocked/partial正文。所有当前接口见catalog.json。旧14工具基础说明保留在下文，能力边界以本段及docs/v8-p0-text-and-recovery.txt、docs/v8-p1-persistence-media-delivery.txt、docs/v8-source-integrity-and-fallback.txt为准；尚未完成独立业务验收。
+
+Provider配置：chat.provider=intranet/cloud；公网apiKeyEnv从环境读取，不将密钥写配置。cloud输入必须由宿主声明inputClassification=public/synthetic/private_metadata_only。私有音频必须asr.provider=local且禁止向规划模型返回转写；export_document使用result_ids在本地导出。asr本地配置需python/modelPath/device/ffmpeg，内网则使用原目录/显式内网地址。sourceConstraints默认CLI启用；工具返回成功、文件回读一致和来源语义正确仍分开。
 
 已实现7个真实业务基础工具：list_materials、inspect_material、render_pdf_page、split_image、vision_extract、read_result、processing_status；另有discover_tools能力发现工具，共8个。
 配置documentExtras:true另启用extract_pdf_text、export_xlsx、validate_artifact，共11个已实现接口。它们不含场景编号或预置业务答案。

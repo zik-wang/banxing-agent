@@ -13,8 +13,8 @@ const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 
 // No scenario names, expected answers or fixed processing pipelines belong here.
 export class DocumentExtras {
-  constructor(documents,{artifactModule}={}) {
-    this.docs=documents; this.artifactModule=artifactModule; this.artifacts=new Map();
+  constructor(documents,{artifactModule,sourceConstraints=false}={}) {
+    this.docs=documents; this.artifactModule=artifactModule; this.artifacts=new Map();this.sourceConstraints=sourceConstraints;
   }
   save() {fs.writeFileSync(path.join(this.docs.directory,'artifacts.json'),JSON.stringify([...this.artifacts.values()],null,2));}
   async text({asset_id,page}, {signal}) {
@@ -27,7 +27,9 @@ export class DocumentExtras {
     d.results.set(resultId,record);d.save();
     return {resultId,sourceId:a.sourceId,page,totalPages:a.pages,method:'pdf_text',partial:!result.text.trim(),text:result.text.slice(0,5000),totalChars:result.text.length,nextOffset:result.text.length>5000?5000:null,contentVerified:false,note:'Text layer can have incorrect order, invisible text or missing scanned content. Compare visible layout for ambiguous fields. Read adjacent pages for continued entries.'};
   }
-  async export({title,sheets,source_refs},{signal}) {
+  async export({title,sheets,source_refs},{signal,sourceProjectionAuthorized=false}) {
+    if(this.docs.privateAudioMetadataOnly)throw new ToolError('SAVED_TRANSCRIPT_REQUIRED','Private audio can only be exported from its actual saved result_ids using export_document; do not fabricate a text-only spreadsheet.');
+    if(this.sourceConstraints&&!sourceProjectionAuthorized){const kinds=source_refs.map(r=>this.docs.asset(r.asset_id).kind);if(kinds.includes('workbook'))throw new ToolError('TYPED_TABLE_REQUIRED','Read/merge registered workbook table IDs and use export_table; do not retype numeric cells through text-only Excel.');if(kinds.includes('pdf'))throw new ToolError('SOURCE_RECORDS_REQUIRED','For source-field extraction, use read_source_records and export_source_records to preserve full names, original field roles and unresolved source notes. For prose reports use export_document with explicit sources.');}
     if(!this.artifactModule) throw new ToolError('EXPORT_NOT_CONFIGURED','Host must configure the artifact-tool module');
     const d=this.docs;
     for(const ref of source_refs) {
@@ -44,10 +46,11 @@ export class DocumentExtras {
     const book=Workbook.create(),id=randomUUID(),folder=path.join(d.directory,'outputs',id);
     fs.mkdirSync(folder,{recursive:true});
     const sources=source_refs.map(r=>`${d.asset(r.asset_id).name} 第${r.page}页`).join('；');
-    const expected=[];
+    const expected=[],serializationTransformations=[];
     for(const spec of sheets) {
       const sheet=book.worksheets.add(spec.name),columns=spec.headers.length;
-      const raw=[[title,...Array(columns-1).fill('')],['来源：'+sources,...Array(columns-1).fill('')],spec.headers,...spec.rows];
+      const originalRaw=[[title,...Array(columns-1).fill('')],['来源：'+sources,...Array(columns-1).fill('')],spec.headers,...spec.rows];
+      const raw=originalRaw.map((row,r)=>row.map((value,c)=>{const displayed=value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,ch=>'⟦U+'+ch.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0')+'⟧');if(displayed!==value)serializationTransformations.push({sheet:spec.name,row:r+1,column:c+1,original:value,displayed,reason:'Original contains characters forbidden by XML/XLSX; exact original retained in this JSON and source evidence'});return displayed;}));
       // Values only: source text must never become an executable spreadsheet formula.
       const values=raw.map(row=>row.map(v=>v.startsWith('=')?"'"+v:v));
       sheet.getRangeByIndexes(0,0,values.length,columns).values=values;
@@ -75,7 +78,8 @@ export class DocumentExtras {
         const preview=path.join(folder,`preview-${i+1}.png`);fs.writeFileSync(preview,new Uint8Array(await blob.arrayBuffer()));previews.push(preview);
       } catch(e) {previewErrors.push({sheet:sheets[i].name,error:e.message});}
     }
-    const record={artifactId:id,path:output,title,sha256:digest(fs.readFileSync(output)),source_refs,expected,previews,previewErrors,contentVerified:false};
+    if(serializationTransformations.length)fs.writeFileSync(path.join(folder,'source-character-transformations.json'),JSON.stringify(serializationTransformations,null,2));
+    const record={artifactId:id,path:output,title,sha256:digest(fs.readFileSync(output)),source_refs,expected,previews,previewErrors,serializationTransformations,contentVerified:false};
     this.artifacts.set(id,record);this.save();
     return {artifactId:id,path:output,sha256:record.sha256,sheets:sheets.map(s=>({name:s.name,dataRows:s.rows.length,columns:s.headers.length})),previews,previewErrors,contentVerified:false,note:'Export preserves model-supplied values; it does not certify them against the sources. Use validate_artifact for saved-file readback.'};
   }

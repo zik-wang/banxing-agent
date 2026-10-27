@@ -16,7 +16,7 @@ export function combineDatasets(tables,{mode='append',key_columns=[]}={}) {
   const headers=[...new Set(tables.flatMap(t=>t.headers))];
   const keys=key_columns.length?key_columns:headers;
   if(mode==='deduplicate'&&keys.some(k=>!tables.every(t=>t.headers.includes(k))))throw new ToolError('INVALID_KEY','Key columns must be present in every source table');
-  const rows=[],provenance=[],seen=new Map(),removed=[],conflicts=[];
+  const rows=[],provenance=[],seen=new Map(),removed=[],conflicts=[],enrichedCells=[];
   for(const table of tables)for(let i=0;i<table.rows.length;i++) {
     const row=headers.map(h=>{const c=table.headers.indexOf(h);return c<0?null:table.rows[i][c]??null;});
     const refs=table.provenance?.[i]||[{assetId:table.sourceId,sheet:table.sheet,row:table.headerRow+i+1}];
@@ -29,13 +29,13 @@ export function combineDatasets(tables,{mode='append',key_columns=[]}={}) {
       conflicts.push({key,keyColumns:keys,columns:incompatible,keptRow:index+1,incoming:refs});
     }
     if(match>=0) {
-      row.forEach((v,c)=>{if(empty(rows[match][c])&&!empty(v))rows[match][c]=v;});
+      row.forEach((v,c)=>{if(empty(rows[match][c])&&!empty(v)){rows[match][c]=v;enrichedCells.push({outputDataRow:match+1,column:headers[c],value:v,from:refs});}});
       provenance[match].push(...refs);removed.push({key,keptRow:match+1,removedSource:refs});
     } else {
       rows.push(row);provenance.push([...refs]);seen.set(key,[...indices,rows.length-1]);
     }
   }
-  return {headers,rows,provenance,sourceIds:[...new Set(tables.flatMap(t=>t.sourceIds||[t.sourceId]))],mode,keyColumns:mode==='deduplicate'?keys:[],inputRows:tables.reduce((n,t)=>n+t.rows.length,0),outputRows:rows.length,removed,conflicts};
+  return {headers,rows,provenance,sourceIds:[...new Set(tables.flatMap(t=>t.sourceIds||[t.sourceId]))],mode,keyColumns:mode==='deduplicate'?keys:[],inputRows:tables.reduce((n,t)=>n+t.rows.length,0),inputTableRows:tables.map(t=>t.rows.length),outputRows:rows.length,removed,conflicts,enrichedCells};
 }
 
 export class WorkbookTools {
@@ -80,7 +80,9 @@ export class WorkbookTools {
     const output=path.join(folder,'合并报表.xlsx');await(await SpreadsheetFile.exportXlsx(book)).save(output);
     const preview=path.join(folder,'preview.png');let previewErrors=[];
     try {const blob=await book.render({sheetName:'合并报表',range:`A1:${columnLabel(table.headers.length)}${Math.min(12,raw.length)}`,scale:1,format:'png'});fs.writeFileSync(preview,new Uint8Array(await blob.arrayBuffer()));}catch(e){previewErrors=[{error:e.message}];}
-    const record={artifactId:id,path:output,title,sha256:sha(fs.readFileSync(output)),expected:[{name:'合并报表',raw}],previews:previewErrors.length?[]:[preview],previewErrors,tableId:table.id,contentVerified:false};
+    const enrichedColumns=[...new Set((table.enrichedCells||[]).map(c=>c.column))].map(column=>({column,rows:table.enrichedCells.filter(c=>c.column===column).map(c=>c.outputDataRow)}));
+    const deliveryFacts={dataRows:table.rows.length,columns:table.headers.length,inputTableRows:table.inputTableRows||[table.rows.length],removedRows:table.removed?.length||0,conflictingKeys:table.conflicts?.length||0,enrichedColumns,numericColumns:table.headers.map((name,c)=>({name,numericCells:table.rows.filter(r=>typeof r[c]==='number').length})).filter(c=>c.numericCells)};
+    const record={artifactId:id,path:output,title,sha256:sha(fs.readFileSync(output)),expected:[{name:'合并报表',raw}],previews:previewErrors.length?[]:[preview],previewErrors,tableId:table.id,deliveryFacts,contentVerified:false};
     this.extras.artifacts.set(id,record);this.extras.save();
     return {artifactId:id,path:output,sha256:record.sha256,dataRows:table.rows.length,columns:table.headers.length,tableId:table.id,previewErrors,note:'The saved workbook preserves table values and numeric types. Use validate_artifact to read back all saved cells.'};
   }
