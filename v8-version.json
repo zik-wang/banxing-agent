@@ -1,16 +1,17 @@
 {
   "product": "伴行 V8 · Tools",
-  "version": "8.0.0-dev.3",
+  "version": "8.0.0-dev.4",
   "branch": "codex/banxing-v8-tools",
   "baseCommit": "93ec2295ef08e8987c994768d00c2d556e9c63ab",
   "stage": "tools_runtime_cli_prototype",
   "toolsFirstRuntimeImplemented": true,
   "productUiMigrated": false,
-  "implementedToolCount": 14,
-  "plannedToolCount": 44,
+  "implementedToolCount": 17,
+  "plannedToolCount": 42,
   "toolsEntry": "v8-tools/run.mjs",
   "baseIndependentAcceptance": "pending",
   "runtimeIsolationRequired": true,
   "legacyProductEntry": "start-product.mjs",
-  "note": "A separate CLI tool-agent prototype is implemented. Existing product UI entry still runs V7 behavior. Semantic extraction remains unverified; this is not a completed V8 product."
+  "note": "P0 adds source-preserving text and JSON readers plus bounded failure/no-progress handling; product UI remains unmigrated.",
+  "previousBaselineCommit": "8b8a01aad232551794a97600c9cd31a3fdcd6b5d"
 }

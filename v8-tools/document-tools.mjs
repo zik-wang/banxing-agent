@@ -4,6 +4,7 @@ import {spawn} from 'node:child_process';
 import {createHash, randomUUID} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {ToolError} from './harness.mjs';
+import {classifyFile,decodeSource} from './file-types.mjs';
 
 const workerPath = fileURLToPath(new URL('./image-worker.py', import.meta.url));
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -36,7 +37,7 @@ export class DocumentTools {
       if (bytes.length > 50 * 1024 * 1024) throw new Error('Input exceeds 50MB local import limit');
       const target = path.join(directory, 'assets', id + path.extname(original));
       fs.writeFileSync(target, bytes);
-      this.assets.set(id, {id, name: path.basename(original), path: target, sha256: hash(bytes), bytes: bytes.length, sourceId: id, kind: bytes.subarray(0,5).toString() === '%PDF-' ? 'pdf' : 'uninspected', page: null, rootBox: null});
+      this.assets.set(id, {id, name: path.basename(original), path: target, sha256: hash(bytes), bytes: bytes.length, sourceId: id, ...classifyFile(original,bytes), page: null, rootBox: null});
     }
     this.save();
   }
@@ -62,6 +63,8 @@ export class DocumentTools {
   }
   async inspect(id, signal) {
     const a = this.asset(id);
+    if(a.kind==='text'){const s=decodeSource(fs.readFileSync(a.path));return{...this.publicAsset(a),encoding:s.encoding,totalChars:s.text.length,totalLines:s.text.length?s.text.split(/\r\n|\r|\n/).length:0,offsetUnit:s.offsetUnit,executionAllowed:false};}
+    if(a.kind==='audio'||a.kind==='unsupported')return{...this.publicAsset(a),metadataOnly:true,note:a.kind==='audio'?'Use inspect_media; this is audio, not a PIL image.':'No reader is registered for this format; do not try image/PDF converters.'};
     if (!a.inspected) { Object.assign(a, await this.worker({operation: 'inspect', input: a.path}, signal), {inspected: true}); if (a.kind === 'image' && !a.page) { a.page = 1; a.rootBox = [0, 0, a.width, a.height]; } this.save(); }
     return this.publicAsset(a);
   }
@@ -77,8 +80,9 @@ export class DocumentTools {
     this.assets.set(id, image); this.save(); return this.publicAsset(image);
   }
   async split({asset_id, tile_width = 1000, tile_height = 1000, overlap = 80}, {signal}) {
-    await this.inspect(asset_id, signal); const a = this.asset(asset_id);
+    const a = this.asset(asset_id);
     if (a.kind !== 'image') throw new ToolError('INPUT_TYPE_UNSUPPORTED', 'Split requires an image; render PDF pages first', {accepted: ['image']});
+    await this.inspect(asset_id, signal);
     if (overlap >= Math.min(tile_width, tile_height)) throw new ToolError('INVALID_ARGUMENT', 'overlap must be smaller than tile dimensions');
     const folder = path.join(this.directory, 'assets', randomUUID()); fs.mkdirSync(folder);
     const output = await this.worker({operation: 'split', input: a.path, outputDirectory: folder, tileWidth: tile_width, tileHeight: tile_height, overlap}, signal);
@@ -92,6 +96,7 @@ export class DocumentTools {
   async extract({asset_id, question}, {signal}) {
     const a = this.asset(asset_id);
     if (a.kind === 'pdf') throw new ToolError('INPUT_TYPE_UNSUPPORTED', 'Vision accepts PNG/JPEG images. Render the requested PDF page first.', {accepted: ['png', 'jpeg'], detected: 'pdf', origin: 'local_preflight', suggestedTool: 'render_pdf_page'});
+    if(a.kind!=='image')throw new ToolError('INPUT_TYPE_UNSUPPORTED','Vision reads PNG/JPEG, not text/audio/source code.',{origin:'local_preflight',kind:a.kind,suggestedTools:a.suggestedTools});
     await this.inspect(a.id, signal);
     if (!['png', 'jpeg'].includes(a.format)) throw new ToolError('INPUT_TYPE_UNSUPPORTED', 'Vision requires PNG/JPEG', {origin: 'local_preflight'});
     if (!this.vision?.baseUrl || !this.vision?.model) throw new ToolError('VISION_NOT_CONFIGURED', 'Operator must configure the vision API');
@@ -123,7 +128,12 @@ export class DocumentTools {
     return {resultId, assetId: a.id, sourceId: a.sourceId, page: a.page, rootBox: a.rootBox, partial: quality.warnings.length > 0, quality, finishReason: record.finishReason, text: answer.slice(0,5000), totalChars: answer.length, nextOffset: answer.length > 5000 ? 5000 : null};
   }
   status() {
-    return {visionCalls: this.visionCalls, maxVisionCalls: this.maxVisionCalls, contentVerified: false, files: [...this.assets.values()].filter(a => a.id === a.sourceId).map(a => ({assetId: a.id, name: a.name, totalPages: a.pages || null, renderedPages: [...new Set([...this.assets.values()].filter(x => x.sourceId === a.id && x.kind === 'image').map(x => x.page))], pagesWithReturnedText: [...new Set([...this.results.values()].filter(r => r.sourceId === a.id && typeof r.answer === 'string' && r.answer.trim()).map(r => r.page))], textLayerPages:[...new Set([...this.results.values()].filter(r=>r.sourceId===a.id&&r.method==='pdf_text'&&r.answer?.trim()).map(r=>r.page))],visionReturnedPages:[...new Set([...this.results.values()].filter(r=>r.sourceId===a.id&&r.imageSha256&&r.answer?.trim()).map(r=>r.page))], note: 'Rendered/returned pages are not verified pages; region coverage and semantic completeness remain unverified.'}))};
+    return {visionCalls:this.visionCalls,maxVisionCalls:this.maxVisionCalls,contentVerified:false,files:[...this.assets.values()].filter(a=>a.id===a.sourceId).map(a=>{
+      const results=[...this.results.values()].filter(r=>r.sourceId===a.id),ranges=results.filter(r=>r.method==='text_range'&&r.binding).map(r=>[r.binding.start,r.binding.end]).sort((a,b)=>a[0]-b[0]),merged=[];
+      for(const range of ranges){const last=merged.at(-1);if(last&&range[0]<=last[1])last[1]=Math.max(last[1],range[1]);else merged.push([...range]);}
+      const textCharsRead=merged.reduce((n,r)=>n+r[1]-r[0],0);
+      return{assetId:a.id,name:a.name,kind:a.kind,totalPages:a.pages||null,totalChars:a.totalChars??null,textReadRanges:merged,textCharsRead,unreadTextChars:a.totalChars===undefined?null:Math.max(0,a.totalChars-textCharsRead),renderedPages:[...new Set([...this.assets.values()].filter(x=>x.sourceId===a.id&&x.kind==='image').map(x=>x.page))],pagesWithReturnedText:[...new Set(results.filter(r=>r.page&&r.answer?.trim()).map(r=>r.page))],textLayerPages:[...new Set(results.filter(r=>r.method==='pdf_text'&&r.answer?.trim()).map(r=>r.page))],visionReturnedPages:[...new Set(results.filter(r=>r.imageSha256&&r.answer?.trim()).map(r=>r.page))],note:'Read ranges and returned pages are processing receipts, not semantic recall or fact correctness.'};
+    })};
   }
   tools() {
     return [
