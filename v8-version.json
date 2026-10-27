@@ -1,0 +1,12 @@
+{
+  "product": "伴行 V8 · Tools",
+  "version": "8.0.0-dev.0",
+  "branch": "codex/banxing-v8-tools",
+  "baseCommit": "93ec2295ef08e8987c994768d00c2d556e9c63ab",
+  "stage": "isolated_version_initialized",
+  "toolsFirstRuntimeImplemented": false,
+  "baseIndependentAcceptance": "pending",
+  "runtimeIsolationRequired": true,
+  "legacyProductEntry": "start-product.mjs",
+  "note": "Existing product entry still runs inherited V7 behavior. This manifest does not certify a completed V8 product."
+}
