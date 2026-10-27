@@ -1,6 +1,7 @@
 import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
 import {resolveLedgerBindings} from './ledger-bindings.mjs';
 import {guardExportFields} from './source-field-guard.mjs';
+import {guardSourcePresentation} from './source-presentation.mjs';
 import {exportFormats,deliveryArtifacts,revisionRequest} from './delivery-settlement.mjs';
 import {resolvedRunSources,taskAttachmentResolution} from './attachment-context.mjs';
 import {buildTaskIntake,intakeTool} from './task-intake.mjs';
@@ -78,8 +79,12 @@ export class ConversationActions{
   if(args.source_job_id&&run.attachmentResolution){const scope=this.job(run,args.source_job_id).dataScope||[];if(scope.some(f=>!run.resolvedFileIds.includes(f.id)))throw Error('已有结果的来源不属于本轮已绑定附件，请先明确选择材料');}
   if(args.title)input.title=args.title;
   const fieldCheck=guardExportFields(input,conversationSources(this.store,run).map(s=>this.store.state.workspaceFiles.find(f=>f.id===s.id)).filter(Boolean));input=fieldCheck.input;
+  const presentationCheck=guardSourcePresentation(input,{run,files:conversationSources(this.store,run).map(s=>this.store.state.workspaceFiles.find(f=>f.id===s.id&&f.sha256===s.sha256)).filter(Boolean),previous:this.store.state.runs.filter(r=>r.id!==run.id&&r.status==='done')});input=presentationCheck.input;
   const job={id:id(),scenarioId:'export',title:input.title||'交付文件',goal:run.request,conversationId:run.conversationId,chatRunId:run.id,status:'running',createdAt:now(),startedAt:now(),trace:[],artifacts:[],checks:[],warnings:[],actions:[],evidence:[],summary:'',error:null,exportSource:input,sourceJobId:args.source_job_id||null};
   job.dataScope=args.source_job_id?this.job(run,args.source_job_id).dataScope||[]:conversationSources(this.store,run).map(f=>({id:f.id,name:f.name,sha256:f.sha256}));job.resolvedFileIds=job.dataScope.map(f=>f.id);job.attachmentResolution=taskAttachmentResolution(run,job.dataScope,'export_matching_result');job.rules=run.request;job.options={outputFormats:formats};job.authorization='只在本次交付目录创建新文件，不覆盖原件，不写外部系统。';job.nextTrigger='本轮文件导出结束，不自动周期执行';
+  job.responseIntegrity=presentationCheck.audit;
+  if(presentationCheck.audit.issues.length)job.warnings.push('术语展示或核验断言存在待核偏差；原文术语与校验记录已保留。');
+  if(job.dataScope.some(f=>/\.(?:pdf|png|jpe?g)$/i.test(f.name)))job.warnings.push('文件可下载不等于整份材料已双重核验；按正文中的字段与页码回执保留未核验范围。');
   if(run.materialIssues?.length)job.warnings.push('部分来源识别受限，未完成双重核验；仅按实际可读材料交付。');
   if(fieldCheck.issues.length){job.warnings.push('部分字段缺少对应原文依据，已留空/待核，不采用其他字段的日期。');job.fieldSourceIssues=fieldCheck.issues;}
   if(revisionRequest(run.request)&&args.source_job_id)job.warnings.push('本次仅重导出旧结果，不能证明新增字段或修改要求已经落实；需要继续读取原件并修订内容');

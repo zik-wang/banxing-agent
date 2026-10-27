@@ -1,4 +1,5 @@
 import {scaledLimit,PROCESSING_LIMITS} from './processing-capacity.mjs';
+import {guardSourcePresentation} from './source-presentation.mjs';
 import ExcelJS from 'exceljs';
 import {observed,fingerprint} from './qa-events.mjs';
 import JSZip from 'jszip';
@@ -153,6 +154,8 @@ export async function sourceJobContent(store,job){
  return {title:job.title,content,sheets};
 }
 export async function attachDeliverables(store,harness,job,input,formats,signal){
+ if(!job.responseIntegrity){const scope=job.dataScope||[],files=scope.map(s=>store.state.workspaceFiles?.find(f=>f.id===s.id&&f.sha256===s.sha256)).filter(Boolean),run=store.state.runs?.find(r=>r.id===job.chatRunId)||{id:job.chatRunId,conversationId:job.conversationId};const checked=guardSourcePresentation(input,{run,files,previous:store.state.runs||[]});input=checked.input;job.responseIntegrity=checked.audit;if(checked.audit.issues.length)job.warnings.push('术语展示或核验断言有待核偏差，已保留原文及验证记录。');}
+ job.exportSource=input;
  const spec=prepareDelivery(input),result=await generateDeliverables(harness,spec,formats,signal);signal?.throwIfAborted();
  for(const {format,bytes,check}of result.results){writeArtifact(store,job,spec.title.replace(/(?:\.(?:xlsx|docx|pdf))+$/i,'')+'.'+format,bytes,'document');job.checks.push({label:format.toUpperCase()+'文件生成并回读校验通过',passed:true,...check});}
  for(const failure of result.failures){job.warnings.push(failure.format.toUpperCase()+'未交付：'+failure.message);job.checks.push({label:failure.format.toUpperCase()+'文件交付',passed:false,error:failure.message});}

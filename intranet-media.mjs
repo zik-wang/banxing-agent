@@ -27,10 +27,10 @@ export async function transcribeIntranet(store,directory,file,signal,log=()=>{})
 export async function recognizeIntranet(store,directory,file,signal,log=()=>{}){
   if(directory.localMedia)return directory.localMedia.recognize(store,file,signal,log);
   if(!['.png','.jpg','.jpeg','.pdf'].includes(file.extension))throw new Error('文档识别支持PNG、JPG和PDF');
-  const service=directory.get('ocr'),bytes=readOriginal(store,file);
+  const service=directory.get('ocr'),bytes=readOriginal(store,file);let totalPages=file.extension==='.pdf'?null:1;
   if(file.extension==='.pdf'){
     const {getDocument}=await import('pdfjs-dist/legacy/build/pdf.mjs');const loading=getDocument({data:new Uint8Array(bytes),isEvalSupported:false,useSystemFonts:false,stopAtErrors:true});
-    try{const pdf=await loading.promise;if(pdf.numPages>PROCESSING_LIMITS.ocrPages)throw new Error('本轮扫描PDF最多'+PROCESSING_LIMITS.ocrPages+'页，请拆分后重试');}finally{await loading.destroy();}
+    try{const pdf=await loading.promise;totalPages=pdf.numPages;if(pdf.numPages>PROCESSING_LIMITS.ocrPages)throw new Error('本轮扫描PDF最多'+PROCESSING_LIMITS.ocrPages+'页，请拆分后重试');}finally{await loading.destroy();}
   }
   log('progress','内网 MinerU 正在解析材料','',{done:null,total:null});const form=new FormData();form.append('files',new Blob([bytes],{type:file.extension==='.pdf'?'application/pdf':file.extension==='.png'?'image/png':'image/jpeg'}),'source'+file.extension);
   for(const [key,value]of Object.entries({backend:'vlm-engine',return_md:'true',return_content_list:'true',return_images:'false',formula_enable:'false',image_analysis:'false',response_format_zip:'false',start_page_id:'0',end_page_id:String(PROCESSING_LIMITS.ocrPages-1)}))form.append(key,value);
@@ -39,7 +39,7 @@ export async function recognizeIntranet(store,directory,file,signal,log=()=>{}){
   const items=Object.values(result.results||{});if(items.length!==1||typeof items[0].md_content!=='string'||!items[0].md_content.trim())throw new Error('文档解析未返回本次文件的文字');
   let records=[];try{records=typeof items[0].content_list==='string'?JSON.parse(items[0].content_list):items[0].content_list||[];}catch{throw new Error('文档页码来源无法解析，请重试');}
   if(!Array.isArray(records)||records.length>scaledLimit(1500)||items[0].md_content.length>PROCESSING_LIMITS.parsedTextChars)throw new Error('识别结果过多，请拆分材料');
-  log('progress','内网文档解析完成','',{done:1,total:1});return {content:items[0].md_content,records:records.map((r,index)=>({page:Number(r.page_idx||0)+1,line:index+1,text:r.text||r.table_body||'',box:r.bbox||null})),model:service.model,device:'intranet-api',remoteTaskId:result.task_id};
+  log('progress','内网文档解析完成','',{done:1,total:1});const pages=[...new Set(records.filter(r=>Number.isInteger(r.page_idx)&&r.page_idx>=0&&(!totalPages||r.page_idx<totalPages)).map(r=>r.page_idx+1))].sort((a,b)=>a-b);const coverage={totalPages,pages,pageMapping:pages.length?'exact':'unknown',unmappedRecordCount:records.filter(r=>!Number.isInteger(r.page_idx)).length,requestedRange:[0,PROCESSING_LIMITS.ocrPages-1]};return {content:items[0].md_content,coverage,records:records.map((r,index)=>({page:Number(r.page_idx||0)+1,line:index+1,text:r.text||r.table_body||'',box:r.bbox||null})),model:service.model,device:'intranet-api',remoteTaskId:result.task_id};
 }
 
 // Page-aware OCR for the document completeness path. Existing invoice/audio
