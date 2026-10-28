@@ -77,7 +77,10 @@ export class WorkbookTools {
     table.rows.forEach((row,r)=>{const lines=Math.max(...row.map((v,c)=>Math.ceil([...String(v??'')].reduce((n,ch)=>n+(ch.charCodeAt(0)>255?2:1),0)/(table.headers[c].includes('名称')||table.headers[c]==='来源说明'?40:20))));sheet.getRangeByIndexes(r+1,0,1,table.headers.length).format.rowHeightPx=Math.max(44,lines*20+12);});
     const header=sheet.getRangeByIndexes(0,0,1,table.headers.length);header.format.fill='#E6EEF5';header.format.font={bold:true};sheet.freezePanes.freezeRows(1);
     book.recalculate();
-    const output=path.join(folder,'合并报表.xlsx');await(await SpreadsheetFile.exportXlsx(book)).save(output);
+    const output=path.join(folder,'合并报表.xlsx');
+    this.docs.onArtifactIntent?.({artifactId:id,path:output,title,expected:[{name:'合并报表',raw}],tableId:table.id});
+    await(await SpreadsheetFile.exportXlsx(book)).save(output);
+    this.docs.onArtifactWritten?.({artifactId:id,path:output,title,sha256:sha(fs.readFileSync(output)),expected:[{name:'合并报表',raw}],tableId:table.id,previews:[],previewErrors:[],contentVerified:false});
     const preview=path.join(folder,'preview.png');let previewErrors=[];
     try {const blob=await book.render({sheetName:'合并报表',range:`A1:${columnLabel(table.headers.length)}${Math.min(12,raw.length)}`,scale:1,format:'png'});fs.writeFileSync(preview,new Uint8Array(await blob.arrayBuffer()));}catch(e){previewErrors=[{error:e.message}];}
     const enrichedColumns=[...new Set((table.enrichedCells||[]).map(c=>c.column))].map(column=>({column,rows:table.enrichedCells.filter(c=>c.column===column).map(c=>c.outputDataRow)}));

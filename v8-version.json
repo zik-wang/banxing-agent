@@ -1,6 +1,6 @@
 {
   "product": "伴行 V8 · Tools",
-  "version": "8.0.0-dev.6",
+  "version": "8.0.0-dev.7",
   "branch": "codex/banxing-v8-tools",
   "baseCommit": "93ec2295ef08e8987c994768d00c2d556e9c63ab",
   "stage": "tools_runtime_cli_prototype",
@@ -12,7 +12,8 @@
   "baseIndependentAcceptance": "pending",
   "runtimeIsolationRequired": true,
   "legacyProductEntry": "start-product.mjs",
-  "note": "Source-preserving fields, receipt-based delivery and cloud/local fallback added. Product UI remains legacy and independent business acceptance is pending.",
+  "note": "Explicit controlled continuity: scoped immutable resources, typed table rehydration, cumulative recovery budgets and existing delivery settlement. Real-model R2 acceptance pending; legacy UI not migrated.",
   "previousBaselineCommit": "8b8a01aad232551794a97600c9cd31a3fdcd6b5d",
-  "promptVersion": "v8-tools-source-2"
+  "promptVersion": "v8-tools-source-2",
+  "continuitySchemaVersion": 1
 }
