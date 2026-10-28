@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {createHash,randomUUID} from 'node:crypto';
+export const digest=x=>createHash('sha256').update(typeof x==='string'||Buffer.isBuffer(x)?x:JSON.stringify(x)).digest('hex');
+const fail=(code)=>{throw Object.assign(Error(code),{code});};
+export function atomic(file,value){const temp=file+'.'+randomUUID()+'.tmp';fs.writeFileSync(temp,JSON.stringify(value,null,2),{flag:'wx'});fs.renameSync(temp,file);}
+export class ResourceSpace {
+ constructor(root){this.root=path.resolve(root);fs.mkdirSync(this.root,{recursive:true});this.root=fs.realpathSync(this.root);this.file=path.join(this.root,'index.json');this.lock=path.join(this.root,'writer.lock');const blobs=path.join(this.root,'blobs');fs.mkdirSync(blobs,{recursive:true});if(fs.realpathSync(blobs)!==blobs)fail('RESOURCE_PATH_ESCAPE');if(fs.existsSync(this.file)&&fs.realpathSync(this.file)!==this.file)fail('RESOURCE_PATH_ESCAPE');if(!fs.existsSync(this.file))this.tx(()=>{});this.load();}
+ load(){const s=JSON.parse(fs.readFileSync(this.file,'utf8'));if(s.schemaVersion!==1)fail('SPACE_SCHEMA_UNSUPPORTED');return s;}
+ tx(fn){let fd;try{fd=fs.openSync(this.lock,'wx');}catch{fail('SPACE_BUSY_OR_INTERRUPTED_WRITER');}try{const s=fs.existsSync(this.file)?this.load():{schemaVersion:1,projects:{},workItems:{},resources:{},runs:{},operations:{}};const out=fn(s);atomic(this.file,s);return out;}finally{fs.closeSync(fd);fs.unlinkSync(this.lock);}}
+ project(projectId){return this.tx(s=>{s.projects[projectId]??={id:projectId,ruleRevision:0,rules:[]};return s.projects[projectId];});}
+ work(projectId,workItemId){return this.tx(s=>{if(!s.projects[projectId])fail('UNKNOWN_PROJECT');const key=projectId+'/'+workItemId;return s.workItems[key]??={projectId,workItemId,selectionRevision:0,current:null,excluded:[]};});}
+ rules(projectId,rules){return this.tx(s=>{const p=s.projects[projectId];if(!p)fail('UNKNOWN_PROJECT');p.rules=structuredClone(rules);p.ruleRevision++;return p;});}
+ select(projectId,workItemId,ref,expectedRevision){this.check(projectId,ref);return this.tx(s=>{const w=s.workItems[projectId+'/'+workItemId];if(!w||w.selectionRevision!==expectedRevision)fail('SELECTION_REVISION_CONFLICT');w.current=ref;w.selectionRevision++;return w;});}
+ exclude(projectId,workItemId,refs){return this.tx(s=>{const w=s.workItems[projectId+'/'+workItemId];if(!w)fail('UNKNOWN_WORK_ITEM');w.excluded=structuredClone(refs);w.selectionRevision++;return w;});}
+ revoke(projectId,ref){this.check(projectId,ref);return this.tx(s=>{s.resources[ref.resourceId].revoked=true;});}
+ check(projectId,ref,trail=new Set()){const s=this.load(),r=s.resources[ref?.resourceId];if(!r||r.projectId!==projectId||!r.revisions[ref.revisionId])fail('RESOURCE_SCOPE_DENIED');if(r.revoked)fail('RESOURCE_REVOKED');const key=ref.resourceId+':'+ref.revisionId;if(trail.has(key))return r.revisions[ref.revisionId];trail.add(key);const v=r.revisions[ref.revisionId];for(const parent of v.parents)this.check(projectId,parent,trail);return v;}
+ read(projectId,ref){const v=this.check(projectId,ref),p=path.join(this.root,'blobs',v.hash);const real=fs.realpathSync(p);if(path.dirname(real)!==path.join(this.root,'blobs'))fail('RESOURCE_PATH_ESCAPE');const b=fs.readFileSync(real);if(digest(b)!==v.hash)fail('RESOURCE_HASH_MISMATCH');return b;}
+ put({projectId,workItemId,kind,bytes,parents=[],metadata={},resourceId}){for(const ref of parents)this.check(projectId,ref);const hash=digest(bytes),p=path.join(this.root,'blobs',hash);if(fs.existsSync(p)){if(digest(fs.readFileSync(p))!==hash)fail('RESOURCE_HASH_MISMATCH');}else fs.writeFileSync(p,bytes,{flag:'wx'});return this.tx(s=>{if(!s.projects[projectId])fail('UNKNOWN_PROJECT');const id=resourceId||randomUUID(),old=s.resources[id];if(old&&(old.projectId!==projectId||old.workItemId!==workItemId||old.revoked))fail('RESOURCE_SCOPE_DENIED');const revisionId=digest({hash,parents,metadata,kind}),ref={resourceId:id,revisionId};s.resources[id]??={projectId,workItemId,kind,revisions:{}};s.resources[id].revisions[revisionId]={hash,parents,metadata,schemaVersion:1,createdAt:new Date().toISOString()};return ref;});}
+ list(projectId){return Object.entries(this.load().resources).filter(([,r])=>r.projectId===projectId&&!r.revoked).map(([resourceId,r])=>({resourceId,kind:r.kind,revisions:Object.keys(r.revisions)}));}
+}
