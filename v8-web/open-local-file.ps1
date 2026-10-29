@@ -2,7 +2,11 @@ $ErrorActionPreference = 'Stop'
 $file = $env:BANXING_LOCAL_FILE
 $action = $env:BANXING_LOCAL_ACTION
 if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw 'LOCAL_FILE_MISSING' }
-if ((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:BANXING_LOCAL_SHA256) { throw 'LOCAL_FILE_CHANGED' }
+$stream = [IO.File]::OpenRead($file)
+$hasher = [Security.Cryptography.SHA256]::Create()
+try { $actualHash = [BitConverter]::ToString($hasher.ComputeHash($stream)).Replace('-', '').ToLowerInvariant() }
+finally { $stream.Dispose(); $hasher.Dispose() }
+if ($actualHash -ne $env:BANXING_LOCAL_SHA256) { throw 'LOCAL_FILE_CHANGED' }
 if ($action -eq 'open') {
  $allowed = @('.xlsx','.docx','.pdf','.txt','.md','.json','.csv','.tsv','.srt','.png','.jpg','.jpeg','.webp','.gif','.bmp','.mp3','.wav','.m4a','.mp4')
  if ([IO.Path]::GetExtension($file).ToLowerInvariant() -notin $allowed) { throw 'LOCAL_FILE_REVEAL_ONLY' }

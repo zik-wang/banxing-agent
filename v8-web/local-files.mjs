@@ -15,7 +15,7 @@ export function nativeOpenLocalFile({path:file,action,sha256}){
  return new Promise((resolve,reject)=>execFile(executable,['-NoProfile','-NonInteractive','-STA','-Command',script],{
   windowsHide:true,timeout:15000,maxBuffer:65536,
   env:{...process.env,BANXING_LOCAL_FILE:file,BANXING_LOCAL_ACTION:action,BANXING_LOCAL_SHA256:sha256}
- },error=>error?reject(Object.assign(Error('未能打开本地文件，请确认文件未被移走且系统已关联对应应用'),{status:409})):resolve()));
+ },error=>error?reject(Object.assign(Error('未能打开本地文件，请确认文件未被移走且系统已关联对应应用'),{status:409,cause:error})):resolve()));
 }
 export class LocalFileActions {
  constructor({root,space,managed,workspaceId,openLocalFile=nativeOpenLocalFile}){this.root=fs.realpathSync(root);this.space=space;this.managed=managed;this.workspaceId=workspaceId;this.openLocalFile=openLocalFile;}
