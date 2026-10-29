@@ -115,7 +115,7 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
   }
   if(!answer){termination??={reason:'model_round_budget_exhausted'};status=harness.usableResults?'partial':'blocked';answer='本次未完成：'+({cancelled:'任务已取消',tool_budget_exhausted:'工具调用预算已耗尽',no_progress:'连续工具调用没有取得新进展，已停止无效重试',model_error:'模型请求失败',model_round_budget_exhausted:'模型轮次预算已耗尽'}[termination.reason]||termination.reason)+'。已有读取结果、工具错误和交付物均已保存；仍需完成原请求中未取得来源或未交付的部分。'+(termination.error?' 错误：'+termination.error.message:'');}
   const result = {status, answer, termination,calls: harness.calls, contentVerified: false, messages};
-  if(finalizeAnswer){const settlement=await finalizeAnswer(answer,result);result.modelAnswer=answer;result.answer=settlement.answer;result.delivery=settlement;}
+  if(finalizeAnswer){const settlement=await finalizeAnswer(answer,result);result.modelAnswer=answer;result.answer=settlement.answer;result.delivery=settlement;if(settlement.requirementsSatisfied===false){result.status='partial';result.termination??={reason:'requested_delivery_missing',formats:settlement.formatCheck?.missing||[]};}}
   fs.writeFileSync(path.join(harness.directory, 'agent-run.json'), JSON.stringify(result, null, 2));
   return result;
 }

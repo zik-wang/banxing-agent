@@ -12,6 +12,7 @@ import {SourceRecordTools} from './source-record-tools.mjs';
 import {settleDelivery} from './delivery-settlement.mjs';
 import {Continuity} from './continuity.mjs';
 import {ResultTools} from './result-tools.mjs';
+import {requestedFormats} from './delivery-format.mjs';
 
 const configPath = process.argv[2];
 if (!configPath) throw new Error('Usage: node v8-tools/run.mjs <operator-config.json>');
@@ -27,6 +28,7 @@ if(continuity&&['resume','retry','rebuild_delivery'].includes(continuity.mode)&&
 const directory = path.resolve(config.directory);
 fs.mkdirSync(path.dirname(directory), {recursive:true});
 const documents = new DocumentTools({...config, directory,inputs:config.inputs||[]});
+documents.requestedFormats=requestedFormats(continuity?.originalRequest||config.request);
 documents.privateAudioMetadataOnly=isCloud&&config.inputClassification==='private_metadata_only';
 if(isCloud&&config.inputClassification==='private_metadata_only'&&[...documents.assets.values()].some(a=>a.kind!=='audio'))throw Error('CLOUD_SCOPE_DENIED: metadata-only scope supports audio inputs only');
 const texts=new TextTools(documents);
@@ -38,6 +40,7 @@ const workbooks = config.workbookTools ? new WorkbookTools(documents,extras,conf
 const knowledge=new KnowledgeTools(documents,texts,config),delivery=new DeliveryTools(documents,extras,texts),audio=new AudioTools(documents,delivery,config);
 const records=new SourceRecordTools(documents,extras,texts);
 continuity?.bind({docs:documents,workbooks,extras,records});
+extras.initialArtifactIds=new Set(extras.artifacts.keys());
 const allTools=[...documents.tools(),...texts.tools(),...extras.tools(),...(workbooks?.tools()||[]),...knowledge.tools(),...delivery.tools(),...audio.tools(),...records.tools(),...new ResultTools(documents,extras,workbooks).tools()];
 const harness = new ToolHarness({directory, tools: continuity?continuity.wrap(allTools):allTools, maxCalls: config.maxCalls || 24, maxVisibleTools:config.maxVisibleTools||12, maxNoProgress:config.maxNoProgress||5,signal:controller.signal});
 if(continuity){const discovery=harness.tools.get('discover_tools'),original=discovery.execute;discovery.execute=(...args)=>{continuity.spend('tool');return original(...args);};}
@@ -46,7 +49,7 @@ try {
   if(deliveryOnly){const recovered=await continuity.recoverDelivery(settle);console.log(JSON.stringify(recovered,null,2));}
   else {
   const api=chatApi({...config.chat,logDirectory:path.join(directory,'model-responses')});
-  const result = await runToolAgent({harness, next:(...args)=>{continuity?.spend('model');return api(...args);}, request:continuity?.originalRequest||config.request, guidance:(config.focusedGuidance?FOCUSED_DOCUMENT_GUIDANCE+'\n':'')+TOOL_SOURCE_GUIDANCE+'\n后续内容修改可用read_artifact读取当前成果、revise_table修订当前tableId，然后导出新版本。artifactId仅供read_artifact/validate_artifact；不是原件assetId。用户要求可下载成果时，实际导出，不只给文字承诺。', maxRounds:config.maxRounds || 16, context:{...(continuity?.context()||{}),...(config.interactionContext?{interactionContext:config.interactionContext}:{}),materials:[...documents.assets.values()].map(a=>documents.publicAsset(a)),visionLimits:{maxImageBytes:config.vision?.maxImageBytes || 5242880}},finalizeAnswer:async(answer,run)=>{const d=await settle(answer,run);if(continuity)d.continuity=continuity.finish(d);return d;}});
+  const result = await runToolAgent({harness, next:(...args)=>{continuity?.spend('model');return api(...args);}, request:continuity?.originalRequest||config.request, guidance:(config.focusedGuidance?FOCUSED_DOCUMENT_GUIDANCE+'\n':'')+TOOL_SOURCE_GUIDANCE+'\n后续内容修改可用read_artifact读取当前成果、revise_table修订当前tableId，然后导出新版本。artifactId仅供read_artifact/validate_artifact；不是原件assetId。用户要求可下载成果时，实际导出，不只给文字承诺。用户指定Word必须用export_document format=docx；从工作簿或现成表转换直接传table_ids，不手抄单元格。不能用Markdown/TXT替代Word，不能满足时明确报告缺失格式。', maxRounds:config.maxRounds || 16, context:{...(continuity?.context()||{}),...(config.interactionContext?{interactionContext:config.interactionContext}:{}),materials:[...documents.assets.values()].map(a=>documents.publicAsset(a)),visionLimits:{maxImageBytes:config.vision?.maxImageBytes || 5242880}},finalizeAnswer:async(answer,run)=>{const d=await settle(answer,run);if(continuity)d.continuity=continuity.finish(d);return d;}});
   console.log(JSON.stringify({status:result.status,calls:result.calls,answer:result.answer,report:path.join(directory,'agent-run.json')},null,2));
   }
 } catch (error) {

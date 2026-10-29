@@ -39,7 +39,7 @@ export function combineDatasets(tables,{mode='append',key_columns=[]}={}) {
 }
 
 export class WorkbookTools {
-  constructor(documents,extras,{artifactModule}={}) {this.docs=documents;this.extras=extras;this.artifactModule=artifactModule;this.tables=new Map();}
+  constructor(documents,extras,{artifactModule}={}) {this.docs=documents;this.extras=extras;this.artifactModule=artifactModule;this.tables=new Map();documents.workbookTools=this;}
   save(){fs.writeFileSync(path.join(this.docs.directory,'tables.json'),JSON.stringify([...this.tables.values()],null,2));}
   summary(table) {
     const resultId=randomUUID(),answer=JSON.stringify({headers:table.headers,rows:table.rows},null,2);

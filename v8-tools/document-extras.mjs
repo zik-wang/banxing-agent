@@ -13,8 +13,8 @@ const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 
 // No scenario names, expected answers or fixed processing pipelines belong here.
 export class DocumentExtras {
-  constructor(documents,{artifactModule,sourceConstraints=false}={}) {
-    this.docs=documents; this.artifactModule=artifactModule; this.artifacts=new Map();this.sourceConstraints=sourceConstraints;
+  constructor(documents,{artifactModule,docxModule,sourceConstraints=false}={}) {
+    this.docs=documents; this.artifactModule=artifactModule; this.docxModule=docxModule||(artifactModule?path.resolve(path.dirname(artifactModule),'../../../docx/dist/index.mjs'):undefined); this.artifacts=new Map();this.sourceConstraints=sourceConstraints;
   }
   save() {fs.writeFileSync(path.join(this.docs.directory,'artifacts.json'),JSON.stringify([...this.artifacts.values()],null,2));}
   async text({asset_id,page}, {signal}) {
@@ -87,6 +87,10 @@ export class DocumentExtras {
     const a=this.artifacts.get(artifact_id);
     if(!a) throw new ToolError('UNKNOWN_ARTIFACT','Use an artifact ID returned by export_xlsx');
     if(digest(fs.readFileSync(a.path))!==a.sha256) throw new ToolError('ARTIFACT_CHANGED','Exported artifact changed');
+    if(a.kind==='docx'){
+      const document=await this.docs.worker({operation:'inspect_docx',input:a.path},signal),exportIntegrityPassed=document.packageValid&&JSON.stringify(document.paragraphs)===JSON.stringify(a.expectedWord.paragraphs)&&JSON.stringify(document.tables)===JSON.stringify(a.expectedWord.tables);
+      const result={artifactId:a.artifactId,path:a.path,sha256:a.sha256,exportIntegrityPassed,document,contentVerified:false};a.saveReadbackPassed=exportIntegrityPassed;this.save();fs.writeFileSync(path.join(path.dirname(a.path),'readback.json'),JSON.stringify(result,null,2));return result;
+    }
     if(a.kind==='text'){
       const bytes=fs.readFileSync(a.path),exportIntegrityPassed=digest(bytes)===a.expectedBytesSha256;
       const result={artifactId:a.artifactId,path:a.path,sha256:a.sha256,exportIntegrityPassed,bytes:bytes.length,contentVerified:false,note:'Actual text/patch bytes reopened; save integrity does not prove factual or code correctness.'};
@@ -109,7 +113,7 @@ export class DocumentExtras {
     return [
       definition('extract_pdf_text','Extract one physical PDF page text layer without a model. Useful for exact original spelling. Does not prove visual layout or row pairing. For empty scans use render_pdf_page and vision_extract. Drain nextOffset with read_result.',obj({asset_id:str(),page:int(1,10000)}),(a,c)=>this.text(a,c)),
       definition('export_xlsx','Export supplied tables to a real downloadable Excel workbook. All cells are literal strings, no formulas or automatic date conversion. Chinese column labels and original source values can coexist. Include unresolved issues; tool does not invent rows or verify source meaning.',obj({title:str(100),sheets:arr(obj({name:str(31),headers:arr(str(120),1,30),rows:arr(arr(str(2048,0),1,30),1,500)}),1,8),source_refs:arr(obj({asset_id:str(),page:int(1,10000)}),1,100)}),(a,c)=>this.export(a,c)),
-      definition('validate_artifact','Reopen an exported Excel file and compare every saved cell to export arguments; returns actual cells with pagination. Export integrity is NOT factual correctness or full source coverage.',obj({artifact_id:str()}),(a,c)=>this.inspect(a,c))
+      definition('validate_artifact','Reopen an exported XLSX or DOCX and compare every saved cell/paragraph to export arguments; returns actual document data. Export integrity is NOT factual correctness or full source coverage.',obj({artifact_id:str()}),(a,c)=>this.inspect(a,c))
     ];
   }
 }

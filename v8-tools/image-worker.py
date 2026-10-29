@@ -50,6 +50,20 @@ elif job['operation'] in ['inspect_xlsx','read_workbook']:
         sheets.append({'name':sheet.title,'rows':rows,'formulas':formulas})
     book.close()
     result = {'sheets':sheets, 'contentVerified':False}
+elif job['operation'] == 'inspect_docx':
+    from zipfile import ZipFile
+    import xml.etree.ElementTree as ET
+    with ZipFile(source) as z:
+        if not {'[Content_Types].xml','word/document.xml','_rels/.rels'}.issubset(set(z.namelist())):
+            raise ValueError('INVALID_DOCX_PACKAGE')
+        if z.getinfo('word/document.xml').file_size > 20000000:
+            raise ValueError('DOCX_READBACK_SIZE_LIMIT')
+        body = ET.fromstring(z.read('word/document.xml')).find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}body')
+        ns = {'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+        txt = lambda e: ''.join(t.text or '' for t in e.findall('.//w:t',ns))
+        paragraphs = [txt(p) for p in body.findall('w:p',ns)]
+        tables = [[[txt(c) for c in r.findall('w:tc',ns)] for r in table.findall('w:tr',ns)] for table in body.findall('w:tbl',ns)]
+    result = {'paragraphs':paragraphs,'tables':tables,'packageValid':True,'contentVerified':False}
 elif job['operation'] == 'render':
     with pdfium.PdfDocument(source) as doc:
         number = job['page']

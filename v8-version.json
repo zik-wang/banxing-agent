@@ -1,6 +1,6 @@
 {
   "product": "伴行 V8 · Tools",
-  "version": "8.0.0-dev.8",
+  "version": "8.0.0-dev.9",
   "branch": "codex/banxing-v8-tools",
   "baseCommit": "93ec2295ef08e8987c994768d00c2d556e9c63ab",
   "stage": "web_chat_tools_prototype",
@@ -12,9 +12,9 @@
   "baseIndependentAcceptance": "pending",
   "runtimeIsolationRequired": true,
   "legacyProductEntry": "start-product.mjs",
-  "note": "Independent V8 web chat reuses V7 UI styles and R2 scoped continuity; upload, follow-up revisions and verified downloads. Full legacy product features are not migrated.",
+  "note": "Native DOCX export/readback and requested-format completion gate; original user Word conversion tested with intranet Qwen. PDF export not registered. Independent QA pending.",
   "previousBaselineCommit": "8b8a01aad232551794a97600c9cd31a3fdcd6b5d",
-  "promptVersion": "v8-tools-web-result-1",
+  "promptVersion": "v8-tools-word-format-1",
   "continuitySchemaVersion": 1,
   "webChatImplemented": true
 }
