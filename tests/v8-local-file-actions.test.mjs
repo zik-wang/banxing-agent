@@ -55,7 +55,7 @@ test('file hyperlinks describe the actual local output; GET does not launch the 
  const view=await(await x.req('/api/conversations/'+a.c.id)).json();
  const local=view.turns[0].localFiles.find(f=>f.id===a.record.artifactId);
  assert(local,'the result has a local file hyperlink');
- assert.equal(local.path,fs.realpathSync(a.file));assert.equal(local.available,true);assert.equal(local.canOpen,true);
+ assert.equal(local.path,fs.realpathSync(path.join(x.workspace.botFiles.folder('general'),'成果',a.record.artifactId,path.basename(a.file))));assert.equal(local.available,true);assert.equal(local.canOpen,true);
  assert.equal(local.openUrl,a.url+'/open');assert.equal(local.revealUrl,a.url+'/reveal');
  await rejectWithoutOpening(x,local.openUrl,{method:'GET'});
  await rejectWithoutOpening(x,local.revealUrl,{method:'GET'});
@@ -68,7 +68,7 @@ test('POST open and reveal pass the exact Chinese and spaced path as data to the
   const res=await x.req(a.url+'/'+action,{method:'POST'});assert.equal(res.status,200,await res.text());
  }
  assert.deepEqual(x.calls.map(({path:file,action})=>({path:file,action})),[
-  {path:fs.realpathSync(a.file),action:'open'},{path:fs.realpathSync(a.file),action:'reveal'}]);
+  {path:fs.realpathSync(path.join(x.workspace.botFiles.folder('general'),'成果',a.record.artifactId,path.basename(a.file))),action:'open'},{path:fs.realpathSync(path.join(x.workspace.botFiles.folder('general'),'成果',a.record.artifactId,path.basename(a.file))),action:'reveal'}]);
 });
 
 test('open and reveal require the same-origin UI mutation header',async t=>{
@@ -84,7 +84,7 @@ test('client body and query paths cannot redirect a valid file action to another
  const x=await setup(t),a=output(x),outsider=path.join(x.parent,'outside-data-root.txt');fs.writeFileSync(outsider,'must never open');
  const res=await x.req(a.url+'/reveal?path='+encodeURIComponent(outsider),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:outsider,action:'open',command:'calc.exe'})});
  assert.equal(res.status,200,await res.text());
- assert.equal(x.calls.length,1);assert.equal(x.calls[0].path,fs.realpathSync(a.file));assert.equal(x.calls[0].action,'reveal');
+ assert.equal(x.calls.length,1);assert.equal(x.calls[0].path,fs.realpathSync(path.join(x.workspace.botFiles.folder('general'),'成果',a.record.artifactId,path.basename(a.file))));assert.equal(x.calls[0].action,'reveal');
 });
 
 test('turn identity is required; another conversation and unknown artifact IDs cannot open the file',async t=>{
@@ -126,7 +126,7 @@ test('a hidden new verified artifact is linked from its host settlement record w
  const view=await(await x.req('/api/conversations/'+a.c.id)).json();
  assert.equal(view.turns[0].artifacts.length,0,'retain the original historical delivery classification');
  const local=view.turns[0].localFiles.find(f=>f.id===a.record.artifactId);assert(local,'new verified files are not lost with download cards');
- assert.equal(local.path,fs.realpathSync(a.file));
+ assert.equal(local.path,fs.realpathSync(path.join(x.workspace.botFiles.folder('general'),'成果',a.record.artifactId,path.basename(a.file))));
  assert.equal((await x.req(local.revealUrl,{method:'POST'})).status,200);
  assert.equal(x.calls.length,1);assert.equal(fs.readFileSync(a.file,'utf8'),'真实交付结果');
 });
