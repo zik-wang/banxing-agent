@@ -50,7 +50,7 @@ export class DocumentExtras {
     for(const spec of sheets) {
       const sheet=book.worksheets.add(spec.name),columns=spec.headers.length;
       const originalRaw=[[title,...Array(columns-1).fill('')],['来源：'+sources,...Array(columns-1).fill('')],spec.headers,...spec.rows];
-      const raw=originalRaw.map((row,r)=>row.map((value,c)=>{const displayed=value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,ch=>'⟦U+'+ch.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0')+'⟧');if(displayed!==value)serializationTransformations.push({sheet:spec.name,row:r+1,column:c+1,original:value,displayed,reason:'Original contains characters forbidden by XML/XLSX; exact original retained in this JSON and source evidence'});return displayed;}));
+      const raw=originalRaw.map((row,r)=>row.map((value,c)=>{const displayed=value.replace(/\r\n?/g,'\n').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,ch=>'⟦U+'+ch.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0')+'⟧');if(displayed!==value)serializationTransformations.push({sheet:spec.name,row:r+1,column:c+1,original:value,displayed,reason:'Excel display normalizes CR/CRLF line breaks or escapes XML-forbidden characters; exact original retained in this JSON and source evidence'});return displayed;}));
       // Values only: source text must never become an executable spreadsheet formula.
       const values=raw.map(row=>row.map(v=>v.startsWith('=')?"'"+v:v));
       sheet.getRangeByIndexes(0,0,values.length,columns).values=values;
