@@ -52,7 +52,7 @@ export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,tim
   if(!Number.isInteger(allowed)||allowed<1)throw makeError('MODEL_REQUEST_BUDGET_EXHAUSTED','模型网络请求预算已耗尽',{requestId});
   const combined=AbortSignal.any([...(signal?[signal]:[]),AbortSignal.timeout(timeoutMs)]);
   const cloud=provider==='cloud'||provider==='siliconflow';
-  const settings=enableThinking===undefined?{}:cloud?{enable_thinking:enableThinking}:{chat_template_kwargs:{enable_thinking:enableThinking}};
+  const settings=enableThinking===undefined?{}:provider==='iteracompute'?{chat_template_kwargs:{enable_thinking:enableThinking}}:cloud?{enable_thinking:enableThinking}:{chat_template_kwargs:{enable_thinking:enableThinking}};
   const body=JSON.stringify({model,messages,tools:definitions.map(t=>({type:'function',function:{name:t.name,description:t.description,parameters:t.inputSchema}})),tool_choice:'auto',temperature:0.1,max_tokens:maxTokens,...settings});
   for(let attempt=1;attempt<=allowed;attempt++){
    if(combined.aborted){stats.failedRequests++;throw makeError(signal?.aborted?'MODEL_REQUEST_CANCELLED':'MODEL_REQUEST_TIMEOUT',signal?.aborted?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt-1,phase:'before_request'});}

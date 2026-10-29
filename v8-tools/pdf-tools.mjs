@@ -7,8 +7,9 @@ import {classifyFile,decodeSource} from './file-types.mjs';
 const sha=b=>createHash('sha256').update(b).digest('hex');
 const CONVERTER='node-93--mygpt-lo--p2010',MAX=50*1024*1024;
 export class PdfTools{
- constructor(docs,extras,{fetchImpl=fetch}={}){this.docs=docs;this.extras=extras;this.fetch=fetchImpl;}
+ constructor(docs,extras,{fetchImpl=fetch,externalWorkspace=false}={}){this.docs=docs;this.extras=extras;this.fetch=fetchImpl;this.externalWorkspace=externalWorkspace;}
  async office(bytes,name,signal){
+  if(this.externalWorkspace)throw new ToolError('OFFICE_CONVERTER_UNAVAILABLE','This external workspace cannot access the company Office-to-PDF service. Original files remain available; images and existing PDFs can still be handled locally.');
   const options={redirect:'error',signal:AbortSignal.any([...(signal?[signal]:[]),AbortSignal.timeout(120000)])};
   const catalog=await readJson(await this.fetch(CATALOG_URL+'/services',options));
   const s=catalog.items?.find(x=>x.id===CONVERTER);
