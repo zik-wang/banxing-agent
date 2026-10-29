@@ -7,4 +7,4 @@ export function turnIntent(request=''){
  const materialTask=/(?:合并|合.{0,3}(?:起来|一起)|对比|比较|转成|转换|读取|阅读|提取|整理)/u.test(request)&&/(?:这个|这份|这两|这些|附件|文件|材料|报表|表格)/u.test(request)&&!/(?:知识库|日历|检索)/u.test(request);
  return {kind:answerOnly?'answer_only':existing?'existing_file':create?'create_file':'answer',noNewFiles:answerOnly,formats,materialTask};
 }
-export const outputTools=new Set(['export_document','export_xlsx','export_table','export_source_records','revise_table','merge_tables','apply_patch_copy','store_knowledge','split_audio']);
+export const outputTools=new Set(['convert_to_pdf','export_document','export_xlsx','export_table','export_source_records','revise_table','merge_tables','apply_patch_copy','store_knowledge','split_audio']);

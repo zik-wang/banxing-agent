@@ -87,6 +87,12 @@ export class DocumentExtras {
     const a=this.artifacts.get(artifact_id);
     if(!a) throw new ToolError('UNKNOWN_ARTIFACT','Use an artifact ID returned by export_xlsx');
     if(digest(fs.readFileSync(a.path))!==a.sha256) throw new ToolError('ARTIFACT_CHANGED','Exported artifact changed');
+    if(a.kind==='pdf'){
+      const textPath=path.join(path.dirname(a.path),'pdf-text.json');
+      const document=await this.docs.worker({operation:'verify_pdf',input:a.path,output:textPath},signal);
+      a.pdfTextPath=textPath;a.saveReadbackPassed=true;this.save();
+      return {artifactId:a.artifactId,path:a.path,sha256:a.sha256,exportIntegrityPassed:true,document,contentVerified:false,note:'PDF structure and saved bytes checked; source completeness and layout require separate review.'};
+    }
     if(a.kind==='docx'){
       const document=await this.docs.worker({operation:'inspect_docx',input:a.path},signal),exportIntegrityPassed=document.packageValid&&JSON.stringify(document.paragraphs)===JSON.stringify(a.expectedWord.paragraphs)&&JSON.stringify(document.tables)===JSON.stringify(a.expectedWord.tables);
       const result={artifactId:a.artifactId,path:a.path,sha256:a.sha256,exportIntegrityPassed,document,contentVerified:false};a.saveReadbackPassed=exportIntegrityPassed;this.save();fs.writeFileSync(path.join(path.dirname(a.path),'readback.json'),JSON.stringify(result,null,2));return result;

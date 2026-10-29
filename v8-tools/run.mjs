@@ -4,6 +4,7 @@ import {randomUUID} from 'node:crypto';
 import {inlineMaterial} from './inline-material.mjs';
 import {ScheduleTools} from './scheduled-tasks.mjs';
 import {ServiceHealthTools} from './service-health-tools.mjs';
+import {PdfTools} from './pdf-tools.mjs';
 import {DocumentTools} from './document-tools.mjs';
 import {ToolHarness, runToolAgent, chatApi, FOCUSED_DOCUMENT_GUIDANCE,TOOL_SOURCE_GUIDANCE} from './harness.mjs';
 import {DocumentExtras} from './document-extras.mjs';
@@ -61,7 +62,7 @@ if(pastedMessage&&!config.inlineMaterial&&!deliveryOnly){
 
 extras.initialArtifactIds=new Set(extras.artifacts.keys());
 const workspaceTools=new WorkspaceTools(continuity,documents,workbooks);
-const allTools=workspaceTools.adapt([...documents.tools(),...texts.tools(),...extras.tools(),...(workbooks?.tools()||[]),...knowledge.tools(),...delivery.tools(),...audio.tools(),...records.tools(),...new ServiceHealthTools(documents,config).tools(),...new ScheduleTools({...config,request:taskRequest},continuity).tools(),...new ResultTools(documents,extras,workbooks).tools()]);
+const allTools=workspaceTools.adapt([...documents.tools(),...texts.tools(),...extras.tools(),...(workbooks?.tools()||[]),...knowledge.tools(),...delivery.tools(),...audio.tools(),...records.tools(),...new ServiceHealthTools(documents,config).tools(),...new PdfTools(documents,extras,config).tools(),...new ScheduleTools({...config,request:taskRequest},continuity).tools(),...new ResultTools(documents,extras,workbooks).tools()]);
 if(documents.turnIntent.noNewFiles)for(const t of allTools)if(outputTools.has(t.name))t.execute=async()=>{throw Object.assign(Error('本轮要求只回答，禁止生成或修改文件'),{code:'ANSWER_ONLY_TURN'});};
 const harness = new ToolHarness({directory, tools: continuity?continuity.wrap(allTools):allTools, maxCalls: config.maxCalls || 24, maxVisibleTools:config.maxVisibleTools||12,preferredTools:config.botPolicy?.preferredTools||[], maxNoProgress:config.maxNoProgress||5,maxDiscoveryCalls:config.maxDiscoveryCalls??8,maxDiscoveryStreak:config.maxDiscoveryStreak??6,signal:controller.signal});
 if(continuity){const discovery=harness.tools.get('discover_tools'),original=discovery.execute;discovery.execute=(...args)=>{continuity.spend('tool');return original(...args);};}

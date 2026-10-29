@@ -11,7 +11,13 @@ def describe(p):
     with Image.open(p) as image:
         return {'width': image.width, 'height': image.height, 'format': image.format.lower()}
 
-if job['operation'] == 'word_text':
+if job['operation'] == 'prepare_pdf_input':
+    from pdf_conversion import prepare
+    result = prepare(job)
+elif job['operation'] == 'verify_pdf':
+    from pdf_conversion import verify
+    result = verify(job)
+elif job['operation'] == 'word_text':
     from word_reader import read_word
     result = read_word(source, job['output'])
 elif job['operation'] == 'inspect':
