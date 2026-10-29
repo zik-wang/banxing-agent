@@ -1,19 +1,20 @@
 {
   "product": "伴行 V8 · Tools",
-  "version": "8.0.0-dev.7",
+  "version": "8.0.0-dev.8",
   "branch": "codex/banxing-v8-tools",
   "baseCommit": "93ec2295ef08e8987c994768d00c2d556e9c63ab",
-  "stage": "tools_runtime_cli_prototype",
+  "stage": "web_chat_tools_prototype",
   "toolsFirstRuntimeImplemented": true,
   "productUiMigrated": false,
-  "implementedToolCount": 26,
+  "implementedToolCount": 28,
   "plannedToolCount": 39,
   "toolsEntry": "v8-tools/run.mjs",
   "baseIndependentAcceptance": "pending",
   "runtimeIsolationRequired": true,
   "legacyProductEntry": "start-product.mjs",
-  "note": "Explicit controlled continuity: scoped immutable resources, typed table rehydration, cumulative recovery budgets and existing delivery settlement. Real-model R2 acceptance pending; legacy UI not migrated.",
+  "note": "Independent V8 web chat reuses V7 UI styles and R2 scoped continuity; upload, follow-up revisions and verified downloads. Full legacy product features are not migrated.",
   "previousBaselineCommit": "8b8a01aad232551794a97600c9cd31a3fdcd6b5d",
-  "promptVersion": "v8-tools-source-2",
-  "continuitySchemaVersion": 1
+  "promptVersion": "v8-tools-web-result-1",
+  "continuitySchemaVersion": 1,
+  "webChatImplemented": true
 }

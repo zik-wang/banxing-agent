@@ -27,7 +27,9 @@
     "split_audio",
     "transcribe_audio",
     "read_source_records",
-    "export_source_records"
+    "export_source_records",
+    "read_artifact",
+    "revise_table"
   ],
   "plannedGroups": [
     {
