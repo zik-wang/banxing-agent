@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {randomUUID,createHash} from 'node:crypto';
+import {createChatApi} from './model-transport.mjs';
 
 export class ToolError extends Error {
   constructor(code, message, details = {}) { super(message); this.code = code; this.details = details; }
@@ -114,13 +115,16 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
   if(initialMessages&&!context.scope){const fresh=messages[0];messages.splice(0,messages.length,fresh,...structuredClone(initialMessages).filter(m=>m.role!=='system'),{role:'user',content:request});}
   if(!Number.isInteger(maxRounds)||maxRounds<0)throw new Error('maxRounds must be a nonnegative integer');
   let answer = '', status = 'partial',termination=null,modelRoundsUsed=0;
+  const physicalRequests=()=>typeof next.metrics==='function'?next.metrics().networkAttempts:modelRoundsUsed;
   if(preflight?.needsInput){answer=preflight.message;status='needs_input';termination={reason:'missing_input'};}
   rounds: for (let round = 0; round < maxRounds; round++) {
     if(preflight?.needsInput)break;
     if(harness.signal.aborted){termination={reason:'cancelled'};break;}
     if(harness.calls>=harness.maxCalls){termination={reason:'tool_budget_exhausted'};break;}
     if(harness.noProgress>=harness.maxNoProgress){termination={reason:'no_progress',consecutive:harness.noProgress,recent:harness.history.slice(-harness.maxNoProgress)};break;}
-    let reply;try{modelRoundsUsed++;reply=await next(messages, harness.listTools(), harness.signal);}catch(e){termination={reason:harness.signal.aborted?'cancelled':'model_error',error:{code:e.code||'MODEL_REQUEST_FAILED',message:e.message}};break;}
+    const remaining=maxRounds-physicalRequests();
+    if(remaining<=0){termination={reason:'model_round_budget_exhausted'};break;}
+    let reply;try{modelRoundsUsed++;reply=await next(messages, harness.listTools(), harness.signal,{maxAttempts:remaining});}catch(e){termination={reason:harness.signal.aborted?'cancelled':'model_error',error:{code:e.code||'MODEL_REQUEST_FAILED',message:e.message,...(e.details?{details:e.details}:{})}};break;}
     if (!reply || reply.role !== 'assistant') throw new Error('Invalid model message');
     messages.push(reply);
     if (!reply.tool_calls?.length) { answer = typeof reply.content === 'string' ? reply.content : ''; status = answer ? 'model_finished' : 'partial'; break; }
@@ -135,30 +139,10 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
     }
   }
   if(!answer){termination??={reason:'model_round_budget_exhausted'};status=harness.usableResults?'partial':'blocked';answer='本次未完成：'+({cancelled:'任务已取消',tool_budget_exhausted:'工具调用预算已耗尽',no_progress:'连续工具调用没有取得新进展，已停止无效重试',model_error:'模型请求失败',model_round_budget_exhausted:'模型轮次预算已耗尽'}[termination.reason]||termination.reason)+'。已有读取结果、工具错误和交付物均已保存；仍需完成原请求中未取得来源或未交付的部分。'+(termination.error?' 错误：'+termination.error.message:'');}
-  const result = {status, answer, termination,calls: harness.calls,modelRoundsUsed,maxModelRounds:maxRounds,metrics:{modelRequests:modelRoundsUsed,...harness.metrics()}, contentVerified: false, messages};
+  const result = {status, answer, termination,calls: harness.calls,modelRoundsUsed,maxModelRounds:maxRounds,metrics:{modelRequests:physicalRequests(),...(typeof next.metrics==='function'?{modelTransport:next.metrics()}:{}),...harness.metrics()}, contentVerified: false, messages};
   if(finalizeAnswer){const settlement=await finalizeAnswer(answer,result);result.modelAnswer=answer;result.answer=settlement.answer;result.delivery=settlement;if(settlement.requirementsSatisfied===false){result.status=settlement.outcome==='needs_input'?'needs_input':'partial';result.termination??={reason:'requested_delivery_missing',formats:settlement.formatCheck?.missing||[]};}}
   fs.writeFileSync(path.join(harness.directory, 'agent-run.json'), JSON.stringify(result, null, 2));
   return result;
 }
 
-export function chatApi({baseUrl, model, apiKey, provider,fetchImpl = fetch, timeoutMs = 120000, maxTokens = 2000, logDirectory, enableThinking}) {
-  if(enableThinking!==undefined&&typeof enableThinking!=='boolean') throw new Error('enableThinking must be boolean when configured');
-  return async (messages, definitions, signal) => {
-    const startedAt=new Date().toISOString(),started=Date.now();
-    const cloud=provider==='cloud'||provider==='siliconflow';const settings=enableThinking===undefined?{}:cloud?{enable_thinking:enableThinking}:{chat_template_kwargs:{enable_thinking:enableThinking}};
-    let response;try{response = await fetchImpl(baseUrl.replace(/\/$/, '') + '/chat/completions', {
-      method: 'POST', redirect: 'error', signal: AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)]),
-      headers: {'Content-Type': 'application/json', ...(apiKey ? {Authorization: `Bearer ${apiKey}`} : {})},
-      body: JSON.stringify({model, messages, tools: definitions.map(t => ({type: 'function', function: {name: t.name, description: t.description, parameters: t.inputSchema}})), tool_choice: 'auto', temperature: 0.1, max_tokens: maxTokens,...settings})
-    });}catch(e){if(logDirectory){fs.mkdirSync(logDirectory,{recursive:true});fs.writeFileSync(path.join(logDirectory,randomUUID()+'.json'),JSON.stringify({startedAt,elapsedMs:Date.now()-started,model,provider,error:{name:e.name,message:e.message},networkRequestAttempted:true},null,2));}throw e;}
-    let raw=await response.text();if(apiKey)raw=raw.split(apiKey).join('[REDACTED_CREDENTIAL]');let data;try{data=JSON.parse(raw);}catch{}
-    if(logDirectory) {
-      fs.mkdirSync(logDirectory,{recursive:true});
-      fs.writeFileSync(path.join(logDirectory,randomUUID()+'.json'),JSON.stringify({startedAt,elapsedMs:Date.now()-started,model,provider:provider||'unspecified',maxTokens,enableThinking,visibleTools:definitions.map(d=>d.name),messageCount:messages.length,httpStatus:response.status,response:data,responseRaw:raw},null,2));
-    }
-    if (!response.ok) throw new ToolError('MODEL_HTTP_ERROR', `Planning model HTTP ${response.status}`,{responsePreview:raw.slice(0,600)});
-    if(!data)throw new ToolError('MODEL_INVALID_JSON','Planning model returned invalid JSON');
-    if (data.choices?.[0]?.finish_reason === 'length') throw new ToolError('MODEL_OUTPUT_TRUNCATED', 'Planning model response was truncated');
-    return data.choices?.[0]?.message;
-  };
-}
+export function chatApi(options) { return createChatApi(options,ToolError); }
