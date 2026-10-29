@@ -1,0 +1,33 @@
+伴行 V8：个人工作空间
+
+资源归属
+workspaceId固定为本机应用的personal，独立于conversationId。每个对话有自己的workItemId，不共享current指针。项目隔离仍由ResourceSpace.check执行，新增显式授权映射只覆盖本机web-state里已登记的旧对话。
+
+实体布局（默认数据根.local-runtime/v8-web/data）
+space/index.json：唯一权威ResourceSpace索引，含项目、工作项、资源修订、run、operation、迁移授权。
+space/blobs/<SHA256>：既有内容寻址字节，保留旧路径与引用。
+space/workspaces/personal/workspace.json：空间身份和索引位置。
+space/workspaces/personal/originals/<resourceId>/<安全名>：新上传原件的实体副本，读前核对SHA。
+space/workspaces/personal/artifacts/<workItemId>/<resourceId>/<安全名>：新交付文件副本。
+space/workspaces/personal/migration-manifest.json：逐对话迁移/授权清单及未识别旧项目。
+space/workspaces/personal/migration-backup/：迁移前的web-state及既有索引副本。
+runs/<turnId>/：实际输入副本、转图/区域、工具/API回执、checkpoint与成果文件，沿用已有目录。
+
+资源索引字段
+resourceId/revisionId、kind(original/derived/parsed/artifact/checkpoint/result)、projectId/workItemId、hash、parents、metadata.name/safeName/managedPath、classification、originConversationId/sourceConversationId、producerRunId、createdAt、status/revoked分别保存。哈希和读取授权是技术校验，不是语义准确率。
+
+使用
+新对话直接描述旧文件或成果。list_materials按名称/已解析字段摘要/类型/时间/来源分页发现；inspect_material用resource_id+revision_id受控加载；read_artifact可按实际历史artifactId追溯其producer checkpoint。按需授权与选择理由写入resource-receipt.json和run snapshot，页面显示本轮选择。
+
+同名不同内容默认澄清，可用明确哈希/资源ID辨别；“刚才/最新”只能在同名候选中按唯一时间顺序判断。不把全局任意最新文件设成当前工作成果。
+取消本对话引用只改当前范围；空间归档或撤权阻断发现及读取，包括依赖它的派生物。归档不删除字节，撤权不会被重复导入恢复。相同名称+SHA的有效原件重复导入复用原资源，不覆盖不同内容。
+
+缓存
+当前持久解析缓存覆盖read_workbook，以源SHA、工作表/表头参数和实际reader源码指纹为键，保留数值和来源行。读取前仍核对资源与原件SHA。PDF、视觉、ASR没有在本轮增加跨运行解析缓存。
+
+迁移与回退
+已知本机旧对话保持原文件ID、旧resource ref、原project/work信息与任务回执，建立授权映射；不重写旧ref字符串、不改历史任务状态为成功。旧项目中不能归属到web-state对话的资源留在pending，不授予默认空间。迁移按索引事务和逐对话登记重复执行。旧下载接口继续校验原文件和来源授权。
+上线前另保存完整生产数据备份和旧启动配置；回退仅在无活动任务时恢复旧代码/配置，必要时使用备份到独立dataRoot验证后切换。不要在已有新增任务的数据目录上直接覆盖索引。
+
+边界
+这是单用户本机个人空间，不是多账号团队权限系统。工具读取的工作区文件仍标记private，仅传公司内网；未放开公网权限。原始下载文件不会被搬动或自动扫描。未实现任意磁盘目录监视，也不保证模型对所有口语描述均能唯一匹配。

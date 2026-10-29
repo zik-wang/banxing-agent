@@ -87,7 +87,7 @@ export class WorkbookTools {
     const deliveryFacts={dataRows:table.rows.length,columns:table.headers.length,inputTableRows:table.inputTableRows||[table.rows.length],removedRows:table.removed?.length||0,conflictingKeys:table.conflicts?.length||0,enrichedColumns,numericColumns:table.headers.map((name,c)=>({name,numericCells:table.rows.filter(r=>typeof r[c]==='number').length})).filter(c=>c.numericCells)};
     const record={artifactId:id,path:output,title,sha256:sha(fs.readFileSync(output)),expected:[{name:'合并报表',raw}],previews:previewErrors.length?[]:[preview],previewErrors,tableId:table.id,deliveryFacts,contentVerified:false};
     this.extras.artifacts.set(id,record);this.extras.save();
-    return {artifactId:id,path:output,sha256:record.sha256,dataRows:table.rows.length,columns:table.headers.length,tableId:table.id,previewErrors,note:'The saved workbook preserves table values and numeric types. Use validate_artifact to read back all saved cells.'};
+    return {artifactId:id,path:output,sha256:record.sha256,dataRows:table.rows.length,columns:table.headers.length,tableId:table.id,previewErrors,deliveryFacts,note:'The saved workbook preserves table values and numeric types. Use validate_artifact to read back all saved cells.'};
   }
   tools(){return [
     def('read_workbook','Read one XLSX worksheet table, retaining values, headers, numeric types and source row references. Does not change rows. Sheet names come from inspect_material. Large result is paginated through read_result.',obj({asset_id:str(),sheet:str(),header_row:{type:'integer',minimum:1,maximum:50}},['asset_id','sheet']),(a,c)=>this.read(a,c)),
