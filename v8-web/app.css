@@ -115,6 +115,8 @@ body{font-size:16px}
 .local-file-status{margin-top:3px}.local-file-status:empty{display:none}
 .local-file-error{color:#9c3b2e}.local-file-unavailable{font-weight:600;color:var(--muted);padding:6px 0}
 .workspace-resource-info{flex:1;min-width:0}
+.workspace-dialog{max-width:calc(100vw - 32px)}
+.workspace-resource .local-file-path{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .workspace-resource .local-file-row{padding:0}
 .workspace-dialog .local-file-link,.workspace-dialog .local-file-action{min-height:44px}
 @media(max-width:700px){.local-file-heading{gap:0 16px}.local-file-link{max-width:100%}.workspace-actions button{min-height:44px}}
