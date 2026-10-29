@@ -31,14 +31,14 @@ export function validate(schema, value, at = 'arguments') {
 }
 
 export class ToolHarness {
-  constructor({directory, tools, maxCalls = 24, maxVisibleTools = 12, maxNoProgress=5, maxRepeatedFailures=2,maxDiscoveryCalls=8,maxDiscoveryStreak=6, signal = new AbortController().signal}) {
+  constructor({directory, tools, maxCalls = 24, maxVisibleTools = 12, preferredTools = [], maxNoProgress=5, maxRepeatedFailures=2,maxDiscoveryCalls=8,maxDiscoveryStreak=6, signal = new AbortController().signal}) {
     this.directory = directory; this.maxCalls = maxCalls; this.signal = signal; this.calls = 0;
     this.tools = new Map(tools.map(t => [t.name, t])); this.queue = Promise.resolve();
     this.maxNoProgress=maxNoProgress;this.maxRepeatedFailures=maxRepeatedFailures;this.noProgress=0;this.failedCalls=new Map();this.successfulCalls=new Set();this.history=[];this.usableResults=0;this.resourcePages=new Set();
     if (this.tools.size !== tools.length) throw new Error('Duplicate tool names');
     if (this.tools.has('discover_tools')) throw new Error('discover_tools is reserved');
     this.maxVisibleTools = Math.max(2, maxVisibleTools);
-    this.visible = tools.length < this.maxVisibleTools ? tools.map(t => t.name) : [];
+    this.visible = tools.length < this.maxVisibleTools ? tools.map(t => t.name) : [...new Set(preferredTools)].filter(n=>this.tools.has(n)).slice(0,this.maxVisibleTools-1);
     this.discoveredTools=new Set(this.visible);
     this.discoveryCalls=0;this.businessToolAttempts=0;this.actualExecutions=0;this.recoveredReceipts=0;this.discoveryStreak=0;this.maxDiscoveryCalls=maxDiscoveryCalls;this.maxDiscoveryStreak=maxDiscoveryStreak;
     this.registryFingerprint=createHash('sha256').update(JSON.stringify(tools.map(t=>({name:t.name,schema:t.inputSchema})))).digest('hex');
