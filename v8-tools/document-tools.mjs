@@ -61,8 +61,16 @@ export class DocumentTools {
       child.stdin.on('error', error => finish(error)); child.stdin.end(JSON.stringify(job));
     });
   }
+  async wordText(id,signal){
+    const a=this.asset(id);if(a.kind!=='word')throw new ToolError('INPUT_TYPE_UNSUPPORTED','read_word_document requires DOCX');
+    this.wordCache??=new Map();if(this.wordCache.has(a.sha256))return this.wordCache.get(a.sha256);
+    const output=path.join(this.directory,'responses',a.sha256+'.word.json');
+    await this.worker({operation:'word_text',input:a.path,output},signal);
+    const s=JSON.parse(fs.readFileSync(output,'utf8'));a.totalChars=s.text.length;this.wordCache.set(a.sha256,s);this.save();return s;
+  }
   async inspect(id, signal) {
     const a = this.asset(id);
+    if(a.kind==='word'){const s=await this.wordText(id,signal);return {...this.publicAsset(a),...s.metadata,totalChars:s.text.length,offsetUnit:'utf16_code_units',suggestedTools:['read_word_document','search_document']};}
     if(a.kind==='text'){const s=decodeSource(fs.readFileSync(a.path));return{...this.publicAsset(a),encoding:s.encoding,totalChars:s.text.length,totalLines:s.text.length?s.text.split(/\r\n|\r|\n/).length:0,offsetUnit:s.offsetUnit,executionAllowed:false};}
     if(a.kind==='audio'||a.kind==='unsupported')return{...this.publicAsset(a),metadataOnly:true,note:a.kind==='audio'?'Use inspect_media; this is audio, not a PIL image.':'No reader is registered for this format; do not try image/PDF converters.'};
     if (!a.inspected) { Object.assign(a, await this.worker({operation: 'inspect', input: a.path}, signal), {inspected: true}); if (a.kind === 'image' && !a.page) { a.page = 1; a.rootBox = [0, 0, a.width, a.height]; } this.save(); }

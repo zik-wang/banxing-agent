@@ -5,6 +5,7 @@ export function classifyFile(name,bytes){
  const ext=path.extname(name).toLowerCase();
  if(bytes.subarray(0,5).toString()==='%PDF-')return {kind:'pdf',suggestedTools:['extract_pdf_text','render_pdf_page']};
  if(ext==='.xlsx')return {kind:'workbook',suggestedTools:['read_workbook']};
+ if(ext==='.docx')return {kind:'word',format:'docx',suggestedTools:['read_word_document','search_document']};
  if(textTypes.has(ext))return {kind:'text',format:ext.slice(1),suggestedTools:['read_text_range','search_document',...(ext==='.json'?['read_json_range']:[])]};
  if(['.m4a','.mp3','.wav','.flac','.ogg','.aac','.opus','.mp4','.webm'].includes(ext))return {kind:'audio',format:ext.slice(1),suggestedTools:['inspect_media','split_audio','transcribe_audio']};
  if(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||bytes[0]===255&&bytes[1]===216||['.png','.jpg','.jpeg','.gif','.webp','.bmp','.tif','.tiff'].includes(ext))return {kind:'image',suggestedTools:['vision_extract','split_image']};

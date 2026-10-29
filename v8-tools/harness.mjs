@@ -34,7 +34,7 @@ export class ToolHarness {
   constructor({directory, tools, maxCalls = 24, maxVisibleTools = 12, maxNoProgress=5, maxRepeatedFailures=2,maxDiscoveryCalls=8,maxDiscoveryStreak=6, signal = new AbortController().signal}) {
     this.directory = directory; this.maxCalls = maxCalls; this.signal = signal; this.calls = 0;
     this.tools = new Map(tools.map(t => [t.name, t])); this.queue = Promise.resolve();
-    this.maxNoProgress=maxNoProgress;this.maxRepeatedFailures=maxRepeatedFailures;this.noProgress=0;this.failedCalls=new Map();this.successfulCalls=new Set();this.history=[];this.usableResults=0;
+    this.maxNoProgress=maxNoProgress;this.maxRepeatedFailures=maxRepeatedFailures;this.noProgress=0;this.failedCalls=new Map();this.successfulCalls=new Set();this.history=[];this.usableResults=0;this.resourcePages=new Set();
     if (this.tools.size !== tools.length) throw new Error('Duplicate tool names');
     if (this.tools.has('discover_tools')) throw new Error('discover_tools is reserved');
     this.maxVisibleTools = Math.max(2, maxVisibleTools);
@@ -88,7 +88,7 @@ export class ToolHarness {
     }
     if(name==='discover_tools'&&result.status!=='error')for(const t of result.data.tools||[])this.discoveredTools.add(t.name);
     if(name!=='discover_tools'&&handlerInvoked){if(result.data?.recoveredReceipt)this.recoveredReceipts++;else this.actualExecutions++;}
-    const useful=result.status!=='error'&&(name==='discover_tools'?this.discoveredTools.size>discoveredBefore:!this.successfulCalls.has(signature));
+    let useful=result.status!=='error'&&(name==='discover_tools'?this.discoveredTools.size>discoveredBefore:!this.successfulCalls.has(signature));if(name==='list_materials'&&result.status!=='error'&&Array.isArray(result.data?.resources)){const d=result.data,page=JSON.stringify({resources:d.resources.map(r=>[r.resourceId,r.revisionId]),assets:(d.assets||[]).map(a=>[a.id,a.sha256]),nextCursor:d.nextCursor});useful=(d.resources.length>0||(d.assets||[]).length>0)&&!this.resourcePages.has(page);this.resourcePages.add(page);}
     if(result.status==='error')this.failedCalls.set(signature,(this.failedCalls.get(signature)||0)+1);
     else this.successfulCalls.add(signature);
     this.noProgress=useful?0:this.noProgress+1;
@@ -107,7 +107,7 @@ export class ToolHarness {
 
 export const FOCUSED_DOCUMENT_GUIDANCE = '以用户要求的交付为目标，只提取相关字段，不把整理清单扩展为全文逐字转录。存在PDF文字层时可用于精确保留原词；视觉用于关键版面关系或冲突检查，已经取得足够依据的内容不反复重读。同一冲突重试仍无法解决时保留原值及待核，不消耗所有预算。给实际导出和文件回读预留至少两次调用。不得把并列的多个名称与多个日期按顺序猜测成一一对应；关系未明就作为整体原文保留。不得把品牌、产品或协议名称推断成实际合同供应商。导出字段缺少依据时留空并注明。文件回读一致只证明保存无损，不称源文件事实已验证；结论仅报告有回执的处理范围。最后简洁说明交付路径与待核项，不在聊天再次完整复制已导出的大表。';
 
-export const TOOL_SOURCE_GUIDANCE = "文本与源码用read_text_range，JSON可用read_json_range定位后分页；目标需要全文时续读至nextOffset为空，处理覆盖不等于语义正确。逐项提取PDF中印刷标签/字段清单，优先read_source_records和export_source_records，保留全部原文全称、原有缩写、and与&，需要中文解释时与原文并列，不用自由重抄绕过字段保真。不同角色字段不可互填：应用供应商不自动等于合同供应商，品牌、产品、协议名不能作为实际合同供应商；没实值的字段留空待核。并列名称和并列日期不能按顺序配对，年份只有年精度；没有时区声明就写未提供，不按所在地补时区。工作簿先读表ID，merge_tables后export_table保数值类型。任何实际交付都要调用导出工具与回读，最终结果以程序交付回执为准，不能只说明已完成。知识入库必须store_knowledge并search_knowledge回读。长音频先inspect_media，按上限split_audio，再transcribe_audio传全部实际分段ID，覆盖回执缺段不能隐瞒；用export_document的result_ids直接导出原始转写，不重抄、不把切段时间说成词级对齐。修源码只允许apply_patch_copy并静态回读，不运行上传代码、不创建PR。";
+export const TOOL_SOURCE_GUIDANCE = "Word DOCX用read_word_document读取正文、表格与附注，按nextOffset续读；document.warnings中的图片、嵌入对象或修订未核内容不能声称已完整核实。文本与源码用read_text_range，JSON可用read_json_range定位后分页；目标需要全文时续读至nextOffset为空，处理覆盖不等于语义正确。逐项提取PDF中印刷标签/字段清单，优先read_source_records和export_source_records，保留全部原文全称、原有缩写、and与&，需要中文解释时与原文并列，不用自由重抄绕过字段保真。不同角色字段不可互填：应用供应商不自动等于合同供应商，品牌、产品、协议名不能作为实际合同供应商；没实值的字段留空待核。并列名称和并列日期不能按顺序配对，年份只有年精度；没有时区声明就写未提供，不按所在地补时区。工作簿先读表ID，merge_tables后export_table保数值类型。任何实际交付都要调用导出工具与回读，最终结果以程序交付回执为准，不能只说明已完成。知识入库必须store_knowledge并search_knowledge回读。长音频先inspect_media，按上限split_audio，再transcribe_audio传全部实际分段ID，覆盖回执缺段不能隐瞒；用export_document的result_ids直接导出原始转写，不重抄、不把切段时间说成词级对齐。修源码只允许apply_patch_copy并静态回读，不运行上传代码、不创建PR。";
 export async function runToolAgent({harness, next, request, context = {}, maxRounds = 16, guidance = '', initialMessages,finalizeAnswer,preflight}) {
   // Historical prose is not an authorization store. Reconstruct from current host scope
   // on every invocation, even when an old caller supplies initialMessages.

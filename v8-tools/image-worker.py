@@ -11,7 +11,10 @@ def describe(p):
     with Image.open(p) as image:
         return {'width': image.width, 'height': image.height, 'format': image.format.lower()}
 
-if job['operation'] == 'inspect':
+if job['operation'] == 'word_text':
+    from word_reader import read_word
+    result = read_word(source, job['output'])
+elif job['operation'] == 'inspect':
     with source.open('rb') as f:
         pdf = f.read(5) == b'%PDF-'
     if pdf:
