@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {turnIntent} from '../v8-tools/turn-intent.mjs';
+test('negated export is answer-only, conversion is not retrieval, and colloquial merging needs material',()=>{assert.equal(turnIntent('你好，简单打个招呼，不生成文件。').kind,'answer_only');assert.equal(turnIntent('把刚才结果导出PPTX文件').kind,'create_file');assert.deepEqual(turnIntent('把刚才结果导出PPTX文件').formats,['pptx']);assert(turnIntent('把这两份报表合起来，给我Excel。').materialTask);assert.equal(turnIntent('把刚才文件再发我').kind,'existing_file');});
