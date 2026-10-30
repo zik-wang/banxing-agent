@@ -1,0 +1,120 @@
+{
+  "version": "cn-equipment-1.0.0",
+  "contract_type": "equipment_purchase_cn",
+  "mandatory_checks": [
+    {
+      "id": "C01",
+      "title": "主体签署授权与通知",
+      "pattern": "主体|甲方|乙方|授权|签署|通知",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C02",
+      "title": "标的型号配置数量及配套",
+      "pattern": "型号|配置|数量|夹具|配套|清单",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C03",
+      "title": "价格税费及费用范围",
+      "pattern": "价款|金额|总价|大写|税|单价",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C04",
+      "title": "预付款触发发票尾款与担保",
+      "pattern": "付款|预付|发票|尾款|担保|保函",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C05",
+      "title": "发货到货安装调试与可用时间",
+      "pattern": "交货|发货|到货|安装|调试|特殊设备",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C06",
+      "title": "风险转移及运输操作责任",
+      "pattern": "风险|卸货|搬运|包装|拆装",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C07",
+      "title": "技术附件版本校准溯源",
+      "pattern": "附件|说明书|校准|溯源|版本",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C08",
+      "title": "签收开箱性能终验与默认验收",
+      "pattern": "签收|开箱|终验|验收|视为",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C09",
+      "title": "质量异议隐蔽缺陷耗材免责",
+      "pattern": "质量|异议|隐蔽|耗材|免责|标准灯",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C10",
+      "title": "保修起算维修换货退款",
+      "pattern": "质保|保修|起算|维修|换货|退款",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C11",
+      "title": "软件许可激活升级导出",
+      "pattern": "软件|许可|激活|重装|升级|数据导出",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C12",
+      "title": "知识产权及第三方侵权",
+      "pattern": "知识产权|侵权|第三方",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C13",
+      "title": "保密例外及赔偿",
+      "pattern": "保密|披露|律师|审计|法定",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C14",
+      "title": "违约赔偿叠加与退款流程",
+      "pattern": "违约|赔偿|叠加|退还|退款",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C15",
+      "title": "不可抗力通知解除及款项",
+      "pattern": "不可抗力|证明|解除|已付款",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    },
+    {
+      "id": "C16",
+      "title": "送达管辖附件效力及冲突",
+      "pattern": "送达|邮箱|管辖|效力|冲突",
+      "mandatory": true,
+      "version": "cn-equipment-1.0.0"
+    }
+  ],
+  "currency": "CNY",
+  "guidance": "Patterns provide candidate scope only. Core validators cannot be disabled by guidance."
+}
