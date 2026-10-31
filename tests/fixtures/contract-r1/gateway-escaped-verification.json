@@ -1,0 +1,14 @@
+{
+  "role": "assistant",
+  "content": "",
+  "tool_calls": [
+    {
+      "id": "chatcmpl-tool-b81ab4e85b3ec8df",
+      "type": "function",
+      "function": {
+        "name": "submit_contract_review",
+        "arguments": "{\"decisions\": \"[{\\\"finding_id\\\":\\\"M0\\\",\\\"decision\\\":\\\"supported\\\",\\\"evidence_refs\\\":[{\\\"unit_id\\\":\\\"E4\\\",\\\"start\\\":0,\\\"end\\\":33},{\\\"unit_id\\\":\\\"E7\\\",\\\"start\\\":0,\\\"end\\\":200}],\\\"counter_evidence_refs\\\":[],\\\"explanation\\\":\\\"E4将付款完成时点前移至财政支付申请提交，E7披露的履约事实（质保金近两年未付）与该条款方向一致，支持该风险候选。E7为律所披露、未经独立核实，仅作佐证。\\\"},{\\\"finding_id\\\":\\\"M1\\\",\\\"decision\\\":\\\"supported\\\",\\\"evidence_refs\\\":[{\\\"unit_id\\\":\\\"E2\\\",\\\"start\\\":0,\\\"end\\\":38}],\\\"counter_evidence_refs\\\":[],\\\"explanation\\\":\\\"E2明确说明本材料仅为公开节录装入DOCX，不是完整签署合同，也未重建省略条款，支持材料缺失的判断。\\\"},{\\\"finding_id\\\":\\\"M2\\\",\\\"decision\\\":\\\"supported\\\",\\\"evidence_refs\\\":[{\\\"unit_id\\\":\\\"E4\\\",\\\"start\\\":0,\\\"end\\\":33},{\\\"unit_id\\\":\\\"E7\\\",\\\"start\\\":0,\\\"end\\\":200}],\\\"counter_evidence_refs\\\":[],\\\"explanation\\\":\\\"E4与E7叠加支持付款义务完成时点前移叠加质保金长期未付的商务风险候选。E7未经独立核实。\\\"},{\\\"finding_id\\\":\\\"M3\\\",\\\"decision\\\":\\\"supported\\\",\\\"evidence_refs\\\":[{\\\"unit_id\\\":\\\"E4\\\",\\\"start\\\":0,\\\"end\\\":33},{\\\"unit_id\\\":\\\"E7\\\",\\\"start\\\":0,\\\"end\\\":200}],\\\"counter_evidence_refs\\\":[],\\\"explanation\\\":\\\"与M2实质相同，E4与E7叠加支持该风险候选。E7未经独立核实。\\\"},{\\\"finding_id\\\":\\\"M4\\\",\\\"decision\\\":\\\"supported\\\",\\\"evidence_refs\\\":[{\\\"unit_id\\\":\\\"E4\\\",\\\"start\\\":0,\\\"end\\\":33},{\\\"unit_id\\\":\\\"E7\\\",\\\"start\\\":0,\\\"end\\\":200}],\\\"counter_evidence_refs\\\":[],\\\"explanation\\\":\\\"E4与E7叠加支持付款义务以财政支付申请完成即视为履行、卖方可能无法取得实际付款的风险候选。E7未经独立核实。\\\"},{\\\"finding_id\\\":\\\"X5\\\",\\\"decision\\\":\\\"supported\\\",\\\"evidence_refs\\\":[{\\\"unit_id\\\":\\\"E4\\\",\\\"start\\\":0,\\\"end\\\":33},{\\\"unit_id\\\":\\\"E7\\\",\\\"start\\\":0,\\\"end\\\":200}],\\\"counter_evidence_refs\\\":[],\\\"explanation\\\":\\\"E4与E7叠加支持财政支付申请被认定为完成付款义务、质保金可能长期悬置的风险候选。E7未经独立核实。\\\"}],\\\"comments\\\":[]}\"}"
+      }
+    }
+  ]
+}
