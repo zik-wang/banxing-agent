@@ -17,3 +17,21 @@ fix-ready.json
 version-manifest.json
 __pycache__/
 *.pyc
+
+# Local fine-tuning artifacts and environments; code repository only.
+*.safetensors
+*.gguf
+*.pt
+*.pth
+*.ckpt
+pytorch_model*.bin
+*LoRA*.zip
+*适配器*.zip
+/base-model/
+/adapter/
+/adapters/
+/checkpoints/
+/models/
+/model-downloads/
+/venv/
+/.venv/

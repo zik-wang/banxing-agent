@@ -1,4 +1,16 @@
-# 伴行 V7 · Mentor 私有评估版
+# 伴行 V8 · UI 与合同审核分支
+
+当前分支为 `codex/ui-alignment-20261101`。V8 网页入口：`node v8-web/server.mjs <本机配置.json>`。配置见 [V8 网页说明](docs/v8-web.txt) 和 [公网部署说明](docs/v8-external-iteracompute.md)。`npm start` / `start-product.mjs` 仍是历史 V7 入口。
+
+本轮更新消息与输入区对齐、成果卡片、长标题处理及响应式排版。实际页面检查48项通过，另验证800px长标题；Web回归3项、历史成果下载SHA检查4份通过。本机地址为 `http://127.0.0.1:8884/`；其他电脑需配置自己的模型连接和工作区。
+
+**已完成本地 Qwen2.5-1.5B 合同专项 LoRA 微调试验；当前8884正式审核仍使用Qwen27B与专项Harness，本地1.5B尚未接入该审核链。** 详见 [本地合同微调说明](docs/contract-local-1p5b.txt) 和 [正式审核流程](contract-review/README.txt)。
+
+仅推送代码和说明，**不包含微调适配器、基础权重、训练数据、训练环境、模型打包文件或本机凭据/历史工作区**。本次推送独立分支，保持私有，不合并main。
+
+## 历史 V7 试用说明
+
+以下保留旧版本背景，不是当前V8的启动入口。
 
 **Mentor快速试用：[先看这里](MENTOR-START-HERE.md)**。含Windows启动入口、无凭据内网连接样例及两份真实公开报表。
 
