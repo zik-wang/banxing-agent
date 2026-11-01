@@ -48,7 +48,7 @@
  $('#folder-entries').onchange=e=>{const input=e.target.closest('[data-folder-entry]');if(!input)return;const f=pageData.files[Number(input.dataset.folderEntry)];input.checked?picked.set(f.relativePath,f):picked.delete(f.relativePath);$('#folder-use').textContent='将选中文件加入对话（'+picked.size+'）';};
  $('#folder-more').onclick=()=>work(()=>browse(browsing,pageData.nextCursor));$('#folder-browser-close').onclick=()=>{$('#folder-browser').hidden=true;};
  $('#folder-use').onclick=()=>work(async()=>{
-  if(!picked.size)throw Error('请先选择文件');if(picked.size>20)throw Error('请分批选用，每批最多20份');const id=current,bot=folderBot,mount=browsing.id,files=[...picked.values()];
+  if(!picked.size)throw Error('请先选择文件');if(picked.size>20)throw Error('请分批选用，每批最多20份');const origin=current,bot=folderBot,mount=browsing.id,files=[...picked.values()];const id=await ensureConversation(origin);
   for(const [index,f] of files.entries()){feedback('正在加入 '+(index+1)+'/'+files.length+'：'+f.name);const value=await api('/api/conversations/'+id+'/folder-files',{method:'POST',body:JSON.stringify({botId:bot,mountId:mount,relativePath:f.relativePath,fingerprint:f.fingerprint})});const selection=selections.get(id)||new Set();selection.add(value.importedFileId);selections.set(id,selection);if(current===id){data=value;selected=selection;manualSelection=true;render();}}
   picked.clear();await poll();feedback('已加入 '+files.length+' 份文件，可关闭详情并描述任务。原件未修改。');if(browsing)await browse(browsing);
  });
