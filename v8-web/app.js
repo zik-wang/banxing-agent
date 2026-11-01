@@ -171,4 +171,6 @@ window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id&
 $('#chat-main').addEventListener('scroll',updateScrollButton,{passive:true});
 $('#jump-latest').onclick=()=>{$('#chat-main').scrollTop=$('#chat-main').scrollHeight;updateScrollButton();};
 new ResizeObserver(entries=>{document.documentElement.style.setProperty('--composer-height',Math.ceil(entries[0].borderBoxSize?.[0]?.blockSize||entries[0].contentRect.height)+'px');}).observe($('.composer-wrap'));
+// Keep the composer on the same content grid when a classic scrollbar takes space.
+new ResizeObserver(()=>{const main=$('#chat-main');document.documentElement.style.setProperty('--chat-available-width',main.clientWidth+'px');document.documentElement.style.setProperty('--chat-scrollbar-width',Math.max(0,main.offsetWidth-main.clientWidth)+'px');}).observe($('#chat-main'));
 (async()=>{await health();await loadBotOptions();await refreshList();const id=location.hash.slice(1)||localStorage.getItem('v8-current');if(list.some(c=>c.id===id))await open(id);else if(list.length)await open(list[0].id);else await fresh();setInterval(poll,1400);setInterval(()=>refreshList().catch(()=>{}),5000);setInterval(health,30000);})().catch(formError);
