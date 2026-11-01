@@ -29,7 +29,7 @@ export class BotRegistry {
 }
 
 export function botMetrics(conversations,botId){
- const turns=conversations.filter(c=>(c.botId||'general')===botId).flatMap(c=>c.turns).filter(t=>t.metrics);
+ const turns=conversations.flatMap(c=>c.turns.filter(t=>(t.botSnapshot?.id||c.botId||'general')===botId)).filter(t=>t.metrics);
  const times=turns.map(t=>t.elapsedMs).filter(Number.isFinite).sort((a,b)=>a-b);
  return {measuredTasks:turns.length,completed:turns.filter(t=>['answered','completed'].includes(t.status)).length,medianDurationMs:times.length?times[Math.floor(times.length/2)]:null,modelRequests:turns.reduce((n,t)=>n+(t.metrics.modelRequests||0),0),discoveryCalls:turns.reduce((n,t)=>n+(t.metrics.discoveryCalls||0),0),note:'仅统计已记录实际指标的任务；助理之间的任务内容可能不同，不能视为严格A/B性能结论。'};
 }
