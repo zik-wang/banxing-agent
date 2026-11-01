@@ -170,8 +170,9 @@ body.product-ui .customization-entry{margin:8px 8px 0;border-radius:10px;min-hei
 body.product-ui .sidebar-bottom{padding:12px 12px 0;gap:9px;border-top:1px solid #ffffff10;font-size:11px;line-height:1.7}
 body.product-ui .sidebar-bottom small{font-size:10px}
 body.product-ui .grok-header{height:72px;padding:0 var(--content-gutter);border-bottom-color:var(--line);background:#f8f9f6}
-body.product-ui .agent-chip{min-height:40px;padding:6px 14px;border-color:#dce4d8;background:#eef2e9;font-size:14px;font-weight:600;letter-spacing:.01em}
-body.product-ui .header-mark{width:22px;height:23px}
+body.product-ui .agent-chip{min-height:40px;min-width:0;max-width:min(420px,calc(100% - 320px));padding:6px 14px;border-color:#dce4d8;background:#eef2e9;font-size:14px;font-weight:600;letter-spacing:.01em}
+body.product-ui #active-bot-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.product-ui .header-mark{width:22px;height:23px;flex-shrink:0}
 body.product-ui .health{right:var(--content-gutter);font-size:11px;gap:7px;max-width:28%;min-width:0}
 body.product-ui #health-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body.product-ui .proactive-alert{left:var(--content-gutter);font-size:12px;border-radius:10px;min-height:40px}
@@ -260,12 +261,12 @@ body.product-ui .settings-actions{gap:8px;flex-wrap:wrap}
  body.product-ui .app-shell{margin-left:0}
  body.product-ui .sidebar{width:min(var(--rail-width),calc(100vw - 48px));box-shadow:16px 0 60px #14231a24}
  body.product-ui .grok-header{height:64px;padding-inline:14px}
- body.product-ui .agent-chip{font-size:13px;max-width:52%;padding:5px 10px}
+ body.product-ui .agent-chip{font-size:13px;max-width:calc(100% - 200px);padding:5px 10px}
  body.product-ui #active-bot-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  body.product-ui .health{right:10px;width:44px;height:44px;padding:0;justify-content:center}
  body.product-ui #health-text{display:none}
  body.product-ui .health .connection-dot{width:8px;height:8px}
- body.product-ui .proactive-alert{left:54px;padding:7px;min-height:38px}
+ body.product-ui .proactive-alert{left:60px;padding:7px;min-height:38px}
  body.product-ui #conversation{padding:22px var(--content-gutter) 28px!important}
  body.product-ui .chat-message.assistant{padding:18px!important;border-radius:15px}
  body.product-ui .chat-message.user .message-body{max-width:94%;padding:10px 14px;font-size:14px}
