@@ -3,10 +3,12 @@
 继续使用现有 WebWorkspace、审核助理和原件/成果权限；没有新增演示应用。部署配置显式设置 `contractReview.reviewEngine: "profile-v3"` 使用新流程。未设置时保留旧流程，用于历史兼容和对照；不在运行中修改8884。
 
 ```json
-{"contractReview":{"enabled":true,"reviewEngine":"profile-v3","maxCalls":12,"maxTokens":6000,"timeoutMs":900000,"localReview":{"enabled":false},"botIds":["review"]}}
+{"contractReview":{"enabled":true,"reviewEngine":"profile-v3","maxCalls":12,"maxTokens":6000,"maxBatchChars":9000,"maxContextChars":60000,"timeoutMs":900000,"localReview":{"enabled":false},"botIds":["review"]}}
 ```
 
 `botIds` 是维护者配置的能力绑定，不从可编辑 Skill 文本推导授权。用户指导不会改变工具、地区门禁、外发授权或模型预算。新助理只有被维护者加入该集合才能进入专项。
+
+临时外发授权在每次调用前重新检查有效期；企业政策重新核对已批准哈希。自定义审核配置也须单独批准内容哈希，否则仅在内网使用。聊天指导或更换合同类型不会自动扩大这些授权。本轮真实测试只用内网；公网门禁用明确标注的离线合成测试核验。
 
 `contract-review/profiles/` 有设备采购16项、服务8项、基础文本6项。每项包括触发、保障/例外、后果、可接受替代和正反例。未知类型只用明确标记的基础核查；地区不匹配不默默套用。新增配置不复制核心流程。`reviewProfileFile`、`policyFile` 只能由维护者配置。
 
