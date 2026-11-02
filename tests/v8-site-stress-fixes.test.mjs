@@ -52,3 +52,11 @@ test('QA-03 metadata snapshot does not read blobs; revocation, file tampering an
 test('QA-03 bounded file queue rejects overload and removes cancelled queued requests',async()=>{
  const a=new BoundedFileAccess({concurrency:1,maxQueued:1});let release;const first=a.run(()=>new Promise(r=>release=r));await new Promise(r=>setImmediate(r));const c=new AbortController(),queued=a.run(()=>assert.fail('cancelled work must not run'),c.signal);await assert.rejects(a.run(()=>{}),e=>e.status===503);c.abort();await assert.rejects(queued,e=>e.status===499);assert.equal(a.queue.length,0);release();await first;
 });
+test('QA-03 async list reads one index and rejects an in-flight revocation instead of returning stale grants',async t=>{
+ const w=setup(t),c=w.newConversation();w.upload(c.id,'synthetic.txt',Buffer.from('synthetic metadata'));const f=w.conversation(c.id).files[0];let loads=0;const load=w.space.load.bind(w.space);w.space.load=()=>{loads++;return load();};
+ const clean=await w.workspaceListing({});assert.equal(clean.resources.length,1);assert.equal(loads,1);
+ const describe=w.localActions.describeResourceAsync.bind(w.localActions);let release,entered;
+ const ready=new Promise(r=>entered=r);w.localActions.describeResourceAsync=async(...args)=>{entered();await new Promise(r=>release=r);return describe(...args);};
+ const pending=w.workspaceListing({});await ready;w.space.revoke(w.workspaceId,f.ref);release();await assert.rejects(pending,/读取期间发生变化/);assert.equal(w.activeWorkspaceReads,0);assert.equal((await w.workspaceListing({})).resources.length,0);
+ w.activeWorkspaceReads=8;await assert.rejects(w.workspaceListing({}),e=>e.status===503);w.activeWorkspaceReads=0;
+});

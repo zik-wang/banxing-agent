@@ -44,6 +44,17 @@ export class LocalFileActions {
   // Listing is metadata only. Opening/downloading still performs current ACL and full hash checks.
   return {...this.descriptor({resourceId,name,sha256:v.hash},file),canOpen:documentTypes.has(path.extname(name).toLowerCase()),ref,verification:'metadata_only',byteVerificationRequired:true};
  }
+ async describeResourceAsync(resourceId,revisionId,snapshot,signal){
+  if(signal?.aborted)fail(499,'请求已取消');
+  const ref={resourceId,revisionId},r=snapshot.resources[resourceId],v=this.space.check(this.workspaceId,ref,new Set(),snapshot);
+  if(!['original','artifact'].includes(r.kind))fail(409,'该索引没有独立文件');
+  const name=v.metadata.name||v.metadata.title||'file',candidate=v.metadata.managedPath?path.resolve(this.space.root,v.metadata.managedPath):path.join(this.managed.directory,'local-files',resourceId,revisionId,safeName(name));
+  let file=null;
+  try{const real=await fs.promises.realpath(candidate),relative=path.relative(this.root,real);if(real!==candidate||!relative||relative==='..'||relative.startsWith('..'+path.sep)||path.isAbsolute(relative))fail(403,'文件路径不在当前工作空间');if(!(await fs.promises.stat(real)).isFile())fail(409,'该记录不是文件');file=real;}
+  catch(e){if(e.code!=='ENOENT'||v.metadata.managedPath)throw e;}
+  if(signal?.aborted)fail(499,'请求已取消');
+  return {...this.descriptor({resourceId,name,sha256:v.hash},file),canOpen:documentTypes.has(path.extname(name).toLowerCase()),ref,verification:'metadata_only',byteVerificationRequired:true};
+ }
  artifact(record){
   const candidates=Object.entries(this.space.load().resources).filter(([,r])=>r.kind==='artifact').flatMap(([resourceId,r])=>Object.entries(r.revisions).filter(([,v])=>v.metadata.artifactId===record.artifactId).map(([revisionId])=>({resourceId,revisionId})));
   if(candidates.length&&!candidates.some(ref=>{try{return this.space.check(this.workspaceId,ref).hash===record.sha256&&digest(this.space.read(this.workspaceId,ref))===record.sha256;}catch{return false;}}))fail(403,'文件资源已归档、撤权或来源不可用');
