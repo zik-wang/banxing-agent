@@ -6,6 +6,9 @@ export const quoteSchema=object({unit_id:{type:'string',maxLength:250},quote:{ty
 const checkSchema=object({check_id:{type:'string'},status:{type:'string',enum:['risk_found','no_issue_found','insufficient_evidence','not_applicable']},explanation:string,evidence_refs:array(quoteSchema),unresolved_questions:array(string)});
 const findingSchema=object({check_ids:array({type:'string'}),category:{type:'string',enum:['文字错误','材料缺失','商务风险','法律风险','条款冲突','待确认']},priority:{type:'string',enum:['高','需关注','低']},title:string,evidence_refs:array(quoteSchema),explanation:string,conditions:array(string),exceptions:array(string),suggestion:string,unresolved_questions:array(string)});
 export const compactResponseSchema=object({scope_complete:{type:'boolean'},unprocessed_unit_ids:array({type:'string'}),checks:array(checkSchema),findings:array(findingSchema)});
+compactResponseSchema.properties.checks.maxItems=40;
+compactResponseSchema.properties.findings.maxItems=24;
+compactResponseSchema.properties.findings.items.properties.check_ids.maxItems=40;
 export const compactVerifySchema=structuredClone(verifySchema);
 for(const [name,list]of Object.entries(compactVerifySchema.properties)){
  list.items.properties.evidence_refs=array(quoteSchema);

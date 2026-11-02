@@ -19,7 +19,11 @@ const here=path.dirname(fileURLToPath(import.meta.url));
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8').replace(/^\uFEFF/,''));
 const cloud=p=>['cloud','siliconflow','iteracompute'].includes(p);
 export const hasReviewCapability=(bot,operator={})=>(operator.botIds||['review']).includes(bot?.id);
-export const versionComparisonIntent=request=>/(?:版本|两份|两个|前后|新旧|差异).{0,12}(?:比较|对比)|(?:比较|对比).{0,12}(?:版本|两份|两个|前后|新旧|差异)|(?:合并|代码审查|审核代码|这张发票|这些发票|审核方案|润色|改写|删除报告|删掉报告)/.test(request);
+export function versionComparisonIntent(request){
+ const patterns=[/(?:比较|对比).{0,12}(?:版本|(?:两份|两个|新旧).{0,6}(?:合同|文件)|差异)/g,/(?:两份|两个|新旧).{0,6}(?:合同|文件|版本).{0,8}(?:比较|对比|合并)/g,/(?:合并).{0,6}(?:文件|报表|表格|合同)|代码审查|审核代码|这张发票|这些发票|审核方案|润色|改写|删除报告|删掉报告/g];
+ return patterns.some(pattern=>[...String(request).matchAll(pattern)].some(m=>!/(?:不要|无需|不必|禁止|不能)\s*$/.test(request.slice(Math.max(0,m.index-8),m.index))));
+}
+export const isReviewAction=request=>/(?:审核|审查|重审|复核|补审|重点|检查)/.test(String(request).replace(/审核报告|审查报告/g,'报告'));
 export function protectReviewCloudInputs({enabled,botId,capability=false,chat,operator,files=[],priorContract=false}){
  if(!enabled||(botId!=='review'&&!capability)||!cloud(chat?.provider))return false;
  if(priorContract)return true;
@@ -41,7 +45,7 @@ export async function executeHostReview(config,{next,signal}={}){
  const write=(n,v)=>atomic(path.join(directory,n),v),allowed=ref=>{const seen=new Set(),s=space.load();function walk(r){if(excluded.has(r.resourceId))throw Error('RESOURCE_EXCLUDED_IN_CONVERSATION');const key=r.resourceId+':'+r.revisionId;if(seen.has(key))return;seen.add(key);space.check(workspace,r,new Set(),s);for(const p of s.resources[r.resourceId].revisions[r.revisionId].parents)walk(p);}walk(ref);return space.check(workspace,ref);};
  const current=c.selectedResult===undefined?work.current:c.selectedResult;let previous=null;
  if(current){try{const v=space.check(workspace,current);if(v.metadata.bundle)previous=JSON.parse(space.read(workspace,current));}catch(e){throw Error('当前成果不可访问：'+e.message);}}
- const wantsWord=requestedFormats(config.request).includes('docx'),reviewAction=/(?:审核|审查|重审|复核|补审|重点|检查)/.test(config.request),exporting=wantsWord&&previous?.contractReview&&!reviewAction;
+ const wantsWord=requestedFormats(config.request).includes('docx'),reviewAction=isReviewAction(config.request),exporting=wantsWord&&previous?.contractReview&&!reviewAction;
  if(c.mode==='rebuild_delivery'&&previous?.contractReview)return deliverExisting();
  if(previous?.contractReview&&/(?:最重要|核心|主要).{0,8}(?:问题|风险)|总结.{0,8}(?:问题|风险)/.test(config.request)&&!/(?:改为|换成|补充材料|重新|重审|供方|采购方|中立)/.test(config.request))return summarizePrevious();
  let sourceRefs=(c.selectedInputs||[]).filter(r=>!excluded.has(r.resourceId));
@@ -70,10 +74,10 @@ export async function executeHostReview(config,{next,signal}={}){
  const primary=parsed.filter(({m,doc})=>!/^附件|^技术附件/.test(m.name)&&!/^附件[一二三四五六七八九十0-9]/.test(doc.units[0]?.raw_text||'')&&/(?:设备|仪器|仪表|机电).{0,12}(?:采购|购销|买卖).{0,6}合同|(?:采购|购销|买卖).{0,12}(?:设备|仪器|仪表|机电).{0,6}合同/.test(doc.units.slice(0,5).map(u=>u.raw_text).join('\n')));
  let main=primary.length===1?primary[0]:null;
  if(!main&&explicitEquipment&&materials.length===1)main=parsed[0];
- if(profileEngine&&!main){const titled=parsed.filter(p=>!/^附件/.test(p.m.name)&&detectReviewType(p.doc.units.map(u=>u.raw_text).join('\n'))!=='basic_cn');if(titled.length===1)main=titled[0];else if(parsed.length===1)main=parsed[0];}
+ if(profileEngine&&!main){const titled=parsed.filter(p=>!/^附件/.test(p.m.name)&&detectReviewType(p.doc.units.map(u=>u.raw_text).join('\n'),{profileFile:operator.reviewProfileFile})!=='basic_cn');if(titled.length===1)main=titled[0];else if(parsed.length===1)main=parsed[0];}
  if(!main&&previous?.contractReview){const prior=previous.contractReview.primaryResourceId;main=parsed.find(p=>p.m.ref.resourceId===prior)||null;}
  if(!main)return needsInput('当前专项仅支持中国大陆设备采购合同。请确认合同类型，并在多份合同时明确选择一份主合同；没有套用设备采购规则。');
- let userContext;try{userContext=resolveReviewContext(config.request,previous?.contractReview?.userContext||{},{allowProfiles:profileEngine});}catch(e){return needsInput(e.message);}const context={...userContext,...(profileEngine?{contract_type:detectReviewType(main.doc.units.map(u=>u.raw_text).join('\n'))}:{}),guidance:[config.botPolicy.guidance||'',userContext.guidance].filter(Boolean).join('\n本轮用户要求：\n')};
+ let userContext;try{userContext=resolveReviewContext(config.request,previous?.contractReview?.userContext||{},{allowProfiles:profileEngine});}catch(e){return needsInput(e.message);}const context={...userContext,...(profileEngine?{contract_type:detectReviewType(main.doc.units.map(u=>u.raw_text).join('\n'),{profileFile:operator.reviewProfileFile})}:{}),guidance:[config.botPolicy.guidance||'',userContext.guidance].filter(Boolean).join('\n本轮用户要求：\n')};
  if(context.guidance.length>4000)return needsInput('累计审核指导超过4000字，请精简审核助理指导或开始新的审核；原件和历史报告保留。');
  const inputs=materials.map(m=>{const first=parsed.find(p=>p.m===m)?.doc.units[0]?.raw_text||'',heading=(first.match(/^\s*[^\n，。；：:]{0,12}?(附件[一二三四五六七八九十0-9]+)(?:\s|[：:、]|$)/)||[])[1],prior=previous?.contractReview?.materialLabels?.find(p=>p.ref.resourceId===m.ref.resourceId&&p.ref.revisionId===m.ref.revisionId);return {...m,role:m===main.m?'contract':'attachment',label:m===main.m?'':heading||(m.name.match(/附件[一二三四五六七八九十0-9]+/)||[])[0]||prior?.label||''};});
  const policyFile=operator.policyFile||path.join(here,'policy.example.json');

@@ -6,7 +6,7 @@
   "contract_type": "equipment_purchase_cn",
   "region": "中国大陆",
   "scope_description": "设备采购文本、商务与证据审查；非法律效力或可签决定",
-  "title_pattern": "合同|协议",
+  "title_pattern": "^(?:.{0,12})(?:(?:设备|仪器|仪表|机电).{0,12}(?:采购|购销|买卖)|(?:采购|购销|买卖).{0,12}(?:设备|仪器)).{0,8}(?:合同|协议)",
   "checks": [
     {
       "id": "C01",

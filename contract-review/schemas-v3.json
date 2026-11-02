@@ -124,7 +124,7 @@
           ],
           "additionalProperties": false
         },
-        "maxItems": 60
+        "maxItems": 40
       },
       "findings": {
         "type": "array",
@@ -136,7 +136,7 @@
               "items": {
                 "type": "string"
               },
-              "maxItems": 60
+              "maxItems": 40
             },
             "category": {
               "type": "string",
@@ -231,7 +231,7 @@
           ],
           "additionalProperties": false
         },
-        "maxItems": 60
+        "maxItems": 24
       }
     },
     "required": [

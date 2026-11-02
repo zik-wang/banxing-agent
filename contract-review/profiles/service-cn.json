@@ -6,7 +6,7 @@
   "contract_type": "service_cn",
   "region": "中国大陆",
   "scope_description": "软件、技术及一般服务条款的已列专题；不声称覆盖劳动、金融或跨境服务专门规定",
-  "title_pattern": "合同|协议",
+  "title_pattern": "^.{0,12}(?:软件|技术|咨询|运维|维护|信息|项目)?服务(?:合同|协议)",
   "checks": [
     {
       "id": "S01",
