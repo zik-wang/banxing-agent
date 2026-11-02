@@ -1,0 +1,26 @@
+import fs from 'node:fs';import path from 'node:path';import {digest} from './resource-space.mjs';
+export const statisticsIntent=s=>/统计|合计|总额|总金额|多少(?:条|行)|非空|\b(?:sum|count|total)\b/i.test(s||'');
+const empty=v=>v===null||v===undefined||typeof v==='string'&&!v.trim();
+function decimal(v){const [a,e='0']=String(v).toLowerCase().split('e'),negative=a.startsWith('-'),parts=a.replace(/^[-+]/,'').split('.'),scale=(parts[1]?.length||0)-Number(e);let n=BigInt(parts.join(''));if(negative)n=-n;return scale<0?{n:n*10n**BigInt(-scale),scale:0}:{n,scale};}
+function exactSum(values){const ns=values.map(decimal),scale=Math.max(0,...ns.map(v=>v.scale)),n=ns.reduce((sum,v)=>sum+v.n*10n**BigInt(scale-v.scale),0n),negative=n<0n,s=String(negative?-n:n).padStart(scale+1,'0');return (negative?'-':'')+(scale?s.slice(0,-scale)+'.'+s.slice(-scale):s);}
+export function tableStatistics(table,binding={}){
+ const versionHash=digest({headers:table.headers,rows:table.rows}),columns=table.headers.map((name,c)=>{const values=table.rows.map(row=>row[c]),numbers=values.filter(v=>typeof v==='number'&&Number.isFinite(v));return {name,nonEmpty:values.filter(v=>!empty(v)).length,numericCount:numbers.length,sumExact:numbers.length?exactSum(numbers):null};});
+ const result={algorithm:'typed-full-table-decimal-v1',tableId:table.id,tableVersionSha256:versionHash,provenanceSha256:digest(table.provenance||[]),dataRows:table.rows.length,columnCount:table.headers.length,removedRows:table.removed?.length||0,conflicts:table.conflicts?.length||0,columns,source:binding,scope:'All registered data rows, no preview truncation. Numbers are typed numeric cells only; sums do not infer business meaning.'};result.receiptId='STAT-'+digest(result);return result;
+}
+export function statisticsText(r){return ['统计回执 '+r.receiptId,'数据行数：'+r.dataRows+'；字段数：'+r.columnCount+'；去重条数：'+r.removedRows+'；冲突：'+r.conflicts,...r.columns.map(c=>'字段「'+c.name+'」：非空 '+c.nonEmpty+' 行'+(c.sumExact!==null?'；数值 '+c.numericCount+' 项；数值合计 '+c.sumExact:'')),'来源表版本 SHA256：'+r.tableVersionSha256,...(r.source.artifactId?['来源文件 ID：'+r.source.artifactId,'来源文件 SHA256：'+r.source.artifactSha256]:[]),'统计仅针对上述完整表格版本，不把字符串解析为金额，不代表原始业务事实已经审定。'].join('\n');}
+export class TableStatistics{
+ constructor(docs,extras){this.docs=docs;this.extras=extras;this.receipts=new Map();docs.statistics=this;}
+ async create({artifact_id,table_id}={}){
+  const c=this.docs.continuity;let savedRows=null;let artifact=artifact_id&&this.extras.artifacts.get(artifact_id);
+  if(artifact_id&&!artifact)throw Error('UNKNOWN_STATISTICS_ARTIFACT');
+  if(artifact){const ref=artifact.resourceRef||c?.mapping.get('artifact:'+artifact_id);if(ref)c?.allowed(ref);const check=await this.extras.inspect({artifact_id},{signal:AbortSignal.timeout(30000)});if(!check.exportIntegrityPassed)throw Error('STATISTICS_SOURCE_READBACK_FAILED');if(table_id&&table_id!==artifact.tableId)throw Error('STATISTICS_SOURCE_TABLE_MISMATCH');table_id=artifact.tableId;const saved=JSON.parse(this.docs.results.get(check.resultId)?.answer||'{}');savedRows=saved.sheets?.[0]?.rows;if(!savedRows)throw Error('STATISTICS_FULL_READBACK_REQUIRED');}
+  table_id??=c?.currentTableId;if(!table_id&&this.docs.workbookTools?.tables.size===1)table_id=[...this.docs.workbookTools.tables.keys()][0];
+  const table=this.docs.workbookTools?.tables.get(table_id);if(!table)throw Error('STATISTICS_REQUIRE_UNAMBIGUOUS_TABLE');
+  if(savedRows){const normalize=rows=>rows.map(r=>r.map(v=>v===null||v===undefined||v===''?null:v));if(digest(normalize(savedRows))!==digest(normalize([table.headers,...table.rows])))throw Error('STATISTICS_REGISTERED_TABLE_DIFFERS_FROM_FILE');}
+  if(!artifact){const candidates=[...this.extras.artifacts.values()].filter(a=>a.tableId===table_id);if(candidates.length===1)return this.create({artifact_id:candidates[0].artifactId});}
+  const sources=[...new Set((table.provenance||[]).flatMap(row=>row.map(p=>p.assetId)))].filter(Boolean).map(id=>{const a=this.docs.assets.get(id);if(a)this.docs.asset(id);return {assetId:id,sha256:a?.sha256||null,ref:a?.resourceRef||c?.mapping.get('asset:'+id)||null};});
+  const actual=savedRows?{...table,headers:savedRows[0],rows:savedRows.slice(1)}:table;const r=tableStatistics(actual,{...(artifact?{artifactId:artifact.artifactId,artifactSha256:artifact.sha256,resourceRef:artifact.resourceRef||c?.mapping.get('artifact:'+artifact.artifactId)||null,saveReadbackPassed:true}:{}),sources});this.receipts.set(r.receiptId,r);fs.mkdirSync(path.join(this.docs.directory,'statistics'),{recursive:true});fs.writeFileSync(path.join(this.docs.directory,'statistics',r.receiptId+'.json'),JSON.stringify(r,null,2));return r;
+ }
+ async current(){return this.create({});}
+ tools(){return [{name:'table_statistics',description:'Compute complete typed table statistics with exact decimal sums, row/nonempty counts and bound file/version SHA. Never calculate totals from read_artifact previews. Use artifact_id or a registered table_id; export_document accepts statistics_ids.',inputSchema:{type:'object',properties:{artifact_id:{type:'string'},table_id:{type:'string'}},additionalProperties:false},execute:a=>this.create(a)}];}
+}
