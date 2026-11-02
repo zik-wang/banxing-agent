@@ -136,6 +136,7 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
       let args; try { args = JSON.parse(call.function.arguments); } catch { args = null; }
       const result = await harness.execute(call.function.name, args);
       messages.push({role: 'tool', tool_call_id: call.id, content: JSON.stringify(result)});
+      if(call.function.name==='request_assistant_handoff'&&result.status==='ok'&&result.data?.hostHandoff){termination={reason:'assistant_handoff_requested'};answer='已请求转交给合适助理处理，宿主将保留材料范围并安排原助理辅助核对。';status='handoff_pending';break rounds;}
       fs.writeFileSync(path.join(harness.directory,'agent-progress.json'),JSON.stringify({status:'running',calls:harness.calls,messages},null,2));
     }
   }
