@@ -8,7 +8,7 @@ import {modelFailure} from '../v8-tools/model-failure.mjs';
 import {authorizeModelInput,loadModelCredentials} from './model-access.mjs';
 import {loadReviewProfile,detectReviewType,profileScope} from './profiles.mjs';
 import {contextSchema} from './schema.mjs';
-import {compactResponseSchema,compactVerifySchema,acceptCompactSubmission,acceptCompactVerification} from './compact-protocol.mjs';
+import {compactResponseSchema,compactCrossSchema,compactVerifySchema,acceptCompactSubmission,acceptCompactVerification} from './compact-protocol.mjs';
 import {fingerprint,requestIntent} from './protocol.mjs';
 import {rulesCheck,wholeRef} from './rules.mjs';
 import {evidenceIndex,bindEvidence} from './evidence.mjs';
@@ -69,7 +69,7 @@ export async function runProfileReview(config,{next,signal,onProgress}={},helper
    for(let attempt=0;attempt<2;attempt++){
     if(fatal||activeSignal.aborted||run.calls.length>=maxCalls-minimumReserve||Date.now()-started>(config.timeoutMs||900000)-(config.deliveryReserveMs??5000)||(attempt&&maxCalls-run.calls.length<=reservedAfter))break;
     const request=attempt?{...payload,...(verify?{findings:pendingFindings,original_comments:pendingComments}:{checks:payload.checks.filter(c=>pending.includes(c.check_id))}),recovery:{pendingIds:verify?pendingFindings.map(f=>f.finding_id):pending,meaning:'Only retry failed targets; accepted siblings are immutable.'}}:payload;
-    const schema=structuredClone(verify?compactVerifySchema:compactResponseSchema);if(!verify)schema.properties.checks.items.properties.check_id.enum=request.checks.map(c=>c.check_id);
+    const cross=payload.phase==='cross_clause_review',schema=structuredClone(verify?compactVerifySchema:cross?compactCrossSchema:compactResponseSchema);if(!verify&&!cross)schema.properties.checks.items.properties.check_id.enum=request.checks.map(c=>c.check_id);
     const entry={call_id:randomUUID(),stage:name,attempt,status:'running',input_sha256:fingerprint(request),input_chars:JSON.stringify(request).length,target_ids:verify?pendingFindings.map(f=>f.finding_id):pending,started_at:new Date().toISOString()};run.calls.push(entry);
     const scopeReceipt={stage:name,callId:entry.call_id,sentUnitIds:request.target_units.map(u=>u.id),returnedCheckIds:[],state:'request_prepared',meaning:'Prepared/sent scope is not semantic correctness or understanding.'};run.scope_ledger.push(scopeReceipt);
     if(attempt)run.recovery.push({stage:name,targets:entry.target_ids,status:'started'});
@@ -77,7 +77,7 @@ export async function runProfileReview(config,{next,signal,onProgress}={},helper
     try{
      const reply=await api(messages,[{name:'submit_contract_review',description:'Return compact review dispositions and exact unit-ID/quote evidence; never count characters.',inputSchema:schema}],AbortSignal.any([activeSignal,AbortSignal.timeout(Math.min(chat.timeoutMs||180000,Math.max(1000,(config.timeoutMs||900000)-(Date.now()-started)-5000)))]));atomic(path.join(directory,entry.call_id+'.raw.json'),reply);
      const raw=helpers.decodeReply(reply),identity={run_id:run.run_id,call_id:entry.call_id,attempt,inputFingerprint:entry.input_sha256};
-     const accepted=verify?acceptCompactVerification(raw,index,request.findings,request.original_comments,identity):acceptCompactSubmission(raw,{index,checkIds:request.checks.map(c=>c.check_id),targets:request.target_units.map(u=>u.id),identity,priorFindings:aggregate.findings});
+     const accepted=verify?acceptCompactVerification(raw,index,request.findings,request.original_comments,identity):acceptCompactSubmission(raw,{index,checkIds:request.checks.map(c=>c.check_id),targets:request.target_units.map(u=>u.id),identity,priorFindings:aggregate.findings,cross});
      atomic(path.join(directory,entry.call_id+'.item-receipt.json'),accepted);run.retained_fragments.push({stage:name,identity,accepted});entry.status=accepted.complete?'validated':'partial_validated';entry.errors=accepted.errors;
      if(verify){aggregate.decisions.push(...accepted.decisions);aggregate.comments.push(...accepted.comments);pendingFindings=payload.findings.filter(f=>!aggregate.decisions.some(v=>v.finding_id===f.finding_id));pendingComments=payload.original_comments.filter(c=>!aggregate.comments.some(v=>v.comment_id===c.audit_id));}
      else{aggregate.checks.push(...accepted.checks);aggregate.findings.push(...accepted.findings);pending=accepted.pendingIds;Object.assign(scopeReceipt,accepted.scope_receipt,{state:accepted.complete?'disposed':'partial_disposition'});run.quarantined.push(...accepted.quarantine);}
@@ -103,12 +103,12 @@ export async function runProfileReview(config,{next,signal,onProgress}={},helper
   if(config.localReview?.enabled&&local.status!=='completed')run.warnings.push({code:'OPTIONAL_LOCAL_PLUGIN_INCOMPLETE',detail:local.error||local.status});
   for(const row of local.rows||[])if(row.status==='candidate_only'&&row.signal?.risk){const id=profile.local_signal_checks[row.signal.category];if(id&&index.has(row.unitId))run.findings.push({finding_id:'L'+run.findings.length,check_ids:[id],category:'待确认',priority:'需关注',priority_reason:'可选局部模型提出信号，尚未由完整原文确认',title:row.signal.category+'（本地候选）',evidence_refs:[{unit_id:row.unitId,start:row.start,end:row.end}],explanation:'本地模型仅在此局部片段提出风险信号；不能据此排除远处保障或例外。',interpretation_space:'需27B结合其他条款定向裁定。',suggestion:'结合原文、保障和例外确认是否需要修改。',unresolved_questions:[],business_parameters:[],origin:'local_model',level:'candidate_risk',source_local_row:row.id});}
   for(const [i,batch]of crossBatches.entries()){
-   const result=await ask('cross-'+i,{phase:'cross_clause_review',checks:profile.checks.map(c=>({...c,check_id:c.id})),cross_checks:profile.cross_checks,target_units:modelUnits(batch),selection:run.cross_scope,instruction:'检查义务、触发、期限、条件、例外和优先顺序。条款冲突须同时引用双方。只能对本次发送原文得出结论，不以摘要作证。'},false,crossBatches.length-i,Math.min(1,Math.max(0,maxCalls-1)));
+   const result=await ask('cross-'+i,{phase:'cross_clause_review',checks:profile.checks.map(c=>({...c,check_id:c.id})),cross_checks:profile.cross_checks,existing_candidates_readonly:run.findings.map(f=>({finding_id:f.finding_id,title:f.title,check_ids:f.check_ids,evidence_refs:f.evidence_refs})),target_units:modelUnits(batch),selection:run.cross_scope,instruction:'检查义务、触发、期限、条件、例外和优先顺序。条款冲突须同时引用双方。只返回新增的跨条款发现，不重复已有候选；无需重复全部专题处置。只能对本次发送原文得出结论，不以摘要作证。'},false,crossBatches.length-i,Math.min(1,Math.max(0,maxCalls-1)));
    for(const f of result.findings)run.findings.push({...f,finding_id:'X'+run.findings.length});stage('cross-'+i,result.complete?'reviewed':'partially_reviewed',{sentUnitIds:batch.map(u=>u.id),selection:crossScope.selection});
   }
   run.candidate_ledger=run.findings.map(f=>({finding_id:f.finding_id,origin:f.origin,source_local_row:f.source_local_row||null,originalCandidate:structuredClone(f),disposition:'pending'}));
   const verifyScope=candidateEvidenceScope(units,run.findings,{profile,allIfUnder:config.maxContextChars||32000});run.counter_scope={selection:verifyScope.selection,unselectedIds:verifyScope.unselectedIds};
-  const groups=[];for(let i=0;i<run.findings.length;i+=8)groups.push(run.findings.slice(i,i+8));if(!groups.length&&run.comments.length)groups.push([]);
+  const groups=[];for(let i=0;i<run.findings.length;i+=24)groups.push(run.findings.slice(i,i+24));if(!groups.length&&run.comments.length)groups.push([]);
   run.budget_plan.realizedCounterCalls=groups.length;run.budget_plan.remainingCallsAtCounter=Math.max(0,maxCalls-run.calls.length);run.budget_plan.counterFitsRemaining=groups.length<=run.budget_plan.remainingCallsAtCounter;
   run.verification={decisions:[],comments:[],complete:true};
   if(!groups.length)stage('counter_evidence_review','not_applicable','No retained candidates or original comments to decide; not a claim of no contract risk.');

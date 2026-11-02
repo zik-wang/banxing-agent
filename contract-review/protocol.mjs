@@ -25,7 +25,7 @@ export function contractDescription(schema){
 
 // Validate copies item by item. A broken sibling must not erase valid observations.
 // Observations and accepted dispositions are intentionally separate.
-export function acceptSubmission(raw,{index,checkIds,targets,identity={},priorFindings=[],schema=responseSchema,itemSchema=findingSchema}){
+export function acceptSubmission(raw,{index,checkIds,dispositionIds=checkIds,targets,identity={},priorFindings=[],schema=responseSchema,itemSchema=findingSchema}){
  const out={checks:[],findings:[],observations:[],quarantine:[],errors:[],pendingIds:[],identity,sourceFingerprint:fingerprint(raw)};
  const error=(path,code,detail='',targetId=null)=>out.errors.push({path,code,detail,targetId});
  if(!raw||typeof raw!=='object'||Array.isArray(raw)){error('arguments','OBJECT_REQUIRED');out.pendingIds=[...checkIds];return out;}
@@ -56,7 +56,7 @@ export function acceptSubmission(raw,{index,checkIds,targets,identity={},priorFi
   if(!checkIds.includes(value?.check_id)){out.quarantine.push({kind:'check',value:clone(value),path:location,reason:'UNREQUESTED_CHECK',...identity});error(location,'UNREQUESTED_CHECK');continue;}
   const list=groups.get(value.check_id)||[];list.push({value,location});groups.set(value.check_id,list);
  }
- for(const id of checkIds){
+ for(const id of dispositionIds){
   const variants=groups.get(id)||[];
   if(!variants.length){error('checks.'+id,'MISSING_CHECK','',id);continue;}
   if(new Set(variants.map(x=>fingerprint(x.value))).size>1){error('checks.'+id,'CONFLICTING_DUPLICATES','Conflicting observations retained; no last-write-wins',id);continue;}
@@ -77,7 +77,7 @@ export function acceptSubmission(raw,{index,checkIds,targets,identity={},priorFi
    out.checks.push(legalBoundary({checks:[c]}).checks[0]);
   }catch(e){error('checks.'+id,e.message,'',id);}
  }
- out.pendingIds=checkIds.filter(id=>!out.checks.some(c=>c.check_id===id));
+ out.pendingIds=dispositionIds.filter(id=>!out.checks.some(c=>c.check_id===id));
  out.complete=!out.pendingIds.length&&!out.quarantine.length&&!out.errors.some(e=>!e.targetId);
  return out;
 }
