@@ -41,7 +41,7 @@ export function acceptCompactSubmission(raw,{index,checkIds,targets,identity={},
  const accepted=acceptSubmission(converted,{index,checkIds,dispositionIds:cross?[]:checkIds,targets,identity,priorFindings,schema:legacySchema,itemSchema:legacyFinding});
  for(const key of Object.keys(raw||{}))if(!Object.keys((cross?compactCrossSchema:compactResponseSchema).properties).includes(key))accepted.errors.push({code:'UNEXPECTED_FIELD',path:key});
  // A bad compact finding must keep its related disposition pending as well.
- const badIds=new Set(quarantine.filter(q=>q.kind==='finding').flatMap(q=>Array.isArray(q.value?.check_ids)?q.value.check_ids:checkIds));
+ const badIds=new Set([...quarantine,...accepted.quarantine].filter(q=>q.kind==='finding').flatMap(q=>Array.isArray(q.value?.check_ids)?q.value.check_ids:checkIds));
  accepted.checks=accepted.checks.filter(c=>!badIds.has(c.check_id));
  accepted.pendingIds=cross?checkIds.filter(id=>badIds.has(id)):checkIds.filter(id=>!accepted.checks.some(c=>c.check_id===id));accepted.quarantine.push(...quarantine);accepted.errors.push(...conversionErrors);
  accepted.complete=accepted.complete&&!quarantine.length&&scopeComplete&&!accepted.pendingIds.length&&!accepted.errors.length;
