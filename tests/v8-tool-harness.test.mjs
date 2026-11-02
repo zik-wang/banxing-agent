@@ -48,7 +48,7 @@ test('provider thinking settings are opt-in and truncated raw receipts survive f
  assert.equal('chat_template_kwargs' in sent[0],false);
  await assert.rejects(chatApi({baseUrl:'http://fixture.invalid/v1',model:'fixture',enableThinking:false,maxTokens:7000,fetchImpl,logDirectory:folder})([],[],new AbortController().signal),e=>e.code==='MODEL_OUTPUT_TRUNCATED');
  assert.equal(sent[1].chat_template_kwargs.enable_thinking,false);assert.equal(sent[1].max_tokens,7000);
- const receipts=fs.readdirSync(folder).map(n=>JSON.parse(fs.readFileSync(path.join(folder,n),'utf8')));assert.equal(receipts.length,2);assert(receipts.every(r=>r.response.usage.completion_tokens_details.reasoning_tokens===7000));
+ const receipts=fs.readdirSync(folder).filter(n=>n.endsWith('.json')).map(n=>JSON.parse(fs.readFileSync(path.join(folder,n),'utf8')));assert.equal(receipts.length,2);assert(receipts.every(r=>r.response.usage.completion_tokens_details.reasoning_tokens===7000));
 });
 test('PDF input is rejected locally before making any vision network request',async t=>{
  const root=fixture(t),pdf=path.join(root,'source.pdf');fs.writeFileSync(pdf,'%PDF-1.7\n');let posts=0;

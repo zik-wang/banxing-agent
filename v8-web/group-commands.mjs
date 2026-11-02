@@ -1,3 +1,4 @@
+import {retainedProvenance} from './history-provenance.mjs';
 import path from 'node:path';
 import {digest} from '../v8-tools/resource-space.mjs';
 import {randomUUID} from 'node:crypto';
@@ -14,7 +15,7 @@ export class GroupCommands{
   return ids.length?{ids:[...new Set(ids)]}:{error:'请提供助理名称'};
  }
  record(c,request,answer,{status='completed',requestId=null,hideRequest=false,meetingId=null,artifacts=[]}={}){
-  const t={id:randomUUID(),request,answer,status,createdAt:new Date().toISOString(),finishedAt:new Date().toISOString(),artifacts,clientRequestId:requestId,hostControl:true,hideUserRequest:hideRequest,meetingId,answerOrigin:'host_group_control',botSnapshot:{id:c.botId||'general',name:'协作管家',host:true}};c.turns.push(t);if(c.title==='新对话')c.title=request.slice(0,24)||c.title;this.w.save();return t;
+  const t={id:randomUUID(),request,answer,status,historyProvenance:{version:1,origin:'host',dependencies:retainedProvenance(c,c.turns,id=>this.w.state.conversations[id])},createdAt:new Date().toISOString(),finishedAt:new Date().toISOString(),artifacts,clientRequestId:requestId,hostControl:true,hideUserRequest:hideRequest,meetingId,answerOrigin:'host_group_control',botSnapshot:{id:c.botId||'general',name:'协作管家',host:true}};c.turns.push(t);if(c.title==='新对话')c.title=request.slice(0,24)||c.title;this.w.save();return t;
  }
  ensureGroup(c,ids){this.g.members(ids);if(c.kind!=='group'){c.kind='group';c.groupMessages=[];c.groupName=(ids.map(id=>this.w.bots.get(id).name).join('、')+'协作群').slice(0,60);c.title=c.groupName;}c.participantIds=[...ids];if(!ids.includes(c.botId))c.botId=ids[0];}
  busy(c){return this.w.jobs.has(c.id)||(c.pending||[]).length||this.g.meetings.active(c);}
