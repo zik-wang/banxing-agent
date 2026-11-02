@@ -58,6 +58,7 @@ export async function runContractReview(config,{next,signal,onProgress}={}){
   const verification=schema===verifySchema,aggregate=verification?{decisions:[],comments:[]}:{checks:[],findings:[]},requestedIds=(payload.checks||[]).map(c=>c.check_id);
   let pendingIds=[...requestedIds],pendingFindings=(payload.findings||[]).map(f=>f.finding_id),pendingComments=(payload.original_comments||[]).map(c=>c.audit_id),lastErrors=[],lastState='protocol_failed';
   for(let attempt=0;attempt<2;attempt++){
+   if(config.externalApproval?.material_classification==='temporary_user_test'&&Date.parse(config.externalApproval.expires_at)<=Date.now())fatalModelError='TEMPORARY_TEST_AUTHORIZATION_EXPIRED';
    const remaining=(config.timeoutMs||900000)-(Date.now()-started),reserve=config.deliveryReserveMs??5000;
    if(fatalModelError||activeSignal.aborted||run.calls.length>=maxCalls||remaining<=reserve+1000){lastState=activeSignal.aborted?(signal?.aborted?'cancelled':'timed_out'):'budget_exhausted';lastErrors=[{code:fatalModelError||lastState}];break;}
    const allowedChecks=payload.checks?.filter(c=>pendingIds.includes(c.check_id));

@@ -16,7 +16,8 @@ export function authorizeModelInput(config, context) {
   const url = new URL(chat.baseUrl);
   if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || !/^\/v1\/?$/.test(url.pathname)) throw Error('EXTERNAL_DESTINATION_NOT_APPROVED');
   if (!approval.approval_id || approval.provider !== chat.provider || approval.base_url !== chat.baseUrl || approval.model !== chat.model) throw Error('EXTERNAL_DESTINATION_NOT_APPROVED');
-  if (!['synthetic', 'public'].includes(approval.material_classification)) throw Error('EXTERNAL_PRIVATE_MATERIAL_NOT_ALLOWED');
+  if(approval.material_classification==='temporary_user_test'&&(!config.temporaryCloudGrant||config.temporaryCloudGrant.id!==approval.temporary_grant_id||Date.parse(approval.expires_at)<=Date.now()||!Number.isFinite(Date.parse(approval.expires_at))))throw Error('TEMPORARY_TEST_GRANT_INVALID_OR_EXPIRED');
+  if (!['synthetic', 'public',...(config.temporaryCloudGrant?['temporary_user_test']:[])].includes(approval.material_classification)) throw Error('EXTERNAL_PRIVATE_MATERIAL_NOT_ALLOWED');
   if (approval.context_sha256 !== contextFingerprint(context)) throw Error('EXTERNAL_CONTEXT_NOT_APPROVED');
   const hashes = config.inputs?.map(input => hash(fs.readFileSync(input.path))) || [];
   const allowed = approval.input_sha256;

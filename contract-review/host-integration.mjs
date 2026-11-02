@@ -1,3 +1,4 @@
+import {validateTemporaryGrant} from './temporary-test.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
@@ -43,6 +44,7 @@ export async function executeHostReview(config,{next,signal}={}){
  let sourceRefs=(c.selectedInputs||[]).filter(r=>!excluded.has(r.resourceId));
  if(!sourceRefs.length&&previous?.contractReview)sourceRefs=previous.contractReview.inputRefs.filter(r=>!excluded.has(r.resourceId));
  if(exporting)sourceRefs=[];
+ const temporaryTest=!!operator.temporaryGrant;if(temporaryTest){if(current||config.interactionContext||c.mode&&c.mode!=='revise')throw Error('TEMPORARY_TEST_PRIOR_CONTEXT_DENIED');validateTemporaryGrant(space,workspace,c.conversationId,sourceRefs,operator.temporaryGrant,operator,config.chat);}
  const materials=[];fs.mkdirSync(path.join(directory,'review-inputs'),{recursive:true});
  for(const ref of sourceRefs){const v=allowed(ref),name=v.metadata.name||v.metadata.asset?.name;if(!name||! /\.(docx|pdf)$/i.test(name))return needsInput('合同专项只读取本轮明确选择的DOCX/PDF；未读取或外发其他类型材料。');const bytes=space.read(workspace,ref),file=path.join(directory,'review-inputs',ref.resourceId+path.extname(name).toLowerCase());fs.writeFileSync(file,bytes,{flag:'wx'});materials.push({ref,name,path:file,sha256:digest(bytes),fileId:ref.resourceId});}
  
@@ -52,7 +54,7 @@ export async function executeHostReview(config,{next,signal}={}){
  if(wantsWord&&!previous?.contractReview&&!reviewAction)return needsInput('当前没有已审核报告可转Word。本轮未将原文格式转换误作合同审核，也未发送材料给模型。');
  // Authorization precedes model calls, including classification fallback.
  let approval=null;
- if(cloud(config.chat.provider)){
+ if(cloud(config.chat.provider)&&!temporaryTest){
   if(!operator.approvalFile||!fs.existsSync(operator.approvalFile))return needsInput('该合同尚未获准发送公网。请使用内网，或由维护者批准明确的公开/合成测试材料。');
   approval=read(operator.approvalFile);
   if(materials.some(m=>!approval.materials?.some(a=>a.sha256===m.sha256&&['public','synthetic'].includes(a.classification))))return needsInput('本轮包含未获准的合同材料，未向公网发送。原件已保留，无需重复上传。');
@@ -72,7 +74,8 @@ export async function executeHostReview(config,{next,signal}={}){
  const policyFile=path.join(here,'policy.example.json');
  const reviewConfig={directory:path.join(directory,'contract-evidence'),python:config.python,chat:{...config.chat,maxAttempts:1,structuredMode:'forced_tool',enableThinking:false,maxTokens:operator.maxTokens||6000,timeoutMs:operator.callTimeoutMs||180000},context,inputs,policyFile,ruleFile:path.join(here,'ruleset.json'),localReview:operator.localReview,learningRules:config.chat.provider==='intranet'?config.learningRules:null,maxModelCalls:operator.maxCalls??12,timeoutMs:operator.timeoutMs||900000,preflightModel:operator.preflightModel!==false};
  if(approval){if(approval.policySha256!==digest(fs.readFileSync(policyFile)))return needsInput('政策内容变化，未获准的企业规则不会发送公网。');reviewConfig.externalApproval={approval_id:approval.id,provider:config.chat.provider,base_url:config.chat.baseUrl,model:config.chat.model,material_classification:materials.every(m=>approval.materials.find(a=>a.sha256===m.sha256)?.classification==='synthetic')?'synthetic':'public',input_sha256:inputs.map(m=>m.sha256),context_sha256:contextFingerprint(context),policy_sha256:approval.policySha256};}
- reviewConfig.testMaterialLabel=approval?'本次为获准的公开或合成测试材料，并非独立审定Gold。':'';
+ if(temporaryTest){reviewConfig.temporaryCloudGrant=operator.temporaryGrant;reviewConfig.externalApproval={approval_id:operator.temporaryGrant.policyId,provider:config.chat.provider,base_url:config.chat.baseUrl,model:config.chat.model,material_classification:'temporary_user_test',input_sha256:inputs.map(m=>m.sha256),context_sha256:contextFingerprint(context),policy_sha256:digest(fs.readFileSync(policyFile)),temporary_grant_id:operator.temporaryGrant.id,expires_at:operator.temporaryGrant.expiresAt};}
+ reviewConfig.testMaterialLabel=temporaryTest?'用户临时授权的公网合同测试；材料未标为公开或合成，非独立审定Gold。':approval?'本次为获准的公开或合成测试材料，并非独立审定Gold。':'';
  const start=Date.now(),result=await runContractReview(reviewConfig,{next,signal,onProgress:p=>write('contract-progress.json',p)});
  const records=[];for(const [format,file]of Object.entries(result.outputs))records.push(await registerFile(file,format==='text'?'text':format==='html'?'html':'json'));
  let delivered=records;if(wantsWord){const word=await makeWord(fs.readFileSync(result.outputs.text,'utf8'));records.push(word);delivered=[word];}
