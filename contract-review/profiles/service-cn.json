@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "id": "service-cn",
+  "version": "1.0.0",
+  "title": "中国大陆服务合同",
+  "contract_type": "service_cn",
+  "region": "中国大陆",
+  "scope_description": "软件、技术及一般服务条款的已列专题；不声称覆盖劳动、金融或跨境服务专门规定",
+  "title_pattern": "合同|协议",
+  "checks": [
+    {
+      "id": "S01",
+      "title": "主体授权与审核立场",
+      "pattern": "甲方|乙方|主体|授权|签署",
+      "trigger": "主体或授权、合同阶段不明",
+      "safeguards": "核对实际名称与授权资料，不以批注日期填签约日",
+      "consequence": "可能无法确定责任主体",
+      "acceptable_alternative": "补充可核实名称和授权",
+      "positive_example": "仅有简称无签章主体，列待确认",
+      "negative_example": "简称对应全称且签章齐备，不重复报缺失"
+    },
+    {
+      "id": "S02",
+      "title": "服务范围与交付标准",
+      "pattern": "服务|范围|交付|成果|需求|变更",
+      "trigger": "服务内容、排除范围或需求变更流程不明",
+      "safeguards": "结合服务附件、排除事项与验收要求",
+      "consequence": "可能无限扩大义务或无法交付验收",
+      "acceptable_alternative": "明确范围、交付物、排除项及变更确认",
+      "positive_example": "写全面支持却无服务范围，提出边界问题",
+      "negative_example": "附件详列支持范围及不含项目，不因全面一词孤立报风险"
+    },
+    {
+      "id": "S03",
+      "title": "附件与履行依赖",
+      "pattern": "附件|依赖|资料|配合|环境",
+      "trigger": "所需资料附件未提供或配合义务不清",
+      "safeguards": "按材料清单核对并查客户环境与资料提供责任",
+      "consequence": "服务可能因依赖缺口无法开展",
+      "acceptable_alternative": "明确材料版本和双方依赖期限",
+      "positive_example": "引用SLA附件但本次未提供，列缺口",
+      "negative_example": "附件真实提供且版本匹配，不报缺失"
+    },
+    {
+      "id": "S04",
+      "title": "服务费税费付款保障",
+      "pattern": "付款|费用|发票|税|预付|担保",
+      "trigger": "付款口径或付款早于交付且保障不明",
+      "safeguards": "查远处担保、托管、退款和发票触发",
+      "consequence": "可能多付或难追回预付款",
+      "acceptable_alternative": "明确价税、里程碑及适当保障",
+      "positive_example": "全部预付且无退款和担保，提出资金风险",
+      "negative_example": "预付款受有效托管且履约后释放，应结合条件审查"
+    },
+    {
+      "id": "S05",
+      "title": "进度SLA与验收",
+      "pattern": "期限|响应|SLA|验收|可用|中断",
+      "trigger": "服务质量、时效或验收触发缺乏可操作标准",
+      "safeguards": "结合维护窗口、责任排除、客户配合和通知",
+      "consequence": "可能无法证明未达约定标准",
+      "acceptable_alternative": "定义指标、响应和恢复流程及合理例外",
+      "positive_example": "不答复即全项验收但成果未交付，提出候选",
+      "negative_example": "维护窗口已排除并有通知要求，不机械计入可用率违约"
+    },
+    {
+      "id": "S06",
+      "title": "数据安全许可与退出迁移",
+      "pattern": "数据|安全|许可|导出|迁移|删除|保密",
+      "trigger": "数据权利、安全分工或退出后取回路径不明",
+      "safeguards": "核对授权、备份、必要披露和第三方组件约束",
+      "consequence": "可能锁定供应商或无法恢复数据",
+      "acceptable_alternative": "明确最小授权、退出导出和留存删除安排",
+      "positive_example": "终止后立即删除且不给导出期，提出数据迁移风险",
+      "negative_example": "约定完整导出及合理迁移期，不报不能取回数据"
+    },
+    {
+      "id": "S07",
+      "title": "责任上限救济与解除",
+      "pattern": "责任|违约|赔偿|上限|退款|解除",
+      "trigger": "责任限制、服务抵扣和退款退出关系不清",
+      "safeguards": "结合重大过错等例外与独立救济，不机械判断无效",
+      "consequence": "可能仅能抵扣而不能退出或追回价款",
+      "acceptable_alternative": "明确各救济适用范围及不能履行的结算",
+      "positive_example": "所有违约只抵下月费用但已终止，提出救济落空问题",
+      "negative_example": "责任上限有明确例外且退款独立约定，不说所有责任都被免除"
+    },
+    {
+      "id": "S08",
+      "title": "通知争议与文件顺序",
+      "pattern": "通知|送达|邮箱|管辖|优先|冲突",
+      "trigger": "通知信息或主附件优先关系不清",
+      "safeguards": "引用双方依据并核对填写值",
+      "consequence": "可能出现送达或解释争议",
+      "acceptable_alternative": "补充可执行送达和顺序",
+      "positive_example": "指定邮箱留空，列通知缺口",
+      "negative_example": "主附件顺序明确，先按优先规则判断"
+    }
+  ],
+  "cross_checks": [
+    {
+      "title": "义务与例外保障的范围及先后条件",
+      "pattern": "付款|担保|保函|验收|交付|例外|除非|但是|退款|解除"
+    },
+    {
+      "title": "主附件、责任限制与独立救济",
+      "pattern": "附件|优先|责任|免责|保密|披露|终止|退款|质保"
+    }
+  ],
+  "program_check_map": {
+    "C03": "S04",
+    "C04": "S04",
+    "C07": "S03",
+    "C08": "S05",
+    "C09": "S07",
+    "C16": "S08"
+  },
+  "local_signal_checks": {
+    "范围与义务风险": "S02",
+    "支付与财务风险": "S04",
+    "责任与救济风险": "S07"
+  }
+}

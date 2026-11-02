@@ -25,20 +25,20 @@ export function contractDescription(schema){
 
 // Validate copies item by item. A broken sibling must not erase valid observations.
 // Observations and accepted dispositions are intentionally separate.
-export function acceptSubmission(raw,{index,checkIds,targets,identity={},priorFindings=[]}){
+export function acceptSubmission(raw,{index,checkIds,targets,identity={},priorFindings=[],schema=responseSchema,itemSchema=findingSchema}){
  const out={checks:[],findings:[],observations:[],quarantine:[],errors:[],pendingIds:[],identity,sourceFingerprint:fingerprint(raw)};
  const error=(path,code,detail='',targetId=null)=>out.errors.push({path,code,detail,targetId});
  if(!raw||typeof raw!=='object'||Array.isArray(raw)){error('arguments','OBJECT_REQUIRED');out.pendingIds=[...checkIds];return out;}
  const validFindings=Array.isArray(raw.findings),validChecks=Array.isArray(raw.checks);
  if(!validFindings)error('arguments.findings','FINDINGS_ARRAY_REQUIRED');
  if(!validChecks)error('arguments.checks','CHECKS_ARRAY_REQUIRED');
- if(validFindings&&raw.findings.length>responseSchema.properties.findings.maxItems)error('arguments.findings','ARRAY_LENGTH_EXCEEDED');
- if(validChecks&&raw.checks.length>responseSchema.properties.checks.maxItems)error('arguments.checks','ARRAY_LENGTH_EXCEEDED');
+ if(validFindings&&raw.findings.length>schema.properties.findings.maxItems)error('arguments.findings','ARRAY_LENGTH_EXCEEDED');
+ if(validChecks&&raw.checks.length>schema.properties.checks.maxItems)error('arguments.checks','ARRAY_LENGTH_EXCEEDED');
  for(const key of Object.keys(raw))if(!['checks','findings'].includes(key))error('arguments.'+key,'UNEXPECTED_FIELD');
  if(validFindings)for(const [n,value]of raw.findings.entries()){
   const location='arguments.findings['+n+']';
   try{
-   validate(findingSchema,value,location);
+   validate(itemSchema,value,location);
    const f=clone(value);
    if(!f.check_ids.length||f.check_ids.some(id=>!checkIds.includes(id)))throw Error('FINDING_CHECK_SCOPE');
    if(!f.evidence_refs.length)throw Error('FINDING_EVIDENCE_REQUIRED');
@@ -61,7 +61,7 @@ export function acceptSubmission(raw,{index,checkIds,targets,identity={},priorFi
   if(!variants.length){error('checks.'+id,'MISSING_CHECK','',id);continue;}
   if(new Set(variants.map(x=>fingerprint(x.value))).size>1){error('checks.'+id,'CONFLICTING_DUPLICATES','Conflicting observations retained; no last-write-wins',id);continue;}
   try{
-   const {value,location}=variants[0];validate(responseSchema.properties.checks.items,value,location);
+   const {value,location}=variants[0];validate(schema.properties.checks.items,value,location);
    const c=clone(value);
    if(!c.explanation.trim())throw Error('CHECK_EXPLANATION_REQUIRED');
    if(new Set(c.inspected_unit_ids).size!==c.inspected_unit_ids.length||c.inspected_unit_ids.some(u=>!targets.includes(u)))throw Error('UNKNOWN_OR_DUPLICATE_INSPECTED_UNIT');

@@ -6,10 +6,12 @@ import {runContractReview} from './harness.mjs';
 const hash=b=>createHash('sha256').update(b).digest('hex');
 const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
 const save=(p,v)=>atomic(p,v);
-export function resolveReviewContext(request,previous={}){
+export function resolveReviewContext(request,previous={},options={}){
  if(typeof request!=='string'||!request.trim()||request.length>4000)throw Error('请用4000字以内说明审核要求');
  const context={contract_type:'equipment_purchase_cn',stance:'buyer',region:'中国大陆',stage:'pre_signing',signing_date:'',signing_date_verified:false,...previous,guidance:request};
- if(/(?:这是|审核|审查|审一下)(?:这份|一份)?(?:劳动|租赁|借款|服务)合同/.test(request))throw Error('当前专项仅支持设备采购合同；其他合同请使用通用审核助理');
+ if(!options.allowProfiles&&/(?:这是|审核|审查|审一下)(?:这份|一份)?(?:劳动|租赁|借款|服务)合同/.test(request))throw Error('当前专项仅支持设备采购合同；其他合同请使用通用审核助理');
+ if(options.allowProfiles&&/服务合同|服务协议/.test(request))context.contract_type='service_cn';
+ if(options.allowProfiles&&/(?:适用|依照|依据|按照|按).{0,8}(?:香港|澳门|台湾|英国|美国|新加坡|欧盟).{0,4}(?:法|地区|规则)/.test(request))throw Error('当前已配置的审核标准仅适用中国大陆；请确认地区，未默默套用大陆规则。');
  const roles={供应商:'seller',供方:'seller',卖方:'seller',采购方:'buyer',买方:'buyer',中立:'neutral',双方:'neutral'},positive=[],negative=[];
  for(const match of request.matchAll(/(?:按|从|站在|以)(供应商|供方|卖方|采购方|买方|中立|双方)(?:角度|立场)?|(中立|双方)立场/g)){const role=roles[match[1]||match[2]],before=request.slice(0,match.index);if(/(?:不要|不能|不得|不应|别|不)$/.test(before))negative.push(role);else positive.push(role);}
  const choices=[...new Set(positive)];if(choices.length>1||(!choices.length&&negative.includes(context.stance)))throw Error('请明确按采购方、供方还是中立立场审核；原材料仍保留');if(choices.length)context.stance=choices[0];

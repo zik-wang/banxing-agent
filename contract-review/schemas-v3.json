@@ -1,0 +1,397 @@
+{
+  "version": "compact-quotes-1",
+  "context": {
+    "type": "object",
+    "properties": {
+      "contract_type": {
+        "type": "string",
+        "maxLength": 100
+      },
+      "stance": {
+        "type": "string",
+        "maxLength": 8000,
+        "enum": [
+          "buyer",
+          "seller",
+          "neutral"
+        ]
+      },
+      "region": {
+        "type": "string",
+        "maxLength": 100
+      },
+      "stage": {
+        "type": "string",
+        "maxLength": 8000,
+        "enum": [
+          "pre_signing",
+          "performance",
+          "dispute"
+        ]
+      },
+      "signing_date": {
+        "type": "string",
+        "maxLength": 40
+      },
+      "signing_date_verified": {
+        "type": "boolean"
+      },
+      "guidance": {
+        "type": "string",
+        "maxLength": 4000
+      }
+    },
+    "required": [
+      "contract_type",
+      "stance",
+      "region",
+      "stage"
+    ],
+    "additionalProperties": false
+  },
+  "response": {
+    "type": "object",
+    "properties": {
+      "scope_complete": {
+        "type": "boolean"
+      },
+      "unprocessed_unit_ids": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 60
+      },
+      "checks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "check_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "risk_found",
+                "no_issue_found",
+                "insufficient_evidence",
+                "not_applicable"
+              ]
+            },
+            "explanation": {
+              "type": "string",
+              "maxLength": 3000
+            },
+            "evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unit_id": {
+                    "type": "string",
+                    "maxLength": 250
+                  },
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000
+                  }
+                },
+                "required": [
+                  "unit_id",
+                  "quote"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 60
+            },
+            "unresolved_questions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 3000
+              },
+              "maxItems": 60
+            }
+          },
+          "required": [
+            "check_id",
+            "status",
+            "explanation",
+            "evidence_refs",
+            "unresolved_questions"
+          ],
+          "additionalProperties": false
+        },
+        "maxItems": 60
+      },
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "check_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 60
+            },
+            "category": {
+              "type": "string",
+              "enum": [
+                "文字错误",
+                "材料缺失",
+                "商务风险",
+                "法律风险",
+                "条款冲突",
+                "待确认"
+              ]
+            },
+            "priority": {
+              "type": "string",
+              "enum": [
+                "高",
+                "需关注",
+                "低"
+              ]
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 3000
+            },
+            "evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unit_id": {
+                    "type": "string",
+                    "maxLength": 250
+                  },
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000
+                  }
+                },
+                "required": [
+                  "unit_id",
+                  "quote"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 60
+            },
+            "explanation": {
+              "type": "string",
+              "maxLength": 3000
+            },
+            "conditions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 3000
+              },
+              "maxItems": 60
+            },
+            "exceptions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 3000
+              },
+              "maxItems": 60
+            },
+            "suggestion": {
+              "type": "string",
+              "maxLength": 3000
+            },
+            "unresolved_questions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 3000
+              },
+              "maxItems": 60
+            }
+          },
+          "required": [
+            "check_ids",
+            "category",
+            "priority",
+            "title",
+            "evidence_refs",
+            "explanation",
+            "conditions",
+            "exceptions",
+            "suggestion",
+            "unresolved_questions"
+          ],
+          "additionalProperties": false
+        },
+        "maxItems": 60
+      }
+    },
+    "required": [
+      "scope_complete",
+      "unprocessed_unit_ids",
+      "checks",
+      "findings"
+    ],
+    "additionalProperties": false
+  },
+  "verification": {
+    "type": "object",
+    "properties": {
+      "decisions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "finding_id": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "decision": {
+              "type": "string",
+              "maxLength": 8000,
+              "enum": [
+                "supported",
+                "not_supported",
+                "uncertain"
+              ]
+            },
+            "evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unit_id": {
+                    "type": "string",
+                    "maxLength": 250
+                  },
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000
+                  }
+                },
+                "required": [
+                  "unit_id",
+                  "quote"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 60
+            },
+            "counter_evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unit_id": {
+                    "type": "string",
+                    "maxLength": 250
+                  },
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000
+                  }
+                },
+                "required": [
+                  "unit_id",
+                  "quote"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 60
+            },
+            "explanation": {
+              "type": "string",
+              "maxLength": 3000
+            }
+          },
+          "required": [
+            "finding_id",
+            "decision",
+            "evidence_refs",
+            "counter_evidence_refs",
+            "explanation"
+          ],
+          "additionalProperties": false
+        },
+        "maxItems": 100
+      },
+      "comments": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "comment_id": {
+              "type": "string",
+              "maxLength": 150
+            },
+            "duplicate_of_finding_id": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "assessment": {
+              "type": "string",
+              "maxLength": 8000,
+              "enum": [
+                "supported",
+                "not_supported",
+                "insufficient_evidence"
+              ]
+            },
+            "evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unit_id": {
+                    "type": "string",
+                    "maxLength": 250
+                  },
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000
+                  }
+                },
+                "required": [
+                  "unit_id",
+                  "quote"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 60
+            },
+            "explanation": {
+              "type": "string",
+              "maxLength": 3000
+            }
+          },
+          "required": [
+            "comment_id",
+            "duplicate_of_finding_id",
+            "assessment",
+            "evidence_refs",
+            "explanation"
+          ],
+          "additionalProperties": false
+        },
+        "maxItems": 100
+      }
+    },
+    "required": [
+      "decisions",
+      "comments"
+    ],
+    "additionalProperties": false
+  },
+  "offsets": "Host resolves unique verbatim quotes to Unicode code points; ambiguous matches rejected"
+}
