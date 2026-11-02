@@ -393,3 +393,5 @@ body.product-ui .model-toolbar{position:absolute;right:var(--content-gutter,24px
 
 /* Model service feedback stays beside the affected reply. */
 body.product-ui .model-service-notice strong{display:block;font-size:14px;margin-bottom:8px}body.product-ui .model-service-notice p{margin:5px 0;font-size:13px}body.product-ui .model-service-notice small{display:block;margin:8px 0;font-size:12px}body.product-ui .model-service-notice .retry{margin:8px 0}.model-error-details{font-size:12px;margin-top:8px;overflow-wrap:anywhere}.model-error-details summary{cursor:pointer;min-height:36px;display:list-item;padding:6px 0}.model-waiting{font-size:12px;line-height:1.7;color:#69776e;border-left:2px solid #9eb4a5;padding:8px 12px;margin:0 0 16px;background:#f5f8f4;border-radius:0 8px 8px 0}
+
+.local-file-download{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 9px;font-size:12px;white-space:nowrap;color:#446a50;text-underline-offset:3px;flex-shrink:0}

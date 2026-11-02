@@ -162,7 +162,7 @@ test('a legacy blob opens through a verified named managed copy without changing
  const blob=path.join(x.workspace.space.root,'blobs',digest(bytes)),before=fs.readFileSync(blob);
  const listing=await(await x.req('/api/workspace?kind=original')).json();
  const descriptor=listing.resources.find(r=>r.resourceId===ref.resourceId).localFile;
- assert.equal(descriptor.path,null);assert.equal(descriptor.canOpen,true);assert.equal(x.calls.length,0);
+ assert.equal(descriptor.path,null);assert.equal(descriptor.canOpen,true);assert.equal(x.calls.length,0);assert.equal(digest(Buffer.from(await(await x.req(descriptor.downloadUrl)).arrayBuffer())),digest(bytes));
  const response=await x.req(`/api/workspace/resources/${ref.resourceId}/reveal?revision=${ref.revisionId}`,{method:'POST'});
  assert.equal(response.status,200,await response.text());
  const file=x.calls[0].path;
