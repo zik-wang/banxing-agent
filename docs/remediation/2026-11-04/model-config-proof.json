@@ -1,0 +1,536 @@
+{
+  "actualRequests": [
+    {
+      "variant": "baseline",
+      "case": "19",
+      "requests": [
+        {
+          "request": "baseline\\api\\harness\\s19\\88cff93e-b843-44c0-9204-e6785e771737.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 8290
+        },
+        {
+          "request": "baseline\\api\\harness\\s19\\ac41149c-593f-4c65-b551-c48125e1cc84.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 51324
+        },
+        {
+          "request": "baseline\\api\\harness\\s19\\ba5b5c74-8430-4d81-9a60-a4b05fd4d2dc.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 53540
+        },
+        {
+          "request": "baseline\\api\\harness\\s19\\e4c39a3a-5c63-47d2-9b68-252b97ba5965.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 15780
+        },
+        {
+          "request": "baseline\\api\\harness\\s19\\ebb52e62-de35-4df4-b18d-a8c5e07008be.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 68542
+        },
+        {
+          "request": "baseline\\api\\harness\\s19\\f747082d-a8e7-4311-83d9-4ebb2621bfc3.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 58593
+        }
+      ]
+    },
+    {
+      "variant": "baseline",
+      "case": "11",
+      "requests": [
+        {
+          "request": "baseline\\api\\harness\\s11\\15cb51a7-2ec0-491a-966e-915450d0cabc.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 7926
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\272ba6ba-8b3b-4052-8fec-e223599a3a08.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 124969
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\342bad1e-419d-4e8f-9760-b8b9bd6080d9.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 145678
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\3bab2256-2d78-4d9c-8e34-ba1775718bc1.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 42156
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\429a2dc2-df3e-4a9e-a49d-9a3d27a4194e.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 94386
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\4af7cc8e-f708-40bb-b95c-1e5e74ccd204.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 169065
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\6e63e4fa-0f03-4088-8cae-1ffd73a92623.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 79266
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\9902cd03-1e59-4480-8e9a-89df0e90998f.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 136600
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\aeb194a9-0376-491c-870c-eb5dfdcb5d6a.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 53773
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\af5ce44b-ee16-4b87-8daa-a4ccfa591f19.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 171834
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\e272e7f2-b02f-4298-8147-e4c2816ef315.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 171150
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\e59fcd79-3aba-4c77-b643-fbe574d8abfd.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 8976
+        },
+        {
+          "request": "baseline\\api\\harness\\s11\\f9b94209-eb3c-499b-a147-04eae7698121.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 157295
+        }
+      ]
+    },
+    {
+      "variant": "baseline",
+      "case": "15",
+      "requests": [
+        {
+          "request": "baseline\\api\\harness\\s15\\2a73a741-3f61-4f67-afe1-aec535aa66d6.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 74296
+        },
+        {
+          "request": "baseline\\api\\harness\\s15\\2b2d7ee6-4d27-4e94-ac8b-b2ffb51c2d2a.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 75954
+        },
+        {
+          "request": "baseline\\api\\harness\\s15\\4df2856e-dc72-4b6b-9621-20d554f21a21.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 62110
+        },
+        {
+          "request": "baseline\\api\\harness\\s15\\4f94af93-d008-4206-8ad0-ec2780c11634.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 15072
+        },
+        {
+          "request": "baseline\\api\\harness\\s15\\7027c596-d36c-4206-a870-593defedc1b0.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 7911
+        },
+        {
+          "request": "baseline\\api\\harness\\s15\\76e8ffcd-0e7e-4ea6-a708-ec226f634998.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 66403
+        },
+        {
+          "request": "baseline\\api\\harness\\s15\\9ec123f1-9216-41cc-b52e-ed0d42f01358.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 73573
+        },
+        {
+          "request": "baseline\\api\\harness\\s15\\d174744d-e58c-4e71-b2b2-413442b97a6b.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "ced5dec9c08c72039ae39745a5935a16659f231b4aee88f448e5ee8a1c97cc41",
+          "messageCharacters": 75268
+        }
+      ]
+    },
+    {
+      "variant": "fixed",
+      "case": "19",
+      "requests": [
+        {
+          "request": "fixed\\api\\harness\\s19\\07465c8b-10ef-499d-a20c-854ea378c204.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 20836
+        },
+        {
+          "request": "fixed\\api\\harness\\s19\\0796f34a-c590-4be2-b7d6-7415d6caf104.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 28342
+        },
+        {
+          "request": "fixed\\api\\harness\\s19\\3ea77fb9-1d05-4f57-b06a-e6277eebf121.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 31632
+        },
+        {
+          "request": "fixed\\api\\harness\\s19\\684b9685-f86e-494d-9c0f-777fecebf7cc.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 17980
+        },
+        {
+          "request": "fixed\\api\\harness\\s19\\b56d5be1-8813-42a2-ba82-8a5eec1e75b8.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 8659
+        },
+        {
+          "request": "fixed\\api\\harness\\s19\\d662266a-3ca6-4dac-a00e-94b8f792d0ff.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 19269
+        }
+      ]
+    },
+    {
+      "variant": "fixed",
+      "case": "11",
+      "requests": [
+        {
+          "request": "fixed\\api\\harness\\s11\\0a920a1e-1c6c-4a6c-94cb-64f888765510.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 35678
+        },
+        {
+          "request": "fixed\\api\\harness\\s11\\2af8da48-2fdc-454a-9aa3-fa799071edf6.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 8295
+        }
+      ]
+    },
+    {
+      "variant": "fixed",
+      "case": "15",
+      "requests": [
+        {
+          "request": "fixed\\api\\harness\\s15\\2484e790-b6ec-485a-b3ea-c91662e892a4.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 8280
+        },
+        {
+          "request": "fixed\\api\\harness\\s15\\45b5b50f-9357-4bd8-8f9a-ffc49b6f4875.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 20670
+        },
+        {
+          "request": "fixed\\api\\harness\\s15\\98514738-5451-4ea5-bd69-b3baa8e2e3f2.upstream-request.json",
+          "sampling": {
+            "model": "Qwen/Qwen3.8-27B",
+            "temperature": 0.1,
+            "top_p": 0.95,
+            "max_tokens": 8192,
+            "enable_thinking": false
+          },
+          "matchesFrozen": true,
+          "systemPromptSha256": "131ba668d58a3249e77ebe310388bf3cb7fd05900ca441542de323bc7b5658a3",
+          "messageCharacters": 32257
+        }
+      ]
+    }
+  ],
+  "actualPostCount": 38,
+  "allFrozenSettingsMatch": true
+}

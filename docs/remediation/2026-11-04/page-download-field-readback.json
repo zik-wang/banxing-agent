@@ -1,0 +1,70 @@
+{
+  "kind": "INDEPENDENT_SAVED_FILE_READBACK_NOT_GOLD",
+  "semanticGold": false,
+  "sourceFactGroups": 18,
+  "results": [
+    {
+      "format": "xlsx",
+      "path": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-convergence-remediation-20261103\\page15-local-recovery-v2\\recovered-b77d281e-fc64-4d67-a61c-b8583985e364-清单.xlsx",
+      "sha256": "5763a1f2ee01178f7cf0e2b7176ec7669fd060eeb1aa55e540cff94682689c97",
+      "registeredShaMatches": true,
+      "groups": 18,
+      "factVersion": "38ee22b794998c0423320b6caad2780e7c9f53841d5e2ae6b588cbe15e820439",
+      "recordIds": [
+        "df1f2ad7683a2b90123c74c62cfa7d2677128a7b9cda8bc96122de619013c15e",
+        "802560435c407ec1dc46bca41d9ba9762e7e6fc8fdb84122aa32746f0c01d9b2",
+        "c0a5dc5ef891b7607f182078f4c686f0536e2c71c49c1b8600ecf2ef6eeea887",
+        "61ed8fce36ee079196bcec40765d3f681badb9592e341b4658c41ad1b92e9a13",
+        "9fd284aac23c98a1c417a0516cc978765193cfef8ce4700eaffa5f94594c3ff8",
+        "72568c71c82b316b38638d692dddcc51ec96d7a8384ac06779b2d84795b9aa5d",
+        "8d96bd10fbce52b6f0afa57983d0bb6eabc26d232cf34c95a3fd3963f549ce17",
+        "ea7779f2110212d84d366297010ded7c04c388824dc3472c50904aca5bca25de",
+        "fed8e78a6e60d06c2f01fdbb2815b5c74e9b408b257dfa00d279da513414c9fc",
+        "38760edf7e083bb61e86eed5b1f67a40f2052e7e96a88bcf275288126ab8d1f5",
+        "60bd4229c5a50bb22e422aeaf9856cdc9f9a61764fa9654472959b411ecdc617",
+        "d119095a6ca695a48cabf045761d0b14e01d7c11dc7efeb7fce5b77bdd61ac7f",
+        "a23fefb50b4d11bc6e434d1016a6d4846864c412afc7eed54884109de42102e1",
+        "89dd0b5cc8cb83e7190ee2aabf673756bf1333c9177877e6cdb4b25ec89fd300",
+        "f788a7ef6907ecfb241b0938fccd741243ebc8043d946847907ae6a7ca17117f",
+        "555158ff3413f04ae7a4317cef93ed10d5a34ab8cd1eb037c922d715b6ac1a14",
+        "16faf329af73627f692a50fd1a3c9015921ed7cc5c1617783bdf5a77ddbc82a0",
+        "722a561eeadba5b4abcfab9c647f5e5675c5660bbf7466dd93c28579b7bc4434"
+      ],
+      "allCoreFieldsEqual": true,
+      "mismatches": [],
+      "reader": "openpyxl"
+    },
+    {
+      "format": "docx",
+      "path": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-convergence-remediation-20261103\\page15-local-recovery-v2\\recovered-2d81d12e-4f03-421d-a4fd-ac16185088c7-FOI 公开合同到期清单.docx",
+      "sha256": "94ac98f4773546082b8a576c5ae5e657c2a3608f1a793b8cd760871c3405a9a1",
+      "registeredShaMatches": true,
+      "groups": 18,
+      "factVersion": "38ee22b794998c0423320b6caad2780e7c9f53841d5e2ae6b588cbe15e820439",
+      "recordIds": [
+        "df1f2ad7683a2b90123c74c62cfa7d2677128a7b9cda8bc96122de619013c15e",
+        "802560435c407ec1dc46bca41d9ba9762e7e6fc8fdb84122aa32746f0c01d9b2",
+        "c0a5dc5ef891b7607f182078f4c686f0536e2c71c49c1b8600ecf2ef6eeea887",
+        "61ed8fce36ee079196bcec40765d3f681badb9592e341b4658c41ad1b92e9a13",
+        "9fd284aac23c98a1c417a0516cc978765193cfef8ce4700eaffa5f94594c3ff8",
+        "72568c71c82b316b38638d692dddcc51ec96d7a8384ac06779b2d84795b9aa5d",
+        "8d96bd10fbce52b6f0afa57983d0bb6eabc26d232cf34c95a3fd3963f549ce17",
+        "ea7779f2110212d84d366297010ded7c04c388824dc3472c50904aca5bca25de",
+        "fed8e78a6e60d06c2f01fdbb2815b5c74e9b408b257dfa00d279da513414c9fc",
+        "38760edf7e083bb61e86eed5b1f67a40f2052e7e96a88bcf275288126ab8d1f5",
+        "60bd4229c5a50bb22e422aeaf9856cdc9f9a61764fa9654472959b411ecdc617",
+        "d119095a6ca695a48cabf045761d0b14e01d7c11dc7efeb7fce5b77bdd61ac7f",
+        "a23fefb50b4d11bc6e434d1016a6d4846864c412afc7eed54884109de42102e1",
+        "89dd0b5cc8cb83e7190ee2aabf673756bf1333c9177877e6cdb4b25ec89fd300",
+        "f788a7ef6907ecfb241b0938fccd741243ebc8043d946847907ae6a7ca17117f",
+        "555158ff3413f04ae7a4317cef93ed10d5a34ab8cd1eb037c922d715b6ac1a14",
+        "16faf329af73627f692a50fd1a3c9015921ed7cc5c1617783bdf5a77ddbc82a0",
+        "722a561eeadba5b4abcfab9c647f5e5675c5660bbf7466dd93c28579b7bc4434"
+      ],
+      "allCoreFieldsEqual": true,
+      "mismatches": [],
+      "reader": "Python zipfile/XML"
+    }
+  ],
+  "passed": true
+}

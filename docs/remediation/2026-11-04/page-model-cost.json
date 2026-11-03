@@ -1,0 +1,730 @@
+{
+  "scope": "candidate page only, not six CLI comparison",
+  "workspaceChargedAttempts": 34,
+  "savedTransportAttemptReceipts": 32,
+  "unfinishedAttemptDifference": 2,
+  "cost": "unknown",
+  "note": "onAttempt budget entries happen before fetch; hard-cancelled in-flight requests can lack final response/usage. Do not infer zero cost or treat all entries as successful POST responses.",
+  "turns": [
+    {
+      "turnId": "bdc40bd6-beb1-4188-8042-173197ee9e86",
+      "status": "failed",
+      "savedTransportAttemptReceipts": 3,
+      "promptTokensReturned": 23655,
+      "completionTokensReturned": 216,
+      "missingUsageInSavedReceipts": 1,
+      "receipts": [
+        {
+          "id": "080654e8-1915-4d99-885d-12bb7686ff96.01.json",
+          "phase": "fetch",
+          "elapsedMs": 300003,
+          "httpStatus": null,
+          "usage": null,
+          "error": {
+            "name": "TimeoutError",
+            "message": "The operation was aborted due to timeout",
+            "code": 23
+          }
+        },
+        {
+          "id": "73732603-016b-4ba1-b021-8f98fddd3b44.01.json",
+          "phase": "complete",
+          "elapsedMs": 8051,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 6599,
+            "completion_tokens": 110,
+            "total_tokens": 6709,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 6599
+          },
+          "error": null
+        },
+        {
+          "id": "d540b44b-6d62-4aa4-a4f8-6ccdb4679571.01.json",
+          "phase": "complete",
+          "elapsedMs": 7692,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 17056,
+            "completion_tokens": 106,
+            "total_tokens": 17162,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 17056
+          },
+          "error": null
+        }
+      ]
+    },
+    {
+      "turnId": "96bab418-7894-4f2e-b95e-abda76c911aa",
+      "status": "failed",
+      "savedTransportAttemptReceipts": 2,
+      "promptTokensReturned": 6152,
+      "completionTokensReturned": 95,
+      "missingUsageInSavedReceipts": 1,
+      "receipts": [
+        {
+          "id": "09af1fc7-3676-4f15-82ac-68fe07dd8435.01.json",
+          "phase": "fetch",
+          "elapsedMs": 300002,
+          "httpStatus": null,
+          "usage": null,
+          "error": {
+            "name": "TimeoutError",
+            "message": "The operation was aborted due to timeout",
+            "code": 23
+          }
+        },
+        {
+          "id": "f04eb8e5-ea8b-47b3-9c72-8628dfc7d1bf.01.json",
+          "phase": "complete",
+          "elapsedMs": 6861,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 6152,
+            "completion_tokens": 95,
+            "total_tokens": 6247,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 6152
+          },
+          "error": null
+        }
+      ]
+    },
+    {
+      "turnId": "10e4862f-3224-4e60-9d9c-5baaa80d89a0",
+      "status": "failed",
+      "savedTransportAttemptReceipts": 5,
+      "promptTokensReturned": 40057,
+      "completionTokensReturned": 300,
+      "missingUsageInSavedReceipts": 0,
+      "receipts": [
+        {
+          "id": "5de74b9e-5ade-41d7-9e45-b7d2e8f1784c.01.json",
+          "phase": "complete",
+          "elapsedMs": 2165,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 6440,
+            "completion_tokens": 27,
+            "total_tokens": 6467,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 6440
+          },
+          "error": null
+        },
+        {
+          "id": "6531ce74-0c1c-4a29-8756-03ab4d439008.01.json",
+          "phase": "complete",
+          "elapsedMs": 7174,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 8730,
+            "completion_tokens": 79,
+            "total_tokens": 8809,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 8730
+          },
+          "error": null
+        },
+        {
+          "id": "c8bcd67c-cdca-418d-836b-bf46eb8efd05.01.json",
+          "phase": "complete",
+          "elapsedMs": 3274,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 6999,
+            "completion_tokens": 40,
+            "total_tokens": 7039,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 6999
+          },
+          "error": null
+        },
+        {
+          "id": "d3a17e55-2415-4c39-ad74-1750ec807b3c.01.json",
+          "phase": "complete",
+          "elapsedMs": 7754,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 10306,
+            "completion_tokens": 77,
+            "total_tokens": 10383,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 10306
+          },
+          "error": null
+        },
+        {
+          "id": "db304f39-56da-45a6-97e9-9134c0cd4345.01.json",
+          "phase": "complete",
+          "elapsedMs": 13430,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 7582,
+            "completion_tokens": 77,
+            "total_tokens": 7659,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 7582
+          },
+          "error": null
+        }
+      ]
+    },
+    {
+      "turnId": "bb2a7655-c4c4-4d9f-8000-d1a80c494b6d",
+      "status": "cancelled",
+      "savedTransportAttemptReceipts": 10,
+      "promptTokensReturned": 100106,
+      "completionTokensReturned": 1054,
+      "missingUsageInSavedReceipts": 0,
+      "receipts": [
+        {
+          "id": "0a3a0c9a-c3ce-491f-82ef-1563cdea25ef.01.json",
+          "phase": "complete",
+          "elapsedMs": 36277,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 13049,
+            "completion_tokens": 320,
+            "total_tokens": 13369,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 13049
+          },
+          "error": null
+        },
+        {
+          "id": "0e9cc16a-f435-4a75-a6c5-13cf61b9cec6.01.json",
+          "phase": "complete",
+          "elapsedMs": 2765,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 7903,
+            "completion_tokens": 27,
+            "total_tokens": 7930,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 7903
+          },
+          "error": null
+        },
+        {
+          "id": "1e1378a5-c807-4efd-8722-54828c5c402b.01.json",
+          "phase": "complete",
+          "elapsedMs": 2178,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 13055,
+            "completion_tokens": 54,
+            "total_tokens": 13109,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 11008
+            },
+            "prompt_cache_hit_tokens": 11008,
+            "prompt_cache_miss_tokens": 2047
+          },
+          "error": null
+        },
+        {
+          "id": "54cc46f0-31d9-415b-8d24-c6d21557a851.01.json",
+          "phase": "complete",
+          "elapsedMs": 3400,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 8048,
+            "completion_tokens": 61,
+            "total_tokens": 8109,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 8048
+          },
+          "error": null
+        },
+        {
+          "id": "8058b24c-f4a8-4946-9719-8aa08df96969.01.json",
+          "phase": "complete",
+          "elapsedMs": 3428,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 11142,
+            "completion_tokens": 43,
+            "total_tokens": 11185,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 11142
+          },
+          "error": null
+        },
+        {
+          "id": "a8b5eeb9-509c-4a49-9910-40ba7b070cf2.01.json",
+          "phase": "complete",
+          "elapsedMs": 24542,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 7195,
+            "completion_tokens": 156,
+            "total_tokens": 7351,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 7195
+          },
+          "error": null
+        },
+        {
+          "id": "b2810023-098c-4387-9eba-2c2964e1884f.01.json",
+          "phase": "complete",
+          "elapsedMs": 4431,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 13860,
+            "completion_tokens": 48,
+            "total_tokens": 13908,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 13860
+          },
+          "error": null
+        },
+        {
+          "id": "b9bc3fa0-6c4e-48eb-bae6-fd3e4a429423.01.json",
+          "phase": "complete",
+          "elapsedMs": 2556,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 6662,
+            "completion_tokens": 26,
+            "total_tokens": 6688,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 6662
+          },
+          "error": null
+        },
+        {
+          "id": "cb570e62-b6cf-4049-9edd-7416250f3043.01.json",
+          "phase": "complete",
+          "elapsedMs": 9370,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 8222,
+            "completion_tokens": 148,
+            "total_tokens": 8370,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 8222
+          },
+          "error": null
+        },
+        {
+          "id": "e6578ddf-4d66-4ce6-b336-d6e759af510c.01.json",
+          "phase": "complete",
+          "elapsedMs": 16540,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 10970,
+            "completion_tokens": 171,
+            "total_tokens": 11141,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 10970
+          },
+          "error": null
+        }
+      ]
+    },
+    {
+      "turnId": "6d40107c-30c6-4c9d-adf1-e2a1eba7972b",
+      "status": "cancelled",
+      "savedTransportAttemptReceipts": 0,
+      "promptTokensReturned": 0,
+      "completionTokensReturned": 0,
+      "missingUsageInSavedReceipts": 0,
+      "receipts": []
+    },
+    {
+      "turnId": "439eba8b-5db0-457d-9a57-2439506b6e14",
+      "status": "cancelled",
+      "savedTransportAttemptReceipts": 9,
+      "promptTokensReturned": 91281,
+      "completionTokensReturned": 2170,
+      "missingUsageInSavedReceipts": 0,
+      "receipts": [
+        {
+          "id": "0633d667-50d0-4322-a8d5-4c7e3d31aea6.01.json",
+          "phase": "complete",
+          "elapsedMs": 3225,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 8052,
+            "completion_tokens": 62,
+            "total_tokens": 8114,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 8052
+          },
+          "error": null
+        },
+        {
+          "id": "0c833c0b-850b-4dda-a36e-95b95338ca94.01.json",
+          "phase": "complete",
+          "elapsedMs": 14929,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 7194,
+            "completion_tokens": 156,
+            "total_tokens": 7350,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 7194
+          },
+          "error": null
+        },
+        {
+          "id": "1a501d40-1f32-4019-8945-84b160215417.01.json",
+          "phase": "complete",
+          "elapsedMs": 39323,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 15178,
+            "completion_tokens": 1131,
+            "total_tokens": 16309,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 15178
+          },
+          "error": null
+        },
+        {
+          "id": "348efdfd-bd4e-4495-b1a0-7c07a1278051.01.json",
+          "phase": "complete",
+          "elapsedMs": 6854,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 10689,
+            "completion_tokens": 187,
+            "total_tokens": 10876,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 10689
+          },
+          "error": null
+        },
+        {
+          "id": "615f935b-53e2-430b-aaff-1c77b8440ae6.01.json",
+          "phase": "complete",
+          "elapsedMs": 4181,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 11765,
+            "completion_tokens": 42,
+            "total_tokens": 11807,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 11765
+          },
+          "error": null
+        },
+        {
+          "id": "a495d13a-0c43-4aaa-8ff0-85e0f271a09e.01.json",
+          "phase": "complete",
+          "elapsedMs": 5540,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 10980,
+            "completion_tokens": 104,
+            "total_tokens": 11084,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 10980
+          },
+          "error": null
+        },
+        {
+          "id": "b4a420b3-f973-4a24-8a2e-508222d1fa40.01.json",
+          "phase": "complete",
+          "elapsedMs": 25308,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 12798,
+            "completion_tokens": 314,
+            "total_tokens": 13112,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 12798
+          },
+          "error": null
+        },
+        {
+          "id": "d1fa00db-96fa-4bf3-ab61-6dcad4ffcafe.01.json",
+          "phase": "complete",
+          "elapsedMs": 2732,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 6664,
+            "completion_tokens": 26,
+            "total_tokens": 6690,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 6664
+          },
+          "error": null
+        },
+        {
+          "id": "f5a9e181-0810-40b9-b5fe-99e6c483db75.01.json",
+          "phase": "complete",
+          "elapsedMs": 12295,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 7961,
+            "completion_tokens": 148,
+            "total_tokens": 8109,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 7961
+          },
+          "error": null
+        }
+      ]
+    },
+    {
+      "turnId": "ef29b345-a25e-426e-b936-f0c2fef09be9",
+      "status": "cancelled",
+      "savedTransportAttemptReceipts": 3,
+      "promptTokensReturned": 33367,
+      "completionTokensReturned": 1232,
+      "missingUsageInSavedReceipts": 0,
+      "receipts": [
+        {
+          "id": "242a9d86-9a9c-49af-8b63-7dcdcd2e61be.01.json",
+          "phase": "complete",
+          "elapsedMs": 5065,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 16261,
+            "completion_tokens": 60,
+            "total_tokens": 16321,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 16261
+          },
+          "error": null
+        },
+        {
+          "id": "84fca9f1-40a8-4fd5-ba50-9978977ca993.01.json",
+          "phase": "complete",
+          "elapsedMs": 29470,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 10655,
+            "completion_tokens": 1098,
+            "total_tokens": 11753,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 10655
+          },
+          "error": null
+        },
+        {
+          "id": "c73bd48b-4e24-46ee-8460-0d451b0209e8.01.json",
+          "phase": "complete",
+          "elapsedMs": 8833,
+          "httpStatus": 200,
+          "usage": {
+            "prompt_tokens": 6451,
+            "completion_tokens": 74,
+            "total_tokens": 6525,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 6451
+          },
+          "error": null
+        }
+      ]
+    },
+    {
+      "turnId": "0040e9b4-ae5e-4b7b-84f8-ae37926a476f",
+      "status": "completed",
+      "savedTransportAttemptReceipts": 0,
+      "promptTokensReturned": 0,
+      "completionTokensReturned": 0,
+      "missingUsageInSavedReceipts": 0,
+      "receipts": []
+    },
+    {
+      "turnId": "1758d939-be96-4ace-8c32-436da02c5a60",
+      "status": "completed",
+      "savedTransportAttemptReceipts": 0,
+      "promptTokensReturned": 0,
+      "completionTokensReturned": 0,
+      "missingUsageInSavedReceipts": 0,
+      "receipts": []
+    },
+    {
+      "turnId": "5c52945c-8245-4c6d-815d-61fbbe3d8d8e",
+      "status": "completed",
+      "savedTransportAttemptReceipts": 0,
+      "promptTokensReturned": 0,
+      "completionTokensReturned": 0,
+      "missingUsageInSavedReceipts": 0,
+      "receipts": []
+    }
+  ]
+}

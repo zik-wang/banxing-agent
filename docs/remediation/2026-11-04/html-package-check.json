@@ -1,0 +1,10 @@
+{
+  "standalone": true,
+  "embeddedImages": 11,
+  "embeddedDownloadFiles": 23,
+  "sizeBytes": 2221270,
+  "sha256": "509723e2da0a55c54820af706cdb27e2c6c2dca6bac8ce6eeeffb8dcfb54cf13",
+  "secretValueScanPassed": true,
+  "sensitiveOriginalsIncluded": false,
+  "noWeightFilesIncluded": true
+}
