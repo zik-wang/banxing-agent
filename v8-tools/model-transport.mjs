@@ -52,13 +52,14 @@ export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,tim
   const allowed=Math.min(maxAttempts,callOptions.maxAttempts??maxAttempts);
   if(!Number.isInteger(allowed)||allowed<1)throw makeError('MODEL_REQUEST_BUDGET_EXHAUSTED','模型网络请求预算已耗尽',{requestId});
   const userCancelled=()=>signal?.aborted&&signal.reason?.name!=='TimeoutError';
+  const stoppedCode=()=>signal?.reason?.code==='TASK_TIME_BUDGET_EXHAUSTED'?'TASK_TIME_BUDGET_EXHAUSTED':userCancelled()?'MODEL_REQUEST_CANCELLED':'MODEL_REQUEST_TIMEOUT';
   const combined=AbortSignal.any([...(signal?[signal]:[]),AbortSignal.timeout(timeoutMs)]);
   const cloud=provider==='cloud'||provider==='siliconflow';
   const settings=enableThinking===undefined?{}:provider==='iteracompute'?{chat_template_kwargs:{enable_thinking:enableThinking}}:cloud?{enable_thinking:enableThinking}:{chat_template_kwargs:{enable_thinking:enableThinking}};
   const toolSettings=definitions.length?{tools:definitions.map(t=>({type:'function',function:{name:t.name,description:t.description,parameters:t.inputSchema}})),tool_choice:'auto'}:{};
   const body=JSON.stringify({model,messages,...toolSettings,temperature:0.1,...(topP===undefined?{}:{top_p:topP}),max_tokens:maxTokens,...settings});
   for(let attempt=1;attempt<=allowed;attempt++){
-   if(combined.aborted){stats.failedRequests++;throw makeError(userCancelled()?'MODEL_REQUEST_CANCELLED':'MODEL_REQUEST_TIMEOUT',userCancelled()?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt-1,phase:'before_request'});}
+   if(combined.aborted){stats.failedRequests++;throw makeError(stoppedCode(),signal?.reason?.code==='TASK_TIME_BUDGET_EXHAUSTED'?'任务整体处理时间预算已用尽':userCancelled()?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt-1,phase:'before_request'});}
    // Host accounting runs before every actual HTTP attempt, including recovery.
    try{await onAttempt?.({requestId,attempt});}catch(error){stats.failedRequests++;throw error;}
    stats.networkAttempts++;
@@ -92,11 +93,11 @@ export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,tim
     if(canRetry){
      stats.retries++;
      try{await sleep(retryDelaysMs[Math.min(attempt-1,retryDelaysMs.length-1)]??0,undefined,{signal:combined})}
-     catch(e){stats.failedRequests++;throw makeError(userCancelled()?'MODEL_REQUEST_CANCELLED':'MODEL_REQUEST_TIMEOUT',userCancelled()?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt,phase,error:safe},e)}
+     catch(e){stats.failedRequests++;throw makeError(stoppedCode(),signal?.reason?.code==='TASK_TIME_BUDGET_EXHAUSTED'?'任务整体处理时间预算已用尽':userCancelled()?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt,phase,error:safe},e)}
      continue;
     }
     stats.failedRequests++;
-    if(cancelled)throw makeError(userCancelled()?'MODEL_REQUEST_CANCELLED':'MODEL_REQUEST_TIMEOUT',userCancelled()?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt,phase,elapsedMs:Date.now()-logicalStarted,error:safe},error);
+    if(cancelled)throw makeError(stoppedCode(),signal?.reason?.code==='TASK_TIME_BUDGET_EXHAUSTED'?'任务整体处理时间预算已用尽':userCancelled()?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt,phase,elapsedMs:Date.now()-logicalStarted,error:safe},error);
     if(response&&!response.ok&&phase==='response_body')throw makeError('MODEL_HTTP_ERROR','Planning model HTTP '+response.status,{requestId,attempts:attempt,phase,httpStatus:response.status,error:safe},error);
     if(phase==='parse')throw error;
     const code=codes(error)[0]||'NETWORK_ERROR';

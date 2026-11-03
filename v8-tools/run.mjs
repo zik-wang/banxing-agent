@@ -58,7 +58,7 @@ if(isCloud&&config.inputClassification==='private_metadata_only'&&[...documents.
 const texts=new TextTools(documents);
 const controller = new AbortController();
 process.once('SIGINT', () => controller.abort());
-const timer = isAdaptive(config) ? null : setTimeout(() => controller.abort(), config.timeoutMs || 600000);
+const timer = isAdaptive(config) ? null : setTimeout(() => controller.abort(config.executionRepair?Object.assign(Error('任务整体处理时间预算已用尽'),{name:'TaskBudgetError',code:'TASK_TIME_BUDGET_EXHAUSTED'}):undefined), config.timeoutMs || 600000);
 const extras = new DocumentExtras(documents,{...config,sourceConstraints:config.sourceConstraints!==false});
 const workbooks = config.workbookTools ? new WorkbookTools(documents,extras,config) : null;
 const knowledge=new KnowledgeTools(documents,texts,config),delivery=new DeliveryTools(documents,extras,texts),audio=new AudioTools(documents,delivery,config);
