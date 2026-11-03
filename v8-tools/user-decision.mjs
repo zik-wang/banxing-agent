@@ -4,7 +4,7 @@ import {randomUUID} from 'node:crypto';
 import {ToolError} from './harness.mjs';
 
 // A question is an execution state, not evidence that a requested export failed.
-export function canProduceAlternatives(request,formats){
+export function canProduceAlternatives(request,formats=[]){
  return formats.length===1&&['docx','xlsx','pdf','txt','md'].includes(formats[0])&&!/(?:发送|发邮件|发布|预约|付款|删除|覆盖|替换|合并|只用|只要|仅用|选一|选择|最新|第一|第二|审核|审查|分析|统计|总结|撰写|提取|核对|对比|比较|修改|补充)/u.test(request);
 }
 export function candidateChoices(resources){
@@ -12,8 +12,14 @@ export function candidateChoices(resources){
 }
 export class UserDecision {
  constructor({docs,extras,books,texts,continuity,config}){Object.assign(this,{docs,extras,books,texts,c:continuity,config});this.pending=null;}
+ candidateScope(fallback=[]){
+  const listed=this.c?.workspace?.list?.({limit:100000,excluded:(this.c.config?.continuity?.excludedInputs||[]).map(x=>x.resourceId)});
+  if(!listed)return {resources:fallback,hasMore:false};
+  const all=listed.resources.filter(r=>['original','result'].includes(r.kind)),request=this.docs.request.toLowerCase(),named=all.filter(r=>{const name=String(r.name||'').toLowerCase(),stem=path.parse(name).name;return name.length>=3&&request.includes(name)||stem.length>=3&&request.includes(stem);});
+  const resources=named.length?named:all;return {resources,hasMore:!!listed.nextCursor||resources.length>12};
+ }
  question(question,choices=[],reason='file_selection',more=false){return {id:randomUUID(),state:'pending',kind:reason,title:'需要你确认处理范围',question,choices,hasMore:more,detailLabel:'补充用途和要求',detailHint:'例如：给领导看，只处理本月数据，金额保留两位小数，输出Word。',originalRequest:this.docs.request};}
- tools(){return [{name:'ask_user',description:'Ask the user a necessary question and pause in needs_input. Supply real discovered resource_id/revision_id choices for file ambiguity; never invent file IDs. For one or two safe format-conversion alternatives the host may generate both distinct copies. For many choices or substantive business decisions wait for the user. This is not a failure and needs no export first.',inputSchema:{type:'object',properties:{question:{type:'string',minLength:1,maxLength:1200},choices:{type:'array',maxItems:12,items:{type:'object',properties:{resource_id:{type:'string',maxLength:400},revision_id:{type:'string',maxLength:400}},required:['resource_id','revision_id'],additionalProperties:false}}},required:['question'],additionalProperties:false},execute:async a=>{const all=this.c?.workspace?.list({limit:100000,excluded:(this.c.config.continuity.excludedInputs||[]).map(x=>x.resourceId)}).resources||[];const resources=(a.choices||[]).map(choice=>{const r=all.find(r=>r.resourceId===choice.resource_id&&r.revisionId===choice.revision_id);if(!r)throw new ToolError('CHOICE_SCOPE_DENIED','请选择本工作空间实际可用的原件或成果');this.c.allowed(r.ref);return r;});this.pending=this.question(a.question,candidateChoices(resources));return {hostUserDecision:this.pending};}}];}
+ tools(){return [{name:'ask_user',description:'Ask the user a necessary question and pause in needs_input. Supply real discovered resource_id/revision_id choices for file ambiguity; never invent file IDs. For one or two safe format-conversion alternatives the host may generate both distinct copies. For many choices or substantive business decisions wait for the user. This is not a failure and needs no export first.',inputSchema:{type:'object',properties:{question:{type:'string',minLength:1,maxLength:1200},choices:{type:'array',maxItems:12,items:{type:'object',properties:{resource_id:{type:'string',maxLength:400},revision_id:{type:'string',maxLength:400}},required:['resource_id','revision_id'],additionalProperties:false}}},required:['question'],additionalProperties:false},execute:async a=>{const all=this.c?.workspace?.list({limit:100000,excluded:(this.c.config.continuity.excludedInputs||[]).map(x=>x.resourceId)}).resources||[];const resources=(a.choices||[]).map(choice=>{const r=all.find(r=>r.resourceId===choice.resource_id&&r.revisionId===choice.revision_id);if(!r)throw new ToolError('CHOICE_SCOPE_DENIED','请选择本工作空间实际可用的原件或成果');this.c.allowed(r.ref);return r;});const hostScope=!this.c?.selected?.length&&canProduceAlternatives(this.docs.request,this.docs.requestedFormats)?this.candidateScope(resources):null;this.pending=this.question(hostScope?'请确认实际要处理的材料、来源或版本。':a.question,candidateChoices(hostScope?.resources||resources),'file_selection',!!hostScope?.hasMore);return {hostUserDecision:this.pending};}}];}
  fromHistory(answer,run,history){
   if(this.pending)return this.pending;
   if([...this.extras?.artifacts?.keys()||[]].some(id=>!this.extras.initialArtifactIds?.has(id)))return null;
@@ -26,9 +32,11 @@ export class UserDecision {
  }
  observe(result){
   // Deciding between file versions needs metadata, not repeated content reads.
-  if(result.tool!=='list_materials'||result.status!=='ok'||this.c?.selected.length||!canProduceAlternatives(this.docs.request,this.docs.requestedFormats)||!/(?:这个|这份|那个|哪份)/u.test(this.docs.request)||!/(?:做成|转成|转为|转换|导出|存成)/u.test(this.docs.request))return null;
-  const choices=candidateChoices(result.data?.resources||[]);if(!choices.length)return null;
-  this.pending=this.question('请确认要转换的材料；可以选择一份或多份，并补充用途和要求。',choices,'file_selection',!!result.data.nextCursor);
+  if(result.tool!=='list_materials'||result.status!=='ok'||this.c?.selected?.length||!canProduceAlternatives(this.docs.request,this.docs.requestedFormats)||!/(?:这个|这份|那个|哪份)/u.test(this.docs.request)||!/(?:做成|转成|转为|转换|导出|存成)/u.test(this.docs.request))return null;
+  // An LLM-chosen search term cannot establish that there is only one matching
+  // file. Use the full authorized host scope unless the user actually named it.
+  const scope=this.candidateScope(result.data?.resources||[]),choices=candidateChoices(scope.resources);if(!choices.length)return null;
+  this.pending=this.question('当前可用材料的来源或版本不同。请选要转换的材料；也可以说明文件名、来源及输出要求。',choices,'file_selection',scope.hasMore||!!result.data.nextCursor);
   return {needsInput:true,clarification:this.pending,message:this.pending.question};
  }
  async convert(choice,index){
@@ -48,8 +56,12 @@ export class UserDecision {
    args.artifact_ids=[preferred.record.artifactId];
   }else{
    const asset=[...this.docs.assets.values()].find(a=>a.resourceRef?.resourceId===choice.ref.resourceId);
-   if(asset?.kind!=='text')throw new ToolError('CHOICE_READER_REQUIRED','该原件需要先读取内容；请明确处理要求后继续');
-   args.content=this.texts.source(asset.id).text;args.source_ids=[asset.id];
+   if(asset?.kind==='workbook'&&['docx','pdf'].includes(format)){
+    const metadata=await this.execute('inspect_material',{asset_id:asset.id});args.table_ids=[];for(const sheet of metadata.sheets||[]){const table=await this.execute('read_workbook',{asset_id:asset.id,sheet:sheet.name});args.table_ids.push(table.tableId);}if(!args.table_ids.length)throw new ToolError('CHOICE_WORKBOOK_EMPTY','该工作簿没有可读取的工作表');
+   }else{
+    if(asset?.kind!=='text')throw new ToolError('CHOICE_READER_REQUIRED','该原件需要先读取内容；请明确处理要求后继续');
+    args.content=this.texts.source(asset.id).text;args.source_ids=[asset.id];
+   }
   }
   const output=await this.execute('export_document',args);
   return format==='pdf'?this.execute('convert_to_pdf',{artifact_id:output.artifactId}):output;
