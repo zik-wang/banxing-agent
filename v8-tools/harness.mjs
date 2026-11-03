@@ -1,3 +1,4 @@
+import {compactHistory} from './draft-delivery.mjs';
 import {EvidenceProgress} from './evidence-progress.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,6 +11,7 @@ export class ToolError extends Error {
 }
 // Deliberately limited to the JSON Schema subset used by this tool registry.
 export function validate(schema, value, at = 'arguments') {
+  if(schema.oneOf){const n=schema.oneOf.filter(s=>(s.required||[]).every(k=>Object.hasOwn(value||{},k))).length;if(n!==1)throw new ToolError('DOCUMENT_CONTENT_REQUIRED','Exactly one of content, draft_ref, result_ids, table_ids, artifact_ids, statistics_ids is required; source_ids are provenance only',{missing_fields:['content_or_saved_reference'],retryable_without_change:false,next_action:'Submit nonempty content or an existing draft_ref; do not reread sources to fix this error'});}
   if (schema.type === 'object') {
     if (!value || typeof value !== 'object' || Array.isArray(value)) throw new ToolError('INVALID_ARGUMENT', `${at} must be an object`);
     for (const key of schema.required || []) if (!Object.hasOwn(value,key)) throw new ToolError('INVALID_ARGUMENT', `${at}.${key} is required`);
@@ -71,14 +73,14 @@ export class ToolHarness {
   async executeOne(name, args) {
     const callId = randomUUID(), startedAt = new Date().toISOString(); let result,handlerInvoked=false;
     const stable=x=>x&&typeof x==='object'?Array.isArray(x)?x.map(stable):Object.fromEntries(Object.keys(x).sort().map(k=>[k,stable(x[k])])):x;
-    const signature=name+'|'+JSON.stringify(stable(args));
+    const signature=name+'|'+JSON.stringify(stable(args))+(this.executionRepair?'|'+(this.executionRevision?.()||''): '');
     const discoveredBefore=this.discoveredTools.size;
     try {
       if (this.signal.aborted) throw new ToolError('CANCELLED', 'Run was cancelled');
       if (this.calls >= this.maxCalls) throw new ToolError('CALL_BUDGET_EXHAUSTED', 'Tool call budget exhausted; return remaining work');
       this.calls++;
       if(name==='discover_tools'){if(this.discoveryCalls>=this.maxDiscoveryCalls||this.discoveryStreak>=this.maxDiscoveryStreak)throw new ToolError('DISCOVERY_BOUNDARY','Use the already visible tools or explain missing capability/input');this.discoveryCalls++;this.discoveryStreak++;}else this.businessToolAttempts++;
-      if((this.failedCalls.get(signature)||0)>=this.maxRepeatedFailures)throw new ToolError('REPEATED_FAILURE_LIMIT','Same failed tool arguments have reached the retry limit; choose a supported reader or report the blocker.',{tool:name,attempts:this.failedCalls.get(signature)});
+      if((this.failedCalls.get(signature)||0)>=(this.executionRepair?1:this.maxRepeatedFailures))throw new ToolError('REPEATED_FAILURE_LIMIT','Same failed tool arguments have reached the retry limit; choose a supported reader or report the blocker.',{tool:name,attempts:this.failedCalls.get(signature)});
       const tool = this.tools.get(name);
       if (!tool) throw new ToolError('UNKNOWN_TOOL', 'Select a registered tool');
       validate(tool.inputSchema, args);
@@ -88,6 +90,7 @@ export class ToolHarness {
     } catch (error) {
       result = {callId, tool: name, status: 'error', error: {code: error.code || 'TOOL_FAILED', message: error.message, details: error.details || {}}};
     }
+    if(this.executionRepair&&result.status==='error'&&['DOCUMENT_CONTENT_REQUIRED','INVALID_ARGUMENT','ARTIFACT_CONVERSION_UNSUPPORTED','REPEATED_FAILURE_LIMIT'].includes(result.error.code))result.error.recovery={retryable_without_change:false,next_action:result.error.details?.next_action||'Change the invalid arguments or choose a supported conversion. Source IDs cannot replace content.'};
     const progress=this.evidenceProgress.observe(name,args,result);if(progress)result.evidenceProgress=progress;
     if(name==='discover_tools'&&result.status!=='error')for(const t of result.data.tools||[])this.discoveredTools.add(t.name);
     if(name!=='discover_tools'&&handlerInvoked){if(result.data?.recoveredReceipt)this.recoveredReceipts++;else this.actualExecutions++;}
@@ -132,8 +135,12 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
     const remaining=roundLimit-physicalRequests();
     if(remaining<=0){termination={reason:'model_round_budget_exhausted'};break;}
     const finalOnly=reserveFinalRound&&remaining===1;if(finalOnly)messages.push({role:'user',content:'宿主：这是预留的最终答复轮次。只依据现有回执给出核对结论、分歧和未完成项；不要再调用工具，不得声称未执行的核对已经完成。'});
+    if(harness.executionRepair)compactHistory(messages,harness.directory);
     let reply;try{modelRoundsUsed++;reply=await next(messages, finalOnly?[]:harness.listTools(), harness.signal,{maxAttempts:remaining});}catch(e){termination={reason:harness.signal.aborted?'cancelled':'model_error',error:{code:e.code||'MODEL_REQUEST_FAILED',message:e.message,...(e.details?{details:e.details}:{}),...(modelFailure(e)?{failure:modelFailure(e)}:{})}};break;}
     if (!reply || reply.role !== 'assistant') throw new Error('Invalid model message');
+    if(harness.executionRepair&&reply.tool_calls?.some(c=>c.function.name==='export_document')&&typeof reply.content==='string'){
+      const draft=reply.content.match(/<parameter=content>([\s\S]*?)<\/parameter>/u);if(draft?.[1]?.trim())await harness.preserveDraft?.(draft[1]);
+    }
     messages.push(reply);if(finalOnly&&reply.tool_calls?.length){termination={reason:'final_response_required'};break;}
     if (!reply.tool_calls?.length) { answer = typeof reply.content === 'string' ? reply.content : ''; status = answer ? 'model_finished' : 'partial'; if(!answer)termination={reason:'empty_model_answer'}; break; }
     for (let callIndex=0;callIndex<reply.tool_calls.length;callIndex++) {
@@ -143,6 +150,7 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
       let args; try { args = JSON.parse(call.function.arguments); } catch { args = null; }
       const result = await harness.execute(call.function.name, args);
       messages.push({role: 'tool', tool_call_id: call.id, content: JSON.stringify(result)});
+      if(harness.executionRepair&&result.error?.recovery&&harness.history.slice(-2).every(h=>h.tool===result.tool&&h.status==='error')&&result.error.code==='REPEATED_FAILURE_LIMIT'){termination={reason:'deterministic_tool_error',error:result.error};break rounds;}
       const decision=await onToolResult?.(result);if(decision){clarification=decision.clarification||null;answer=decision.message;status=decision.failed?'failed':decision.completed?'model_finished':'needs_input';if(decision.failed)termination={reason:decision.reason||'input_unreadable'};break rounds;}
       if(result.status==='ok'&&result.data?.hostUserDecision){clarification=result.data.hostUserDecision;answer=clarification.question;status='needs_input';break rounds;}
       if(call.function.name==='request_assistant_handoff'&&result.status==='ok'&&result.data?.hostHandoff){termination={reason:'assistant_handoff_requested'};answer='已请求转交给合适助理，宿主将按本次协作计划保留材料范围并执行。';status='handoff_pending';break rounds;}

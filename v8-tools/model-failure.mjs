@@ -8,7 +8,8 @@ export function modelFailure(error) {
  const hint=String(d.providerErrorCode||body?.error?.code||body?.error?.type||'');
  const capacity=/capacity.{0,30}(?:exhaust|unavailable)|overloaded/i.test(body?.error?.message||d.providerMessage||'');
  let kind,title,message,action;
- if(status===429){kind=capacity?'capacity':'rate_limit';title=capacity?'模型服务繁忙':'模型请求受到限流';message=capacity?'模型接口返回“容量暂时不足”，本轮已停止继续请求。':'模型服务返回请求限制，本轮已停止继续请求。';action='稍后手动重试，或在右上角切换到可用的模型连接。';}
+ if(code==='CUMULATIVE_BUDGET_EXHAUSTED'||/LOCAL_EXPERIMENT_BUDGET/.test(d.providerMessage||d.responsePreview||'')){kind='local_budget';title='本轮处理预算已用完';message='本地累计请求预算已耗尽，已保存现有进度和成果。';action='查看剩余工作后继续处理；这不是服务商限流。';}
+ else if(status===429){kind=capacity?'capacity':'rate_limit';title=capacity?'模型服务繁忙':'模型请求受到限流';message=capacity?'模型接口返回“容量暂时不足”，本轮已停止继续请求。':'模型服务返回请求限制，本轮已停止继续请求。';action='稍后手动重试，或在右上角切换到可用的模型连接。';}
  else if(status===402||/insufficient_quota|insufficient_balance/i.test(hint)){kind='quota';title='模型账户额度不足';message='模型服务的余额或可用额度不足，本轮已停止。';action='补充额度或切换到可用的模型连接后再重试。';}
  else if(status===401||status===403){kind='authentication';title='模型访问未获授权';message='模型服务拒绝了当前凭据或访问权限。';action='检查模型连接配置和访问权限后再重试。';}
  else if(status===503||status===502||status===504){kind='unavailable';title='模型服务暂时不可用';message='模型服务或其网关暂时不可用，本轮已停止继续请求。';action='稍后重试或切换模型连接。';}

@@ -29,6 +29,7 @@ import {Continuity} from './continuity.mjs';
 import {ResultTools} from './result-tools.mjs';
 import {requestedFormats} from './delivery-format.mjs';
 import {WorkspaceTools} from './workspace-tools.mjs';
+import {saveDraft} from './draft-delivery.mjs';
 import {turnIntent,outputTools} from './turn-intent.mjs';
 
 const configPath = process.argv[2];
@@ -47,6 +48,7 @@ const rawRequest=(deliveryOnly?config.request:continuity?.originalRequest)||conf
 const directory = path.resolve(config.directory);
 fs.mkdirSync(path.dirname(directory), {recursive:true});
 const documents = new DocumentTools({...config, directory,inputs:config.inputs||[]});
+documents.executionRepair=config.executionRepair===true;documents.factProfile=documents.executionRepair&&config.factProfile==='expiry'?'expiry':null;
 documents.request=taskRequest;documents.requestedFormats=requestedFormats(taskRequest);
 documents.turnIntent=turnIntent(taskRequest);
 documents.requestedFormats=documents.turnIntent.formats;
@@ -77,11 +79,15 @@ const diagnostics=new MaterialDiagnostics(documents,config);
 const workspaceTools=new WorkspaceTools(continuity,documents,workbooks);
 const connectedFolders=new ConnectedFolderTools(config,continuity,documents,extras);
 const decisions=new UserDecision({docs:documents,extras,books:workbooks,texts,continuity,config});
+const resultReader=new ResultTools(documents,extras,workbooks);
+if(documents.executionRepair){const originalRead=texts.read.bind(texts);texts.read=async(a,c)=>extras.artifacts.has(a.asset_id)?{...await resultReader.read({artifact_id:a.asset_id,offset:a.offset||0},c),ref:{kind:'artifact',id:a.asset_id,sha256:extras.artifacts.get(a.asset_id).sha256},routedFrom:'read_text_range'}:originalRead(a,c);}
 const allTools=diagnostics.wrap(workspaceTools.adapt([...decisions.tools(),...new AssistantHandoffTools(config,continuity,()=>harness.history.every(x=>['discover_tools','list_materials','inspect_material','read_text_range','read_word_document','search_document','extract_pdf_text','read_workbook','read_artifact','processing_status'].includes(x.tool))).tools(),...connectedFolders.tools().filter(t=>!config.meetingPolicy||t.name!=='save_to_connected_folder'),...documents.tools(),...texts.tools(),...extras.tools(),...(workbooks?.tools()||[]),...knowledge.tools().filter(t=>!config.meetingPolicy||t.name!=='store_knowledge'),...delivery.tools(),...documents.statistics.tools(),...audio.tools().filter(t=>!config.externalWorkspace||t.name!=='transcribe_audio'),...records.tools(),...(config.externalWorkspace?[]:new ServiceHealthTools(documents,config).tools()),...new PdfTools(documents,extras,config).tools(),...(config.meetingPolicy?[]:new ScheduleTools({...config,request:taskRequest},continuity).tools()),...new ResultTools(documents,extras,workbooks).tools()]));
 if(config.assistantRouting?.phase==='verify')documents.turnIntent={...documents.turnIntent,kind:'answer_only',noNewFiles:true,formats:[]};
 if(config.assistantRouting?.phase==='verify'){const allowed=new Set(['inspect_material','read_workbook','read_artifact','table_statistics','read_text_range','read_word_document','search_document','extract_pdf_text','validate_artifact']);for(let i=allTools.length-1;i>=0;i--)if(!allowed.has(allTools[i].name))allTools.splice(i,1);}
 if(documents.turnIntent.noNewFiles)for(const t of allTools)if(outputTools.has(t.name))t.execute=async()=>{throw Object.assign(Error('本轮要求只回答，禁止生成或修改文件'),{code:'ANSWER_ONLY_TURN'});};
 const harness = new ToolHarness({directory, tools: continuity?continuity.wrap(allTools):allTools, maxCalls: isAdaptive(config)?null:config.maxCalls??24, maxVisibleTools:config.maxVisibleTools||12,preferredTools:[...(['offer','work'].includes(config.assistantRouting?.phase)?['request_assistant_handoff']:[]),...(config.botPolicy?.preferredTools||[])], maxNoProgress:isAdaptive(config)?null:config.maxNoProgress??5,maxDiscoveryCalls:isAdaptive(config)?null:config.maxDiscoveryCalls??8,maxDiscoveryStreak:isAdaptive(config)?null:config.maxDiscoveryStreak??6,signal:controller.signal});
+if(documents.executionRepair){harness.executionRepair=true;harness.executionRevision=()=>[...documents.assets.values()].map(a=>a.sha256).join('|')+[...documents.results.values()].filter(r=>r.method==='submitted_draft').map(r=>r.version).join('|');harness.preserveDraft=content=>saveDraft(documents,{content,title:'已提交文稿'});}
+
 decisions.harness=harness;
 if(continuity){const discovery=harness.tools.get('discover_tools'),original=discovery.execute;discovery.execute=(...args)=>{continuity.spend('tool');return original(...args);};}
 try {
