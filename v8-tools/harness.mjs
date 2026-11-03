@@ -122,6 +122,7 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
   if(initialMessages&&!context.scope){const fresh=messages[0];messages.splice(0,messages.length,fresh,...structuredClone(initialMessages).filter(m=>m.role!=='system'),{role:'user',content:request});}
   if(maxRounds!==null&&(!Number.isInteger(maxRounds)||maxRounds<0))throw new Error('maxRounds must be null or a nonnegative integer');
   const roundLimit=maxRounds??Infinity,abortReason=()=>harness.signal.reason?.code==='TASK_TIME_BUDGET_EXHAUSTED'?'task_time_budget_exhausted':'cancelled';
+  let seenThrough=0;
   let answer = '', status = 'partial',termination=null,modelRoundsUsed=0,clarification=preflight?.clarification||null;
   const physicalRequests=()=>typeof next.metrics==='function'?next.metrics().networkAttempts:modelRoundsUsed;
   if(preflight?.needsInput){answer=preflight.message;status='needs_input';}
@@ -136,8 +137,9 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
     const remaining=roundLimit-physicalRequests();
     if(remaining<=0){termination={reason:'model_round_budget_exhausted'};break;}
     const finalOnly=reserveFinalRound&&remaining===1;if(finalOnly)messages.push({role:'user',content:'宿主：这是预留的最终答复轮次。只依据现有回执给出核对结论、分歧和未完成项；不要再调用工具，不得声称未执行的核对已经完成。'});
-    if(harness.executionRepair)compactHistory(messages,harness.directory);
-    let reply;try{modelRoundsUsed++;reply=await next(messages, finalOnly?[]:harness.listTools(), harness.signal,{maxAttempts:remaining});}catch(e){termination={reason:harness.signal.aborted?abortReason():'model_error',error:{code:e.code||'MODEL_REQUEST_FAILED',message:e.message,...(e.details?{details:e.details}:{}),...(modelFailure(e)?{failure:modelFailure(e)}:{})}};break;}
+    if(harness.executionRepair)compactHistory(messages,harness.directory,{seenThrough});
+    const submittedThrough=messages.length;
+    let reply;try{modelRoundsUsed++;reply=await next(messages, finalOnly?[]:harness.listTools(), harness.signal,{maxAttempts:remaining});seenThrough=submittedThrough;}catch(e){termination={reason:harness.signal.aborted?abortReason():'model_error',error:{code:e.code||'MODEL_REQUEST_FAILED',message:e.message,...(e.details?{details:e.details}:{}),...(modelFailure(e)?{failure:modelFailure(e)}:{})}};break;}
     if (!reply || reply.role !== 'assistant') throw new Error('Invalid model message');
     if(harness.executionRepair&&reply.tool_calls?.some(c=>c.function.name==='export_document')&&typeof reply.content==='string'){
       const draft=reply.content.match(/<parameter=content>([\s\S]*?)<\/parameter>/u);if(draft?.[1]?.trim())await harness.preserveDraft?.(draft[1]);
