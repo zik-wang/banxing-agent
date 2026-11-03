@@ -83,6 +83,7 @@ export class ToolHarness {
       if((this.failedCalls.get(signature)||0)>=(this.executionRepair?1:this.maxRepeatedFailures))throw new ToolError('REPEATED_FAILURE_LIMIT','Same failed tool arguments have reached the retry limit; choose a supported reader or report the blocker.',{tool:name,attempts:this.failedCalls.get(signature)});
       const tool = this.tools.get(name);
       if (!tool) throw new ToolError('UNKNOWN_TOOL', 'Select a registered tool');
+      if(this.executionRepair)await this.preserveSubmission?.(name,args);
       validate(tool.inputSchema, args);
       handlerInvoked=true;
       const data = await tool.execute(args, {callId, signal: this.signal});
