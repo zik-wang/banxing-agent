@@ -22,5 +22,5 @@ export class MaterialDiagnostics {
   return followup?{completed:true,message,diagnostics:blocked,answerOrigin:'saved_material_diagnostic'}:{failed:true,message,diagnostics:blocked,reason:'material_input_unreadable'};
  }
  observe(result){const d=result.error?.details?.diagnostic;return result.error?.code==='MATERIAL_INPUT_UNREADABLE'&&d?{failed:true,message:this.message([d]),diagnostics:[d],reason:'material_input_unreadable'}:null;}
- wrap(tools){return tools.map(t=>({...t,execute:async(a,c)=>{if(a?.asset_id)await this.require(this.docs.asset(a.asset_id),c?.signal);return t.execute(a,c);}}));}
+ wrap(tools){return tools.map(t=>({...t,execute:async(a,c)=>{const artifact=this.docs.executionRepair&&t.name==='read_text_range'&&this.docs.deliveryTools?.extras.artifacts.get(a?.asset_id);if(a?.asset_id&&!artifact)await this.require(this.docs.asset(a.asset_id),c?.signal);return t.execute(a,c);}}));}
 }
