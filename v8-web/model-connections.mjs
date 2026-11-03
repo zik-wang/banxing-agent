@@ -4,7 +4,7 @@ import {activeTemporaryPolicy} from '../contract-review/temporary-test.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {atomic} from '../v8-tools/resource-space.mjs';
-import {apiKeyFor} from '../v8-tools/provider-config.mjs';
+import {apiKeyFor,isApprovedWebCloud} from '../v8-tools/provider-config.mjs';
 const fail=(message,status=400)=>{throw Object.assign(Error(message),{status});};
 const clone=x=>structuredClone(x);
 export function validateIntranet(chat,{allowMissingModel=false}={}){
@@ -19,10 +19,10 @@ export class ModelConnections{
   this.config=config;this.w=workspace;this.file=path.join(workspace.root,'settings','model-connections.private.json');fs.mkdirSync(path.dirname(this.file),{recursive:true});
   if(fs.existsSync(this.file))this.state=JSON.parse(fs.readFileSync(this.file,'utf8'));
   else {const pick=c=>Object.fromEntries(['chat','asr','vision','ocr'].filter(k=>c[k]!==undefined).map(k=>[k,clone(c[k])]));
-   this.state={schemaVersion:1,revision:1,active:config.initialModelMode||(config.chat.provider==='intranet'?'intranet':'cloud'),profiles:{intranet:{...pick(config.connectionProfiles?.intranet||{}),chat:validateIntranet(config.connectionProfiles?.intranet?.chat||(config.chat.provider==='intranet'?config.chat:{provider:'intranet',baseUrl:'http://10.0.0.32:8861/v1',model:'qwen3.8-27b-fp8',enableThinking:false,timeoutMs:180000}),{allowMissingModel:true})},...(config.chat.provider==='iteracompute'?{cloud:pick(config)}:config.connectionProfiles?.cloud?{cloud:pick(config.connectionProfiles.cloud)}:{})}};atomic(this.file,this.state);}
+   this.state={schemaVersion:1,revision:1,active:config.initialModelMode||(config.chat.provider==='intranet'?'intranet':'cloud'),profiles:{intranet:{...pick(config.connectionProfiles?.intranet||{}),chat:validateIntranet(config.connectionProfiles?.intranet?.chat||(config.chat.provider==='intranet'?config.chat:{provider:'intranet',baseUrl:'http://10.0.0.32:8861/v1',model:'qwen3.8-27b-fp8',enableThinking:false,timeoutMs:180000}),{allowMissingModel:true})},...(config.connectionProfiles?.cloud?{cloud:pick(config.connectionProfiles.cloud)}:isApprovedWebCloud(config.chat)?{cloud:pick(config)}:{})}};atomic(this.file,this.state);}
   if(this.state.schemaVersion!==1)fail('模型连接配置版本无效');this.apply();
  }
- apply(){const p=this.state.profiles[this.state.active];if(!p)fail('该连接尚未由维护者配置');if(this.state.active==='intranet')validateIntranet(p.chat,{allowMissingModel:true});else if(p.chat.provider!=='iteracompute'||p.chat.baseUrl!=='https://api.iteracompute.com/v1')fail('公网仅允许已有授权服务');
+ apply(){const p=this.state.profiles[this.state.active];if(!p)fail('该连接尚未由维护者配置');if(this.state.active==='intranet')validateIntranet(p.chat,{allowMissingModel:true});else if(!isApprovedWebCloud(p.chat))fail('公网仅允许已有授权服务');
   for(const k of ['chat','asr','vision','ocr']){if(p[k]!==undefined)this.config[k]=clone(p[k]);else delete this.config[k];}
   this.config.externalWorkspace=this.state.active==='cloud';this.w.managed.classification=this.config.externalWorkspace?'external_authorized':'private';
   this.w.space.tx(s=>{s.projects[this.w.workspaceId].workspace.name='个人工作空间';});

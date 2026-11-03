@@ -3,6 +3,7 @@ const identifier=/序号|编号|编码|标识|邮编|电话|(?:^|[\s_-])(?:id|in
 const nonAdditive=/单价|均价|平均|比例|百分|利率|税率|折扣|unit.?price|average|percent|rate/i;
 const additive=/金额|总价|费用|成本|收入|支出|余额|预算|工资|税额|价款|数量|件数|人数|次数|工时|amount|cost|revenue|balance|salary|quantity|count/i;
 export const exactDisplay=value=>{const [whole,fraction]=String(value).split('.');return whole.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(fraction===undefined?'':'.'+fraction);};
+export function rowRanges(rows){const groups=[];for(const n of rows){const last=groups.at(-1);if(last&&n===last[1]+1)last[1]=n;else groups.push([n,n]);}return groups.map(([a,b])=>a===b?String(a):a+'–'+b).join('、');}
 export function businessStatistics(receipt,{draft='',appendix=false}={}){
  const r=receipt,lines=[],corrections=[],summable=r.columns.filter(c=>!identifier.test(c.name)&&!nonAdditive.test(c.name)&&additive.test(c.name)&&c.sumExact!==null);
  const countText=(Array.isArray(r.inputTableRows)&&r.inputTableRows.length?'本次共处理'+r.inputTableRows.join(' + ')+' = '+r.inputTableRows.reduce((a,b)=>a+b,0)+'条输入记录，':'')+'整理后保留'+r.dataRows+'条数据、'+r.columnCount+'个字段。';
@@ -14,7 +15,8 @@ export function businessStatistics(receipt,{draft='',appendix=false}={}){
  if(r.conflicts)notes.unshift('存在冲突记录，需要人工确认，不据此认定全部业务内容一致。');
  if(mixedCurrency)notes.push('原表含多种币种，未使用汇率折算或将不同币种金额合并为单一付款总额。');
  notes.push(summable.some(c=>/中标|成交/.test(c.name))?'这里的中标或成交金额是材料登记口径，不等于实际付款；本次未作审计确认。':'统计针对本次完整登记表格，不等于原始业务事实或实际付款已经审定。');
- lines.push('## 待核事项',...notes);
+ const actionable=r.columns.filter(c=>c.missingDataRows?.length).map(c=>'请补查“'+c.name+'”：'+(r.source.artifactId?'交付Excel第'+rowRanges(c.missingDataRows.map(n=>n+1))+'行（含表头行号）':'数据第'+rowRanges(c.missingDataRows)+'行（不含表头）')+'。先按原材料补齐依据，无法补齐的继续留空并说明；不得据此修改原金额。');
+ lines.push('## 待核事项',...notes,...actionable);
  // Preserve useful prose/organization, but numeric claims come from receipt-bound
  // slots. Invalid model text remains in the audit sidecar, never hidden as verified.
  const kept=[];for(const line of String(draft||'').split('\n')){const clean=line.trim();if(!clean||/^#{1,4}\s*(?:结论|处理情况|待核事项)$/.test(clean))continue;if(/^#{1,6}\s|^\||^[一二三四五六七八九十]+[、．.]|上表|下表|表格如下|明细如下|明细见|附表见/u.test(clean)||!/[。！？；.!?;]$/u.test(clean.replace(/\*+$/u,''))||/\d|STAT-|SHA|文件\s*ID|artifact|已(?:支付|付款|完成审计)|审计通过|审核通过|数据完全正确/iu.test(clean)){corrections.push({original:line,reason:'numeric_or_business_claim_requires_receipt_binding'});continue;}kept.push(clean);}

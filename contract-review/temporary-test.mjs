@@ -1,7 +1,8 @@
 import {randomUUID} from 'node:crypto';
+import {isApprovedWebCloud} from '../v8-tools/provider-config.mjs';
 export function activeTemporaryPolicy(operator,chat,now=Date.now()){
  const p=operator?.temporaryCloudTest;
- return !!(p?.enabled===true&&p.authorizedBy==='local_user'&&Number.isFinite(Date.parse(p.expiresAt))&&Date.parse(p.expiresAt)>now&&p.provider===chat?.provider&&p.baseUrl===chat?.baseUrl&&p.model===chat?.model&&chat.provider==='iteracompute'&&chat.baseUrl==='https://api.iteracompute.com/v1');
+ return !!(p?.enabled===true&&p.authorizedBy==='local_user'&&Number.isFinite(Date.parse(p.expiresAt))&&Date.parse(p.expiresAt)>now&&p.provider===chat?.provider&&p.baseUrl===chat?.baseUrl&&p.model===chat?.model&&isApprovedWebCloud(chat));
 }
 // Inspect provenance metadata only. No audio or transcript bytes are opened.
 export function inspectTestSources(space,projectId,refs){
