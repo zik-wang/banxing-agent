@@ -79,8 +79,9 @@ export class DocumentExtras {
       } catch(e) {previewErrors.push({sheet:sheets[i].name,error:e.message});}
     }
     if(serializationTransformations.length)fs.writeFileSync(path.join(folder,'source-character-transformations.json'),JSON.stringify(serializationTransformations,null,2));
-    const record={artifactId:id,path:output,title,sha256:digest(fs.readFileSync(output)),source_refs,expected,previews,previewErrors,serializationTransformations,contentVerified:false};
+    const record={artifactId:id,path:output,title,sha256:digest(fs.readFileSync(output)),source_refs,expected,previews,previewErrors,serializationTransformations,contentVerified:false,...(this.docs.executionRepair?{operationKey:this.docs.activeOperationKey||null}:{}),...(this.docs.activeFactProjection?{factProjection:this.docs.activeFactProjection}:{})};
     this.artifacts.set(id,record);this.save();
+    if(this.docs.executionRepair)this.docs.onArtifactWritten?.(record);
     return {artifactId:id,path:output,sha256:record.sha256,sheets:sheets.map(s=>({name:s.name,dataRows:s.rows.length,columns:s.headers.length})),previews,previewErrors,contentVerified:false,note:'Export preserves model-supplied values; it does not certify them against the sources. Use validate_artifact for saved-file readback.'};
   }
   async inspect({artifact_id},{signal}) {

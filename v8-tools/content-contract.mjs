@@ -30,6 +30,7 @@ export async function exportTextProduct({docs,harness,intent}){
   return {completed:true,message:'已将对应Word原稿转换为PDF，可直接下载；原Word保留。'};
  }
  if(format!=='docx')return null;
+ if(docs.executionRepair&&docs.factProfile==='expiry'){const ledgers=[...docs.results.values()].filter(r=>r.method==='task_fact_ledger');if(ledgers.length===1&&ledgers[0].bundle?.facts?.length){const ledger=ledgers[0],r=await harness.execute('export_source_records',{record_ids:ledger.bundle.facts.map(f=>f.id),title:'到期事实清单',formats:['docx']});if(r.status==='error')return{failed:true,reason:'fact_format_conversion_failed',message:'已保存的清单和来源保留，Word转换未完成：'+r.error.message};fs.writeFileSync(path.join(docs.directory,'text-product-export.json'),JSON.stringify({resultId:ledger.resultId,factVersion:ledger.bundle.version,artifacts:r.data.artifacts,zeroModelConversion:true},null,2));return{completed:true,message:'已从当前保存的同一事实台账生成Word，未重新推理或改写原字段。'};}}
  const products=[...docs.results.values()].filter(r=>r.method==='final_work_product');if(products.length!==1)return null;
  const p=products[0],r=await harness.execute('export_document',{title:p.title||'工作汇报',format:'docx',result_ids:[p.resultId]});
  if(r.status==='error')return null;

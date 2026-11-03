@@ -25,7 +25,7 @@ export class DeliveryTools{
  const digest=sha(bytes),deliveryKey=sha(JSON.stringify({filename,kind,digest,sourceIds:meta.sourceIds||[]}));
  if(this.docs.executionRepair){const old=[...this.extras.artifacts.values()].find(a=>a.deliveryKey===deliveryKey);if(old){if(!fs.existsSync(old.path)||sha(fs.readFileSync(old.path))!==old.sha256)throw new ToolError('ARTIFACT_CHANGED','Existing delivery changed; do not overwrite');return {...old,recoveredReceipt:true};}}
  const id=randomUUID(),folder=path.join(this.docs.directory,'outputs',id);fs.mkdirSync(folder,{recursive:true});const output=path.join(folder,path.basename(filename));
- const record={artifactId:id,title,path:output,sha256:digest,kind,expectedBytesSha256:digest,previews:[],previewErrors:[],contentVerified:false,...meta,...(this.docs.executionRepair?{deliveryKey,operationKey:this.docs.activeOperationKey||null}:{} )};
+ const record={artifactId:id,title,path:output,sha256:digest,kind,expectedBytesSha256:digest,previews:[],previewErrors:[],contentVerified:false,...meta,...(this.docs.activeFactProjection?{factProjection:this.docs.activeFactProjection}:{}),...(this.docs.executionRepair?{deliveryKey,operationKey:this.docs.activeOperationKey||null}:{} )};
  if(this.docs.executionRepair)this.docs.onArtifactIntent?.(record);
  fs.writeFileSync(output,bytes,{flag:'wx'});if(sha(fs.readFileSync(output))!==digest)throw new ToolError('DELIVERY_READBACK_FAILED','Saved file hash mismatch');this.extras.artifacts.set(id,record);this.extras.save();
  if(this.docs.executionRepair)this.docs.onArtifactWritten?.(record);

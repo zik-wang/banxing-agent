@@ -64,6 +64,7 @@ const workbooks = config.workbookTools ? new WorkbookTools(documents,extras,conf
 const knowledge=new KnowledgeTools(documents,texts,config),delivery=new DeliveryTools(documents,extras,texts),audio=new AudioTools(documents,delivery,config);
 const records=new SourceRecordTools(documents,extras,texts);
 continuity?.bind({docs:documents,workbooks,extras,records});
+if(documents.executionRepair&&!documents.factProfile&&documents.turnIntent.operation==='convert'){const ledgers=[...documents.results.values()].filter(r=>r.method==='task_fact_ledger'&&r.bundle?.facts?.length&&r.bundle.facts.every(f=>f.expiry&&Array.isArray(f.expiry.precision)&&f.sourceSha256));if(ledgers.length===1)documents.factProfile='expiry';}
 if(pastedMessage&&!config.inlineMaterial&&!deliveryOnly){
  const name='粘贴正文.txt',bytes=Buffer.from(pastedMessage.text,'utf8');let ref;
  if(continuity){
