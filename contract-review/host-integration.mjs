@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {executionIntent} from '../v8-tools/execution-intent.mjs';
 import {requestedFormats} from '../v8-tools/delivery-format.mjs';
 import {ResourceSpace,atomic,digest} from '../v8-tools/resource-space.mjs';
 import {DocumentTools} from '../v8-tools/document-tools.mjs';
@@ -23,7 +24,7 @@ export function versionComparisonIntent(request){
  const patterns=[/(?:比较|对比).{0,12}(?:版本|(?:两份|两个|新旧).{0,6}(?:合同|文件)|差异)/g,/(?:两份|两个|新旧).{0,6}(?:合同|文件|版本).{0,8}(?:比较|对比|合并)/g,/(?:合并).{0,6}(?:文件|报表|表格|合同)|代码审查|审核代码|这张发票|这些发票|审核方案|润色|改写|删除报告|删掉报告/g];
  return patterns.some(pattern=>[...String(request).matchAll(pattern)].some(m=>!/(?:不要|无需|不必|禁止|不能)\s*$/.test(request.slice(Math.max(0,m.index-8),m.index))));
 }
-export const isReviewAction=request=>/(?:审核|审查|重审|复核|补审|重点|检查)/.test(String(request).replace(/审核报告|审查报告/g,'报告'));
+export const isReviewAction=request=>executionIntent(request).operation==='review';
 export function protectReviewCloudInputs({enabled,botId,capability=false,chat,operator,files=[],priorContract=false}){
  if(!enabled||(botId!=='review'&&!capability)||!cloud(chat?.provider))return false;
  if(priorContract)return true;
@@ -33,7 +34,7 @@ export function protectReviewCloudInputs({enabled,botId,capability=false,chat,op
 }
 export function useContractHarness({enabled,botId,capability=false,mode,request,files=[],priorContract=false}){
  if(!enabled||(botId!=='review'&&!capability)||!['revise','resume','rebuild_delivery'].includes(mode))return false;if(mode==='rebuild_delivery')return priorContract;
- if(versionComparisonIntent(request))return false;
+ if(versionComparisonIntent(request)||priorContract&&executionIntent(request).operation==='modify')return false;
  if(!priorContract&&/(?:word|docx|excel|xlsx|转换|转成|转为)/i.test(request)&&!/(?:审核|审查|重审|复核|补审)/.test(request))return false;return priorContract||(files.some(f=>/\.(docx|pdf)$/i.test(f.name))&&/合同|采购|购销/.test(request+' '+files.map(f=>f.name).join(' ')));
 }
 
@@ -45,7 +46,8 @@ export async function executeHostReview(config,{next,signal}={}){
  const write=(n,v)=>atomic(path.join(directory,n),v),allowed=ref=>{const seen=new Set(),s=space.load();function walk(r){if(excluded.has(r.resourceId))throw Error('RESOURCE_EXCLUDED_IN_CONVERSATION');const key=r.resourceId+':'+r.revisionId;if(seen.has(key))return;seen.add(key);space.check(workspace,r,new Set(),s);for(const p of s.resources[r.resourceId].revisions[r.revisionId].parents)walk(p);}walk(ref);return space.check(workspace,ref);};
  const current=c.selectedResult===undefined?work.current:c.selectedResult;let previous=null;
  if(current){try{const v=space.check(workspace,current);if(v.metadata.bundle)previous=JSON.parse(space.read(workspace,current));}catch(e){throw Error('当前成果不可访问：'+e.message);}}
- const wantsWord=requestedFormats(config.request).includes('docx'),reviewAction=isReviewAction(config.request),exporting=wantsWord&&previous?.contractReview&&!reviewAction;
+ const intent=executionIntent(config.request),priorRefs=previous?.contractReview?.inputRefs||[],chosenRefs=(c.selectedInputs||[]).filter(r=>!excluded.has(r.resourceId)),materialsChanged=!!(previous?.contractReview&&chosenRefs.length&&(chosenRefs.length!==priorRefs.length||chosenRefs.some(r=>!priorRefs.some(p=>p.resourceId===r.resourceId&&p.revisionId===r.revisionId)))),wantsWord=intent.formats.includes('docx'),reviewAction=intent.operation==='review'||materialsChanged,exporting=wantsWord&&previous?.contractReview&&!reviewAction;
+ write('execution-intent.json',{...intent,materialsChanged,selectedRefs:chosenRefs,currentReport:current});
  if(c.mode==='rebuild_delivery'&&previous?.contractReview)return deliverExisting();
  if(previous?.contractReview&&/(?:最重要|核心|主要).{0,8}(?:问题|风险)|总结.{0,8}(?:问题|风险)/.test(config.request)&&!/(?:改为|换成|补充材料|重新|重审|供方|采购方|中立)/.test(config.request))return summarizePrevious();
  let sourceRefs=(c.selectedInputs||[]).filter(r=>!excluded.has(r.resourceId));

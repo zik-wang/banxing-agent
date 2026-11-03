@@ -120,8 +120,9 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
   const physicalRequests=()=>typeof next.metrics==='function'?next.metrics().networkAttempts:modelRoundsUsed;
   if(preflight?.needsInput){answer=preflight.message;status='needs_input';}
   if(preflight?.completed){answer=preflight.message;status='model_finished';}
+  if(preflight?.failed){answer=preflight.message;status='failed';termination={reason:preflight.reason||'input_unreadable'};}
   rounds: for (let round = 0; round < roundLimit; round++) {
-    if(preflight?.needsInput||preflight?.completed)break;
+    if(preflight?.needsInput||preflight?.completed||preflight?.failed)break;
     if(harness.signal.aborted){termination={reason:'cancelled'};break;}
     if(harness.calls>=harness.maxCalls){termination={reason:'tool_budget_exhausted'};break;}
     if(harness.noProgress>=harness.maxNoProgress){termination={reason:'no_progress',consecutive:harness.noProgress,recent:harness.history.slice(-harness.maxNoProgress)};break;}
@@ -139,7 +140,7 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
       let args; try { args = JSON.parse(call.function.arguments); } catch { args = null; }
       const result = await harness.execute(call.function.name, args);
       messages.push({role: 'tool', tool_call_id: call.id, content: JSON.stringify(result)});
-      const decision=await onToolResult?.(result);if(decision){clarification=decision.clarification;answer=decision.message;status='needs_input';break rounds;}
+      const decision=await onToolResult?.(result);if(decision){clarification=decision.clarification||null;answer=decision.message;status=decision.failed?'failed':decision.completed?'model_finished':'needs_input';if(decision.failed)termination={reason:decision.reason||'input_unreadable'};break rounds;}
       if(result.status==='ok'&&result.data?.hostUserDecision){clarification=result.data.hostUserDecision;answer=clarification.question;status='needs_input';break rounds;}
       if(call.function.name==='request_assistant_handoff'&&result.status==='ok'&&result.data?.hostHandoff){termination={reason:'assistant_handoff_requested'};answer='已请求转交给合适助理，宿主将按本次协作计划保留材料范围并执行。';status='handoff_pending';break rounds;}
       fs.writeFileSync(path.join(harness.directory,'agent-progress.json'),JSON.stringify({status:'running',calls:harness.calls,messages},null,2));

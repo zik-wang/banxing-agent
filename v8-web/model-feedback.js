@@ -1,6 +1,7 @@
 // Only structured host feedback reaches this component; provider bodies stay in audit logs.
 globalThis.ModelFeedback={
  notice(t,esc){
+  if(t.materialDiagnostics?.some(d=>d.blocked))return `<section class="run-notice material-input-notice" role="status"><strong>文件需要重新保存后上传</strong><p>已检查文件结构，继续尝试相同文件不会解决问题。具体原因和保存办法见下方。</p><button type="button" class="retry" data-replace-material="${esc(t.id)}">上传修正后的文件</button></section>`;
   const f=t.serviceFailure;
   if(!f)return `<div class="run-notice"><p>${esc(t.error||t.termination?.error?.message||'已有材料、执行记录和成果已保留。')}</p>${t.canResume?`<button class="retry" data-retry="${esc(t.id)}">继续未完成的部分</button>`:''}</div>`;
   return `<section class="run-notice model-service-notice" role="status" aria-live="polite"><strong>${esc(f.title)}</strong><p>${esc(f.message)}</p><p>${esc(f.action)}${f.retryAfterSeconds?' 服务端建议自错误返回起至少等待 '+esc(f.retryAfterSeconds)+' 秒。':''}</p><small>${t.artifacts?.length?'已验证的文件仍可在下方下载；本轮任务尚未全部完成。':'材料与执行记录已保留，无需重复上传。'} 不会自动连续重试。</small>${t.canResume?`<button class="retry" data-retry="${esc(t.id)}">手动继续未完成部分</button>`:''}<details class="model-error-details"><summary>技术详情</summary><span>${esc([f.httpStatus?'HTTP '+f.httpStatus:'',f.requestId?'请求 '+f.requestId:''].filter(Boolean).join(' · ')||f.kind)}</span></details></section>`;

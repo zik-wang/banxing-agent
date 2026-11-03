@@ -70,6 +70,7 @@ export class DocumentTools {
   }
   async inspect(id, signal) {
     const a = this.asset(id);
+    if(this.materialDiagnostics)await this.materialDiagnostics.require(a,signal);
     if(a.kind==='word'){const s=await this.wordText(id,signal);return {...this.publicAsset(a),...s.metadata,totalChars:s.text.length,offsetUnit:'utf16_code_units',suggestedTools:['read_word_document','search_document']};}
     if(a.kind==='text'){const s=decodeSource(fs.readFileSync(a.path));return{...this.publicAsset(a),encoding:s.encoding,totalChars:s.text.length,totalLines:s.text.length?s.text.split(/\r\n|\r|\n/).length:0,offsetUnit:s.offsetUnit,executionAllowed:false};}
     if(a.kind==='audio'||a.kind==='unsupported')return{...this.publicAsset(a),metadataOnly:true,note:a.kind==='audio'?'Use inspect_media; this is audio, not a PIL image.':'No reader is registered for this format; do not try image/PDF converters.'};
