@@ -12,7 +12,7 @@ import {WebWorkspace} from '../v8-web/server.mjs';
 import {digest,ResourceSpace} from '../v8-tools/resource-space.mjs';
 import {applyAdaptivePolicy} from '../v8-tools/execution-policy.mjs';
 import {DocumentTools} from '../v8-tools/document-tools.mjs';
-const root=t=>{const d=fs.mkdtempSync(path.join(os.tmpdir(),'adaptive-'));t.after(()=>fs.rmSync(d,{recursive:true,force:true}));return d;};
+const root=t=>{const d=fs.mkdtempSync(path.join(os.tmpdir(),'adaptive-'));t.after(async()=>{await new Promise(r=>setTimeout(r,50));assert(d.startsWith(path.resolve(os.tmpdir())+path.sep));fs.rmSync(d,{recursive:true,force:true,maxRetries:5,retryDelay:20});});return d;};
 const call=(name,args)=>({role:'assistant',tool_calls:[{id:randomUUID(),type:'function',function:{name,arguments:JSON.stringify(args)}}]});
 
 test('adaptive execution crosses former round/tool/discovery caps and still finishes by model decision',async t=>{
