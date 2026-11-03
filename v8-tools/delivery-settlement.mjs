@@ -16,6 +16,7 @@ export async function settleDelivery({docs,extras,records},modelAnswer,run){
  const formats=policy.formats||docs.requestedFormats||[],formatCheck=checkRequestedFormats(eligible,formats,new Set(),true);
  let cards=eligible;if(policy.kind==='answer_only'||policy.noNewFiles)cards=[];if(formats.length)cards=cards.filter(a=>formats.includes(path.extname(a.path).slice(1).toLowerCase()));
  if(docs.executionRepair&&run.termination&&eligible.length)modelAnswer=receiptText(eligible,run,existing);
+ if(docs.factProfile==='expiry'&&eligible.some(a=>extras.artifacts.get(a.artifactId)?.factProjection)){modelAnswer=records.summary()+(run.termination?'\n执行仍有未完成部分：'+run.termination.reason:'');}
  const originalAnswer=modelAnswer,presentation=records.guardPresentation(modelAnswer||''),guard=guardActions(presentation.text,cards.length>0);let answer=guard.text,answerOrigin='model';
  if((legacy||!answer.trim())&&cards.length){answer=receiptText(cards,run,existing);answerOrigin='evidence_template';}
  if(existing&&cards.length){answer=receiptText(cards,run,true);answerOrigin='evidence_template';}

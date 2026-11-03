@@ -28,7 +28,7 @@ function retryable(error,phase){
  if(all.length)return false;
  return error?.name==='TypeError'&&/^(fetch failed|terminated)$/i.test(error.message||'');
 }
-export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,timeoutMs=120000,maxTokens=2000,logDirectory,enableThinking,maxAttempts=3,retryDelaysMs=[200,600],disableKeepAlive=provider==='intranet',onAttempt},ErrorType=Error){
+export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,timeoutMs=120000,maxTokens=2000,logDirectory,enableThinking,topP,maxAttempts=3,retryDelaysMs=[200,600],disableKeepAlive=provider==='intranet',onAttempt},ErrorType=Error){
  if(enableThinking!==undefined&&typeof enableThinking!=='boolean')throw Error('enableThinking must be boolean when configured');
  if(!Number.isInteger(maxAttempts)||maxAttempts<1||maxAttempts>3)throw Error('maxAttempts must be an integer from 1 to 3');
  if(!Number.isFinite(timeoutMs)||timeoutMs<=0)throw Error('timeoutMs must be positive');
@@ -56,7 +56,7 @@ export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,tim
   const cloud=provider==='cloud'||provider==='siliconflow';
   const settings=enableThinking===undefined?{}:provider==='iteracompute'?{chat_template_kwargs:{enable_thinking:enableThinking}}:cloud?{enable_thinking:enableThinking}:{chat_template_kwargs:{enable_thinking:enableThinking}};
   const toolSettings=definitions.length?{tools:definitions.map(t=>({type:'function',function:{name:t.name,description:t.description,parameters:t.inputSchema}})),tool_choice:'auto'}:{};
-  const body=JSON.stringify({model,messages,...toolSettings,temperature:0.1,max_tokens:maxTokens,...settings});
+  const body=JSON.stringify({model,messages,...toolSettings,temperature:0.1,...(topP===undefined?{}:{top_p:topP}),max_tokens:maxTokens,...settings});
   for(let attempt=1;attempt<=allowed;attempt++){
    if(combined.aborted){stats.failedRequests++;throw makeError(userCancelled()?'MODEL_REQUEST_CANCELLED':'MODEL_REQUEST_TIMEOUT',userCancelled()?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt-1,phase:'before_request'});}
    // Host accounting runs before every actual HTTP attempt, including recovery.

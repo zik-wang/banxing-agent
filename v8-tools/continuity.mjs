@@ -6,7 +6,7 @@ import {ResourceSpace,digest,atomic} from './resource-space.mjs';
 import {ManagedWorkspace,safeName} from './managed-workspace.mjs';
 const fail=code=>{throw Object.assign(Error(code),{code});};
 const stable=x=>x&&typeof x==='object'?(Array.isArray(x)?x.map(stable):Object.fromEntries(Object.keys(x).sort().map(k=>[k,stable(x[k])]))):x;
-const effects=new Set(['convert_to_pdf','export_table','export_document','export_xlsx','export_source_records','apply_patch_copy']);
+const effects=new Set(['save_draft','convert_to_pdf','export_table','export_document','export_xlsx','export_source_records','apply_patch_copy']);
 const reusable=new Set(['read_workbook','merge_tables','read_text_range','read_json_range','search_document','extract_pdf_text','read_source_records','read_result','revise_table','read_artifact']);
 const inFlightUnsupported=new Set(['convert_to_pdf','export_document','export_xlsx','export_source_records','apply_patch_copy','transcribe_audio','vision_extract']);
 export class Continuity {
