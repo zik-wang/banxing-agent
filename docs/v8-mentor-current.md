@@ -6,6 +6,8 @@
 
 [打开本轮分支](https://github.com/zik-wang/banxing-agent/tree/codex/delivery-quality-20261103) · [同模型真实材料对照及交付](evaluations/2026-11-03/README.md) · [公网部署](v8-siliconflow.md)
 
+[合同审查工作报告与全文案例](reports/2026-11-03-contract-review/README.md)：14页Word、三组模型原答、真实公开案情及案例证据包。单Agent加工具为当前方向；历史协作记录保留，新的强化Harness主A/B尚未运行。
+
 最新功能以该分支HEAD为准，现包括自然语言邀请/创建Bot、有限协作会议和真实纪要交付，见[会议说明](group-collaboration.md)；站内群聊、指定资料文件夹、成果另存和空对话延迟保存保留。`main`、旧 V7 Release、`npm start` 和 `start-product.mjs` 不是当前 V8 入口。
 
 ## 访问与下载
