@@ -1,6 +1,7 @@
 // Only structured host feedback reaches this component; provider bodies stay in audit logs.
 globalThis.ModelFeedback={
  notice(t,esc){
+  if(t.businessState?.reportGenerated&&!t.serviceFailure&&!t.error&&t.termination?.reason==='contract_review_partial')return `<section class="run-notice report-open-questions" role="status"><strong>报告已生成，审核仍有未完成项</strong><p>已有发现及原文证据见下方报告，待核判断、模型分歧和未完成检查均保留。请按报告列出的具体材料缺口或业务问题继续核实；本状态不代表合同可签。</p></section>`;
   if(t.materialDiagnostics?.some(d=>d.blocked))return `<section class="run-notice material-input-notice" role="status"><strong>文件需要重新保存后上传</strong><p>已检查文件结构，继续尝试相同文件不会解决问题。具体原因和保存办法见下方。</p><button type="button" class="retry" data-replace-material="${esc(t.id)}">上传修正后的文件</button></section>`;
   const f=t.serviceFailure;
   if(!f)return `<div class="run-notice"><p>${esc(t.error||t.termination?.error?.message||'已有材料、执行记录和成果已保留。')}</p>${t.canResume?`<button class="retry" data-retry="${esc(t.id)}">继续未完成的部分</button>`:''}</div>`;

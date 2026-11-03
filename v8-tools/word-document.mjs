@@ -4,7 +4,7 @@ export async function buildWord({title,text,tables=[],modulePath}){
  const d=await import(modulePath?pathToFileURL(modulePath).href:'docx');
  const {Document,Packer,Paragraph,TextRun,HeadingLevel,Table,TableRow,TableCell,WidthType,TableLayoutType,PageOrientation}=d;
  const expected={paragraphs:[],tables:[]},children=[];
- function paragraph(value,heading){expected.paragraphs.push(value);children.push(new Paragraph({text:value,heading,spacing:{after:120},keepNext:!!heading}));}
+ function paragraph(value,heading){expected.paragraphs.push(value);children.push(new Paragraph({text:value,heading,pageBreakBefore:!!heading&&/^附录[：:]/u.test(value),spacing:{after:120},keepNext:!!heading}));}
  paragraph(title,HeadingLevel.TITLE);
  let parsed=[];if(text){const lines=text.replace(/\r\n/g,'\n').split('\n');for(let i=0;i<lines.length;i++){const line=lines[i];if(/^\s*\|/.test(line)&&i+1<lines.length&&/^\s*\|?\s*:?-{3}/.test(lines[i+1])){const cells=s=>s.trim().replace(/^\||\|$/g,'').split(/(?<!\\)\|/).map(s=>s.trim().replace(/\\\|/g,'|'));const rows=[cells(line)];i++;while(i+1<lines.length&&/^\s*\|/.test(lines[i+1]))rows.push(cells(lines[++i]));parsed.push({rows});}else {const h=line.match(/^(#{1,3})\s+(.*)$/);if(line.trim())paragraph(h?h[2]:line,h?[HeadingLevel.HEADING_1,HeadingLevel.HEADING_2,HeadingLevel.HEADING_3][h[1].length-1]:undefined);}}}
  const all=[...parsed,...tables.map(t=>({name:t.sheet||'',rows:[t.headers,...t.rows].map(r=>r.map(cellText))}))],columns=Math.max(0,...all.map(t=>t.rows[0]?.length||0)),wide=columns>6,pageWidth=columns>8?23811:wide?16838:11906,pageHeight=columns>8?16838:wide?11906:16838,usable=pageWidth-1800;

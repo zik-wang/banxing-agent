@@ -31,6 +31,7 @@ try:
                     import xml.etree.ElementTree as ET
                     ET.fromstring(z.read('word/document.xml'));out=result('valid','word')
                 else:out=result('not_office_container','zip',True)
+        except ImportError:raise
         except (zipfile.BadZipFile,EOFError):out=result('corrupt_container','zip',True)
         except Exception as e:out=result('unreadable_office_structure','office',True,type(e).__name__)
     elif raw.startswith(b'\x89PNG\r\n\x1a\n') or raw[:2]==b'\xff\xd8':

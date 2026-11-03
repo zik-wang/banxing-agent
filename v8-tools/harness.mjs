@@ -1,3 +1,4 @@
+import {EvidenceProgress} from './evidence-progress.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {randomUUID,createHash} from 'node:crypto';
@@ -33,7 +34,7 @@ export function validate(schema, value, at = 'arguments') {
 
 export class ToolHarness {
   constructor({directory, tools, maxCalls = 24, maxVisibleTools = 12, preferredTools = [], maxNoProgress=5, maxRepeatedFailures=2,maxDiscoveryCalls=8,maxDiscoveryStreak=6, signal = new AbortController().signal}) {
-    this.directory = directory; this.maxCalls = maxCalls ?? Infinity; this.signal = signal; this.calls = 0;
+    this.evidenceProgress=new EvidenceProgress();this.directory = directory; this.maxCalls = maxCalls ?? Infinity; this.signal = signal; this.calls = 0;
     this.tools = new Map(tools.map(t => [t.name, t])); this.queue = Promise.resolve();
     this.maxNoProgress=maxNoProgress??Infinity;this.maxRepeatedFailures=maxRepeatedFailures;this.noProgress=0;this.failedCalls=new Map();this.successfulCalls=new Set();this.history=[];this.usableResults=0;this.resourcePages=new Set();
     if (this.tools.size !== tools.length) throw new Error('Duplicate tool names');
@@ -62,7 +63,7 @@ export class ToolHarness {
     fs.mkdirSync(directory, {recursive: true});
   }
   listTools() { return [...(this.discoveryCalls<this.maxDiscoveryCalls&&this.discoveryStreak<this.maxDiscoveryStreak?['discover_tools']:[]),...this.visible].map(n=>this.tools.get(n)).map(({name, description, inputSchema}) => ({name, description, inputSchema})); }
-  metrics(){return {discoveryCalls:this.discoveryCalls,businessToolAttempts:this.businessToolAttempts,actualExecutions:this.actualExecutions,recoveredReceipts:this.recoveredReceipts,noProgress:this.noProgress,discoveryStreak:this.discoveryStreak,maxDiscoveryCalls:this.maxDiscoveryCalls,registryFingerprint:this.registryFingerprint};}
+  metrics(){return {evidenceProgress:this.evidenceProgress.last,discoveryCalls:this.discoveryCalls,businessToolAttempts:this.businessToolAttempts,actualExecutions:this.actualExecutions,recoveredReceipts:this.recoveredReceipts,noProgress:this.noProgress,discoveryStreak:this.discoveryStreak,maxDiscoveryCalls:this.maxDiscoveryCalls,registryFingerprint:this.registryFingerprint};}
   execute(name, args) {
     const pending = this.queue.then(() => this.executeOne(name, args));
     this.queue = pending.catch(() => {}); return pending;
@@ -87,6 +88,7 @@ export class ToolHarness {
     } catch (error) {
       result = {callId, tool: name, status: 'error', error: {code: error.code || 'TOOL_FAILED', message: error.message, details: error.details || {}}};
     }
+    const progress=this.evidenceProgress.observe(name,args,result);if(progress)result.evidenceProgress=progress;
     if(name==='discover_tools'&&result.status!=='error')for(const t of result.data.tools||[])this.discoveredTools.add(t.name);
     if(name!=='discover_tools'&&handlerInvoked){if(result.data?.recoveredReceipt)this.recoveredReceipts++;else this.actualExecutions++;}
     let useful=result.status!=='error'&&(name==='discover_tools'?this.discoveredTools.size>discoveredBefore:!this.successfulCalls.has(signature));if(name==='list_materials'&&result.status!=='error'&&Array.isArray(result.data?.resources)){const d=result.data,page=JSON.stringify({resources:d.resources.map(r=>[r.resourceId,r.revisionId]),assets:(d.assets||[]).map(a=>[a.id,a.sha256]),nextCursor:d.nextCursor});useful=(d.resources.length>0||(d.assets||[]).length>0)&&!this.resourcePages.has(page);this.resourcePages.add(page);}
@@ -125,6 +127,7 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
     if(preflight?.needsInput||preflight?.completed||preflight?.failed)break;
     if(harness.signal.aborted){termination={reason:'cancelled'};break;}
     if(harness.calls>=harness.maxCalls){termination={reason:'tool_budget_exhausted'};break;}
+    if(harness.evidenceProgress.blocked){termination={reason:'no_evidence_progress',evidence:harness.evidenceProgress.last};break;}
     if(harness.noProgress>=harness.maxNoProgress){termination={reason:'no_progress',consecutive:harness.noProgress,recent:harness.history.slice(-harness.maxNoProgress)};break;}
     const remaining=roundLimit-physicalRequests();
     if(remaining<=0){termination={reason:'model_round_budget_exhausted'};break;}
@@ -134,7 +137,7 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
     messages.push(reply);if(finalOnly&&reply.tool_calls?.length){termination={reason:'final_response_required'};break;}
     if (!reply.tool_calls?.length) { answer = typeof reply.content === 'string' ? reply.content : ''; status = answer ? 'model_finished' : 'partial'; if(!answer)termination={reason:'empty_model_answer'}; break; }
     for (let callIndex=0;callIndex<reply.tool_calls.length;callIndex++) {
-      const reason=harness.signal.aborted?'cancelled':harness.calls>=harness.maxCalls?'tool_budget_exhausted':harness.noProgress>=harness.maxNoProgress?'no_progress':null;
+      const reason=harness.signal.aborted?'cancelled':harness.evidenceProgress.blocked?'no_evidence_progress':harness.calls>=harness.maxCalls?'tool_budget_exhausted':harness.noProgress>=harness.maxNoProgress?'no_progress':null;
       if(reason){termination={reason,unexecutedToolCalls:reply.tool_calls.length-callIndex};break rounds;}
       const call=reply.tool_calls[callIndex];
       let args; try { args = JSON.parse(call.function.arguments); } catch { args = null; }
@@ -146,11 +149,11 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
       fs.writeFileSync(path.join(harness.directory,'agent-progress.json'),JSON.stringify({status:'running',calls:harness.calls,messages},null,2));
     }
   }
-  if(!answer){termination??={reason:'model_round_budget_exhausted'};status=harness.usableResults?'partial':'blocked';answer='本次未完成：'+({cancelled:'任务已取消',tool_budget_exhausted:'工具调用预算已耗尽',no_progress:'连续工具调用没有取得新进展，已停止无效重试',model_error:'模型请求失败',empty_model_answer:'模型未返回可交付的答复',model_round_budget_exhausted:'模型轮次预算已耗尽'}[termination.reason]||termination.reason)+'。已有读取结果、工具错误和交付物均已保存；仍需完成原请求中未取得来源或未交付的部分。'+(termination.error?' 错误：'+termination.error.message:'');}
+  if(!answer){termination??={reason:'model_round_budget_exhausted'};status=harness.usableResults?'partial':'blocked';answer='本次未完成：'+({cancelled:'任务已取消',tool_budget_exhausted:'工具调用预算已耗尽',no_evidence_progress:'同一来源和范围的读取连续没有新增证据，已停止重复读取；已保存结果和仍需处理的目标',no_progress:'连续工具调用没有取得新进展，已停止无效重试',model_error:'模型请求失败',empty_model_answer:'模型未返回可交付的答复',model_round_budget_exhausted:'模型轮次预算已耗尽'}[termination.reason]||termination.reason)+'。已有读取结果、工具错误和交付物均已保存；仍需完成原请求中未取得来源或未交付的部分。'+(termination.error?' 错误：'+termination.error.message:'');}
   if(termination?.reason==='model_error'&&modelFailure(termination.error)){const f=modelFailure(termination.error);answer=f.message+' '+f.action+' 材料、执行记录及已生成的成果保留。';}
   const result = {status, answer, termination,clarification,calls: harness.calls,modelRoundsUsed,maxModelRounds:maxRounds,metrics:{modelRequests:physicalRequests(),...(typeof next.metrics==='function'?{modelTransport:next.metrics()}:{}),...harness.metrics()}, contentVerified: false, messages};
   if(finalizeAnswer){const settlement=await finalizeAnswer(answer,result);result.modelAnswer=answer;result.answer=settlement.answer;result.delivery=settlement;if(settlement.requirementsSatisfied===false){result.status=settlement.outcome==='needs_input'?'needs_input':'partial';if(result.status!=='needs_input')result.termination??={reason:'requested_delivery_missing',formats:settlement.formatCheck?.missing||[]};}}
-  result.calls=harness.calls;result.metrics={...result.metrics,...harness.metrics()};
+  result.calls=harness.calls;result.metrics={...result.metrics,modelRequests:physicalRequests(),...(typeof next.metrics==='function'?{modelTransport:next.metrics()}:{}),...harness.metrics()};
   fs.writeFileSync(path.join(harness.directory, 'agent-run.json'), JSON.stringify(result, null, 2));
   return result;
 }

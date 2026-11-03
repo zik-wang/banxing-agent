@@ -16,12 +16,13 @@ export class UserDecision {
  tools(){return [{name:'ask_user',description:'Ask the user a necessary question and pause in needs_input. Supply real discovered resource_id/revision_id choices for file ambiguity; never invent file IDs. For one or two safe format-conversion alternatives the host may generate both distinct copies. For many choices or substantive business decisions wait for the user. This is not a failure and needs no export first.',inputSchema:{type:'object',properties:{question:{type:'string',minLength:1,maxLength:1200},choices:{type:'array',maxItems:12,items:{type:'object',properties:{resource_id:{type:'string',maxLength:400},revision_id:{type:'string',maxLength:400}},required:['resource_id','revision_id'],additionalProperties:false}}},required:['question'],additionalProperties:false},execute:async a=>{const all=this.c?.workspace?.list({limit:100000,excluded:(this.c.config.continuity.excludedInputs||[]).map(x=>x.resourceId)}).resources||[];const resources=(a.choices||[]).map(choice=>{const r=all.find(r=>r.resourceId===choice.resource_id&&r.revisionId===choice.revision_id);if(!r)throw new ToolError('CHOICE_SCOPE_DENIED','请选择本工作空间实际可用的原件或成果');this.c.allowed(r.ref);return r;});this.pending=this.question(a.question,candidateChoices(resources));return {hostUserDecision:this.pending};}}];}
  fromHistory(answer,run,history){
   if(this.pending)return this.pending;
+  if([...this.extras?.artifacts?.keys()||[]].some(id=>!this.extras.initialArtifactIds?.has(id)))return null;
   if(run.status==='needs_input')return this.question(answer,[],'missing_details');
   if(run.termination||run.status!=='model_finished'||!/(?:请|需要|须).{0,25}(?:确认|选择|指定|告诉)|哪一[份个版]/u.test(answer))return null;
   const ambiguous=[...history].reverse().find(x=>x.error?.code==='AMBIGUOUS_WORKSPACE_RESOURCE');
   const listed=[...history].reverse().find(x=>x.tool==='list_materials'&&x.status==='ok'&&x.data?.resources?.some(r=>['result','original'].includes(r.kind)));
   const candidates=candidateChoices(ambiguous?.error.details?.candidates?.map(r=>({...r,kind:'result'}))||listed?.data.resources||[]);
-  return this.question(answer,candidates,candidates.length?'file_selection':'missing_details',!!listed?.data.nextCursor);
+  return candidates.length?this.question(answer,candidates,'file_selection',!!listed?.data.nextCursor):null;
  }
  observe(result){
   // Deciding between file versions needs metadata, not repeated content reads.
@@ -63,7 +64,7 @@ export class UserDecision {
   decision.autoAttempted=true;const completed=[];for(let i=0;i<choices.length;i++){try{const a=await this.convert(choices[i],i);completed.push({choiceId:choices[i].id,artifactId:a.artifactId});}catch(e){decision.failures??=[];decision.failures.push({choiceId:choices[i].id,code:e.code||'CONVERSION_FAILED',message:e.message});}}
   const receipt={decisionId:decision.id,mode:approved?'user_selected':'all_small_alternatives',choices,completed,failures:decision.failures||[],originalsUnchanged:true};
   fs.writeFileSync(path.join(this.docs.directory,'user-decision-receipt.json'),JSON.stringify(receipt,null,2));
-  if(decision.failures?.length)return {needsInput:true,clarification:decision,message:'已保留可用成果。'+decision.failures.map(x=>x.message).join('；')+'。请补充需要处理的文件和具体要求。'};
+  if(decision.failures?.length){decision.state='conversion_failed';return {failed:true,reason:'alternative_conversion_failed',message:'部分转换未完成；已生成的文件及原材料保留。'+decision.failures.map(x=>x.message).join('；')};}
   return {completed:true,message:choices.length===2?'有两份可用候选，我已分别生成副本，并按时间和版本标明。请下载需要的一份；原文件均保留。':'已按选定材料生成文件，原件保留。',decisionReceipt:receipt};
  }
  async approved(){const x=this.config.clarificationResolution;return x?this.handle(x,{approved:true}):null;}
