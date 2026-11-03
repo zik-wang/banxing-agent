@@ -71,7 +71,7 @@ export class ToolHarness {
     this.queue = pending.catch(() => {}); return pending;
   }
   async executeOne(name, args) {
-    const callId = randomUUID(), startedAt = new Date().toISOString(); let result,handlerInvoked=false;
+    const callId = randomUUID(), startedAt = new Date().toISOString(); let result,handlerInvoked=false,submittedDraft;
     const stable=x=>x&&typeof x==='object'?Array.isArray(x)?x.map(stable):Object.fromEntries(Object.keys(x).sort().map(k=>[k,stable(x[k])])):x;
     const signature=name+'|'+JSON.stringify(stable(args))+(this.executionRepair?'|'+(this.executionRevision?.()||''): '');
     const discoveredBefore=this.discoveredTools.size;
@@ -83,13 +83,13 @@ export class ToolHarness {
       if((this.failedCalls.get(signature)||0)>=(this.executionRepair?1:this.maxRepeatedFailures))throw new ToolError('REPEATED_FAILURE_LIMIT','Same failed tool arguments have reached the retry limit; choose a supported reader or report the blocker.',{tool:name,attempts:this.failedCalls.get(signature)});
       const tool = this.tools.get(name);
       if (!tool) throw new ToolError('UNKNOWN_TOOL', 'Select a registered tool');
-      if(this.executionRepair)await this.preserveSubmission?.(name,args);
+      if(this.executionRepair)submittedDraft=await this.preserveSubmission?.(name,args);
       validate(tool.inputSchema, args);
       handlerInvoked=true;
       const data = await tool.execute(args, {callId, signal: this.signal});
       result = {callId, tool: name, status: data?.partial ? 'partial' : 'ok', data};
     } catch (error) {
-      result = {callId, tool: name, status: 'error', error: {code: error.code || 'TOOL_FAILED', message: error.message, details: error.details || {}}};
+      result = {callId, tool: name, status: 'error', error: {code: error.code || 'TOOL_FAILED', message: error.message, details: {...(error.details||{}),...(submittedDraft?{draft_ref:submittedDraft.resultId,draft_version:submittedDraft.version,draft_state:'saved_unverified'}:{})}}};
     }
     if(this.executionRepair&&result.status==='error'&&['DOCUMENT_CONTENT_REQUIRED','INVALID_ARGUMENT','ARTIFACT_CONVERSION_UNSUPPORTED','REPEATED_FAILURE_LIMIT'].includes(result.error.code))result.error.recovery={retryable_without_change:false,next_action:result.error.details?.next_action||'Change the invalid arguments or choose a supported conversion. Source IDs cannot replace content.'};
     const progress=this.evidenceProgress.observe(name,args,result);if(progress)result.evidenceProgress=progress;
