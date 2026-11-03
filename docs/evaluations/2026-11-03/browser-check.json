@@ -1,0 +1,28 @@
+{
+  "offline": true,
+  "desktop": {
+    "width": 1440,
+    "scroll": 1440,
+    "title": "同一公网27B：伴行Harness与原生Codex真实交付对照",
+    "articles": 6,
+    "downloads": 15
+  },
+  "mobile": {
+    "width": 390,
+    "scroll": 390,
+    "overflow": []
+  },
+  "downloads": [
+    {
+      "name": "CSVExporter-pyqtgraph-0.11.0.py.patch",
+      "sha256": "388cffad6727a6c0a1fd7c698da96f0a6d4af1e57fdc261880437b0307150d19",
+      "passed": true
+    },
+    {
+      "name": "清单.xlsx",
+      "sha256": "aa35234d00e52eb55387a7c5ca3b302711489474c4b3f4cae3d66a5c4b1bbaee",
+      "passed": true
+    }
+  ],
+  "pageErrors": []
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "ACTUAL_DEVELOPER_CODE_REGRESSION_NOT_SEMANTIC_ACCURACY",
+  "tests": 342,
+  "passed": 336,
+  "failed": 0,
+  "skipped": 6,
+  "durationMs": 61770.014,
+  "skipNames": [
+    "﹣ real PDF text retains invoice leading zeros and page boundaries (0.542ms) # SKIP",
+    "﹣ nested schemas and ragged matrices fail before workbook creation (0.0736ms) # SKIP",
+    "﹣ real XLSX readback preserves zeros, source symbols and literal formulas; tampering fails (0.0499ms) # SKIP",
+    "﹣ real PDF render and split recover from an injected API 413, with provenance (0.1051ms) # SKIP",
+    "﹣ actual XLSX can be read, exported with numeric amounts and independently read back (0.0884ms) # SKIP",
+    "﹣ XML-forbidden original character gets explicit display representation and exact original sidecar (0.5423ms) # SKIP"
+  ],
+  "includesRealOfficeReadback": true,
+  "publicModelRunsSeparate": true,
+  "productCommit": "abfbf4ed76b7aa132baec0d96eb9ca07b8ffc92c"
+}

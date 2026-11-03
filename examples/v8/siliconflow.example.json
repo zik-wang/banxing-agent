@@ -1,0 +1,35 @@
+{
+  "port": 8884,
+  "dataRoot": ".local-runtime/mentor-siliconflow/data",
+  "workspaceId": "external-siliconflow",
+  "externalWorkspace": true,
+  "python": ".venv/Scripts/python.exe",
+  "chat": {
+    "provider": "siliconflow",
+    "baseUrl": "https://api.siliconflow.cn/v1",
+    "model": "Qwen/Qwen3.8-27B",
+    "apiKeyFile": ".local-runtime/siliconflow-key.private.json",
+    "enableThinking": false,
+    "maxTokens": 8192,
+    "timeoutMs": 300000
+  },
+  "vision": {
+    "provider": "siliconflow",
+    "baseUrl": "https://api.siliconflow.cn/v1",
+    "model": "Qwen/Qwen3.8-27B",
+    "apiKeyFile": ".local-runtime/siliconflow-key.private.json",
+    "maxTokens": 4000,
+    "timeoutMs": 240000
+  },
+  "maxRounds": 24,
+  "maxCalls": 80,
+  "timeoutMs": 1200000,
+  "contractReview": {
+    "enabled": true,
+    "maxCalls": 12,
+    "maxTokens": 7000,
+    "callTimeoutMs": 180000,
+    "timeoutMs": 900000,
+    "localReview": { "enabled": false }
+  }
+}

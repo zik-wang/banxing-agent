@@ -1,10 +1,10 @@
 # Mentor：当前 V8 版本与访问方式
 
-最新开发分支：`codex/grok-bots-workspace-20261101`。
+本轮交付分支：`codex/delivery-quality-20261103`（2026-11-03）。
 
-2026-11-03 合入通用任务自适应 Harness 与对话内可读交付：模型按任务选择工具、主办助理及复核方式；通用任务不再按固定轮数、调用次数或整链时间预算截断。统计摘要直接出现在对话中，技术回执默认折叠，保留下载与本地打开。合同专项和显式群会议仍使用各自协议。运行版本以站内 `/api/build` 返回的冻结提交为准。
+本轮保留通用任务工具调度、对话内可读交付、站内群聊与合同专项，新增硅基流动连接及交付质量修复。具体调用和时间预算以本机配置为准；本轮框架对照每例每框架累计最多24次模型请求、单轮运行20分钟，失败与恢复单独记录。运行版本以站内 `/api/build` 返回的冻结提交为准，GitHub更新不会自动替换已运行进程。
 
-[打开最新分支](https://github.com/zik-wang/banxing-agent/tree/codex/grok-bots-workspace-20261101)
+[打开本轮分支](https://github.com/zik-wang/banxing-agent/tree/codex/delivery-quality-20261103) · [同模型真实材料对照及交付](evaluations/2026-11-03/README.md) · [公网部署](v8-siliconflow.md)
 
 最新功能以该分支HEAD为准，现包括自然语言邀请/创建Bot、有限协作会议和真实纪要交付，见[会议说明](group-collaboration.md)；站内群聊、指定资料文件夹、成果另存和空对话延迟保存保留。`main`、旧 V7 Release、`npm start` 和 `start-product.mjs` 不是当前 V8 入口。
 
@@ -13,7 +13,7 @@
 仓库是私有的。使用已获协作者权限的 GitHub 账号登录后，在上述分支选择 Code → Download ZIP，或：
 
 ```powershell
-git clone --branch codex/grok-bots-workspace-20261101 https://github.com/zik-wang/banxing-agent.git
+git clone --branch codex/delivery-quality-20261103 https://github.com/zik-wang/banxing-agent.git
 cd banxing-agent
 ```
 
@@ -36,7 +36,7 @@ node v8-web/server.mjs <自己的本机配置.json>
 
 - `dataRoot`：自己的绝对数据目录；不要复制开发者工作区、历史对话或原件。
 - `python`：本机实际 Python 可执行文件；按所用解析能力安装依赖。
-- `chat`：自己的模型地址、实际模型ID和认证配置。当前公网适配支持文档中的固定 IteraCompute provider；公司内网使用实际可用的10.x接口，不能假定旧地址仍可用。见[公网配置说明](v8-external-iteracompute.md)。
+- `chat`：自己的模型地址、实际模型ID和认证配置。本轮支持硅基流动 `Qwen/Qwen3.8-27B`，也保留 IteraCompute 和公司内网配置；不能假定旧内网地址仍可用。见[硅基流动配置](v8-siliconflow.md)。
 - 密钥通过本机 `apiKeyFile` 或 `apiKeyEnv` 提供；仓库不包含开发者密钥，也不会自动授权使用开发者账号。
 - Word 使用宿主 `docxModule`，可指向自己安装的 `docx` 包实际入口。
 - **保类型Excel导出当前仍依赖宿主 `artifactModule`（artifact-tool）**；它不在本仓库 `package.json` 的安装依赖里。只有 `npm ci` 不能补齐。未配置会明确返回 `EXPORT_NOT_CONFIGURED`，不能当作已具备完整表格交付环境。不能复制开发者电脑的绝对路径来替代安装。
@@ -54,4 +54,4 @@ node v8-web/server.mjs <自己的本机配置.json>
 - 已接入可配置的本地1.5B微调初筛、27B主审、后置风险信号对照与未读范围补查；本机私有配置已启用。相同原文复用初筛，不冒充两个独立意见。权重、训练数据及Python环境不随仓库下载，其他电脑需另行提供。
 - 右上角可选择内网或已配置公网，编辑公司地址/端口；忙时禁止切换，内网上下文和材料不会因此自动获准外发。服务未部署不应显示已连通。
 - 人工反馈可建立候选规则，至少各2条正反例测试通过后手工启用，只作为内网复核提示，不在线改模型权重或访问权限。见[切换与复核说明](model-switch-and-contract-review.md)。
-- 公司内网27B已恢复，公开采购表的合并、Word统计和助理转交已完成真实调用验证。合同双模型联合审核的语义质量仍以专门验收为准；本地模型仍可能误报，不能据此宣称整份合同准确率提升或已超越27B。
+- 历史内网公开采购表、Word统计与助理转交有真实运行记录；本轮改用硅基流动27B，不能将旧内网可达性视为现在仍可达。合同双模型联合审核的语义质量仍以专门验收为准；本地模型仍可能误报，不能据此宣称整份合同准确率提升或已超越27B。
