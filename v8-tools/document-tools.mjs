@@ -24,12 +24,12 @@ export function imageQuality(answer, finishReason) {
 }
 
 export class DocumentTools {
-  constructor({directory, inputs, python, vision, fetchImpl = fetch, maxVisionCalls = 8}) {
+  constructor({directory, inputs, python, vision, fetchImpl = fetch, maxVisionCalls = 8, executionPolicy}) {
     if (!python) throw new Error('Configure a Python executable with pypdfium2 and Pillow');
     // A fresh run avoids mixing input identities, artifacts, or old model receipts.
     fs.mkdirSync(directory, {recursive: false});
     this.directory = directory; this.python = python; this.vision = vision;
-    this.fetch = fetchImpl; this.maxVisionCalls = maxVisionCalls; this.visionCalls = 0;
+    this.fetch = fetchImpl; this.maxVisionCalls = executionPolicy?.mode==='adaptive' ? Infinity : maxVisionCalls ?? Infinity; this.visionCalls = 0;
     this.assets = new Map(); this.results = new Map();
     fs.mkdirSync(path.join(directory, 'assets')); fs.mkdirSync(path.join(directory, 'responses'));
     for (const original of inputs) {
