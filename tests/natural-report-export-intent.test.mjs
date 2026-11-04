@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{executionIntent}from'../v8-tools/execution-intent.mjs';
+test('natural document creation outranks a prior-result mention and download wording',()=>{for(const text of ['请基于本对话材料和刚才的结果，整理成中文Word报告并直接交付下载。没有依据的结论留作待确认。','把刚才的结论写成Word给我下载','把已有分析制作成Word报告']){const i=executionIntent(text);assert.notEqual(i.operation,'retrieve',text);assert.deepEqual(i.formats,['docx'],text);}});
+test('actual requests for an existing file still retrieve without regeneration',()=>{for(const text of ['之前的Word发我','把刚才的Excel给我','文件呢'])assert.equal(executionIntent(text).operation,'retrieve');});
