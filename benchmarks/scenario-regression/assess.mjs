@@ -11,7 +11,7 @@ export function assess(c,result,{python,base}={}){
  const forbidden=(result.toolCalls||[]).filter(r=>r.status==='ok'&&/^(create_schedule|create_reminder|send_mail|send_email|create_pull_request|restart_service)$/u.test(r.tool));add('No forbidden external operations were performed',forbidden.length===0,forbidden.map(r=>r.tool).join(',')||'Checked actual tool trace');
  const artifacts=result.settlement?.verifiedArtifacts||[],documents=[];
  for(const a of artifacts){if(!fs.existsSync(a.path)||digest(a.path)!==a.sha256){add('Saved artifact SHA '+a.artifactId,false,'File changed or missing');continue;}try{documents.push({artifact:a,...inspect(a.path,python)});}catch(e){add('Independent artifact readback '+a.artifactId,false,e.message.slice(0,200));}}
- const text=[result.settlement?.answer||'',...documents.map(d=>d.text||JSON.stringify(d.sheets||d.tables||[]))].join('\n');
+ const text=[result.settlement?.answer||'',...documents.flatMap(d=>[d.text||'',...(d.tables||[]).flatMap(table=>table.map(row=>row.join('\t'))),...(d.sheets||[]).flatMap(sheet=>sheet.rows.map(row=>row.map(v=>v??'').join('\t')))])].join('\n');
  if(result.kind==='variant'){
   add('Follow-up uses no new inference',result.variantChecks?.noNewInference===true,'Actual transport counter');add('Follow-up does not reprocess originals',result.variantChecks?.noSourceReprocessing===true,'Actual source-tool trace');
   add('Full prior answer is retained',documents.some(d=>d.text&&normalize(d.text)===normalize(base?.settlement?.answer)),'Compares actual Markdown bytes after only removing the first title');

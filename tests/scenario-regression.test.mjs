@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import os from 'node:os';
 import {prepareCases,digest} from '../benchmarks/scenario-regression/prepare.mjs';
 import {assess,inlineJson} from '../benchmarks/scenario-regression/assess.mjs';
+import {execFileSync} from 'node:child_process';
 function fixture(t){const root=fs.mkdtempSync(path.join(os.tmpdir(),'scenario-suite-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));const cases=[],active=[];for(let n=1;n<=18;n++){const id=String(n).padStart(2,'0'),folder=path.join(root,'inputs',id);fs.mkdirSync(path.join(folder,'INPUTS'),{recursive:true});fs.writeFileSync(path.join(folder,'REQUEST.txt'),'原始任务 '+id+'\n');const file=path.join(folder,'INPUTS','source.txt');fs.writeFileSync(file,'固定原文 '+id);active.push(id);cases.push({id,title:'fixture '+id,request:'原始任务 '+id,folder,files:n>15?[]:[{name:'source.txt',path:file,sha256:digest(file)}],sourceStatus:n>15?'blocked':'ready'});}const intake=path.join(root,'intake.json'),scope=path.join(root,'scope.json');fs.writeFileSync(intake,JSON.stringify({cases}));fs.writeFileSync(scope,JSON.stringify({active}));return{root,cases,intake,scope,out:path.join(root,'prepared')};}
 test('fixed suite preserves original request bytes, inputs and explicit blocked cases',t=>{const x=fixture(t),cases=prepareCases(x.intake,x.scope,x.out);assert.equal(cases.length,18);assert.equal(cases.filter(c=>c.expectedBlocked).length,3);assert.equal(cases[0].request,'原始任务 01\n');assert.equal(digest(cases[0].inputs[0].path),digest(cases[0].inputs[0].original));assert.equal(cases[0].variant.expectedNewModelRequests,0);assert.equal(cases[15].inputs.length,0);});
 test('changed original input fails preparation instead of silently updating its expected hash',t=>{const x=fixture(t);fs.writeFileSync(x.cases[0].files[0].path,'changed');assert.throws(()=>prepareCases(x.intake,x.scope,x.out),/hash mismatch/);});
@@ -9,3 +10,14 @@ test('files outside the declared original package cannot enter the cloud regress
 test('report JSON cannot close its script container and retains exact source text',()=>{const original={text:'</script><script>untrusted()</script>中文'};const serialized=inlineJson(original);assert.equal(serialized.includes('<'),false);assert.deepEqual(JSON.parse(serialized),original);});
 test('an incomplete execution is never promoted to a business success by byte checks',t=>{const x=fixture(t),cases=prepareCases(x.intake,x.scope,x.out),result=assess(cases[2],{status:'partial',kind:'original',toolCalls:[],settlement:{answer:'未完成'}});assert.equal(result.status,'execution_incomplete');});
 test('conversion checks compare actual saved text and counters, not a claimed success',t=>{const x=fixture(t),cases=prepareCases(x.intake,x.scope,x.out),file=path.join(x.root,'converted.md');fs.writeFileSync(file,'missing original qualifier');const result=assess(cases[2],{status:'model_finished',kind:'variant',toolCalls:[],variantChecks:{noNewInference:false,noSourceReprocessing:false},settlement:{answer:'完成',verifiedArtifacts:[{artifactId:'a',path:file,sha256:digest(file)}]}},{base:{settlement:{answer:'实际原文与未确认限制'}}});assert.equal(result.status,'bounded_checks_failed');assert.equal(result.checks.filter(c=>c.status==='unmet').length,3);});
+
+test('independent Word readback checks table evidence as well as prose without promoting a partial run',{skip:!process.env.V8_PYTHON},t=>{
+ const x=fixture(t),c=prepareCases(x.intake,x.scope,x.out)[0],titles=Array.from({length:22},(_,i)=>(i+1)+'\t合成检查事项'+(i+1)).join('\n');
+ for(const file of [c.inputs[0].path,c.inputs[0].original])fs.writeFileSync(file,titles);
+ c.inputs[0].name='决策目录.txt';c.inputs[0].sha256=digest(c.inputs[0].path);
+ const file=path.join(x.root,'actual-table.docx');
+ execFileSync(process.env.V8_PYTHON,['-I','-c',"from docx import Document; import sys; d=Document(); d.add_paragraph('Overview without catalogue titles'); t=d.add_table(rows=0,cols=2)\nfor i in range(1,23):\n c=t.add_row().cells; c[0].text=str(i); c[1].text='合成检查事项'+str(i)\nd.save(sys.argv[1])",file]);
+ const result=assess(c,{status:'partial',kind:'original',toolCalls:[],settlement:{answer:'Not complete',verifiedArtifacts:[{artifactId:'actual',path:file,sha256:digest(file)}]}},{python:process.env.V8_PYTHON});
+ assert.equal(result.checks.find(k=>k.name==='All 22 source catalogue titles retained').status,'met');
+ assert.equal(result.status,'execution_incomplete');
+});
