@@ -1,0 +1,48 @@
+{
+  "state": "SELECTED_DELIVERABLES_READY_FOR_MENTOR",
+  "scope": [
+    "03",
+    "06",
+    "08",
+    "10",
+    "11",
+    "13",
+    "14",
+    "15",
+    "18",
+    "19"
+  ],
+  "selectedDeliverableCases": 10,
+  "independentQAAcceptance": false,
+  "independentGoldCount": 0,
+  "unattendedTenCasePassNotClaimed": true,
+  "developerSubstantiveEdits": [
+    "06",
+    "11"
+  ],
+  "hostOrchestratedCases": [
+    "10",
+    "15"
+  ],
+  "localUnreviewedTranscriptCase": "18",
+  "codeStaticOnlyCase": "19",
+  "actualBrowserDownloads": 63,
+  "downloadShaMatches": 63,
+  "audioClipSeconds": 20,
+  "fullAudioPackaged": false,
+  "secretScanPassed": true,
+  "cloudModel": "Qwen/Qwen3.8-27B",
+  "savedNetworkAttemptReceipts": 150,
+  "reportedUsageTokensKnownOnly": 1652173,
+  "cost": "unknown",
+  "html": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-mentor-ten-deliverables-20261104\\十场景真实交付验收.html",
+  "htmlSha256": "d1ed4f0f0d03d4bde66136ae902571674fc1a01490920cf122242548f5f40270",
+  "zip": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-mentor-ten-deliverables-20261104\\伴行V8_十场景真实交付_私有演示.zip",
+  "zipSha256": "6c22a9e4c6a18e7352ebea7f4ac423e2454581631c8b8a9cd792f9569ac50e20",
+  "zipBytes": 4398455,
+  "baseCodeCommit": "1f1e06db3a6d808996297bb70d62594011ad09b7",
+  "runtimeFingerprint": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-mentor-ten-deliverables-20261104\\runtime-fingerprint.json",
+  "productionServiceChanged": false,
+  "expandedScope": false,
+  "completedAt": "2026-11-04T08:50:47.761200+00:00"
+}
