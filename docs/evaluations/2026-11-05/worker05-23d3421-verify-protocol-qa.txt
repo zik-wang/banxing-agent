@@ -1,0 +1,62 @@
+worker-05｜T2 verify v1：摘要协议独立离线归因
+固定提交：23d342172e724997fb4232e53bfae31ff95d6b22
+原分支：codex/money-8884-20261104
+
+结论
+已从代码与一份合成输入独立确认：同一来源的两个 sourceSha256 采用不同字节域，内层域没有在提示或回执元数据中说明。这构成确定的协议歧义；SHA256 算法本身没有冲突。
+该证据不等于真实原文被改，也不足以单独证明历史模型拒绝的唯一原因。v1 业务未通过的历史结果保留；金额正确和 HTTP200 都不构成协议或业务已验证。
+
+1. 代码路径与责任划分（行号均针对固定提交）
+
+scripts/t2-real-receipt-verify.mjs:11、29
+  hash 直接 update(value)，字符串默认按 UTF8；入口校验合成案例原文与 preflight.sourceSha256 一致。
+v8-tools/money-calculator.mjs:2、35
+  计算器 hash 先 JSON.stringify(x)。因此 receipt.sourceSha256 是 SHA256(UTF8(JSON.stringify(source)))；同一助手里的计划和回执ID也使用 JSON 序列化摘要。
+scripts/t2-real-receipt-verify.mjs:30–31、38
+  回执从当前 sourceCase.source 与计划重新计算，并核对原 preflight 的 receiptId；用户消息将外层原文摘要与内层计算器回执同时给模型。两个字段都叫 sourceSha256，却没有摘要域标记。
+scripts/t2-receipt-verification.mjs:4–8
+  只将输出 sourceSha256 说明为“输入原文的UTF8 SHA256”；未说明 calculatorReceipt.sourceSha256 采用 JSON 字符串编码，未说明两个值可合法不同。
+scripts/t2-receipt-verification.mjs:20–22、30、35
+  decision 不是 verified 加 NOT_VERIFIED；输出摘要只与外层 sourceSha256 判等；另核对 receiptId、来源片段和金额引用。不要求计算器内部摘要等于外层原文摘要，也不在此函数中重新计算来源摘要。
+
+此函数假设调用方提供可信上下文。固定入口的原文摘要校验和即时回执生成支撑当前调用的绑定；不能把校验函数的 passed 单独当成对任意外部回执的密码学认证。
+
+2. 一份输入的独立可复现证据
+
+合成文本由复现脚本固定，包含中文、双引号和换行；无公司材料或真实合同。
+  原文 UTF8：50 字节
+  SHA256 = 07f30ef0a0a0c9526834bc96dd4b150e444ae2a5ca742803a54bf2f462e28aa9
+  JSON 字符串 UTF8：55 字节
+  SHA256 = 03091cceb9d8a3600256a7e74b2ed837a2d5eea3ed9a8dcc94a5c6a27e78af2b
+
+Node crypto 与独立 Python hashlib/json 脚本分别计算，以上两个摘要及字节长度逐项一致。计算器返回的 sourceSha256 等于第二种摘要；回执ID按原构造顺序重算一致；引文区间都匹配。用户消息 JSON 往返后的 source 与原字符串完全相同。
+差异来自 JSON 字符串的外层引号、内部引号转义及换行转义，不是内容自动改写或哈希碰撞。本例证明的是同一内容、不同字节域，不直接证明历史原文未变。
+
+在同一份合成输入上构造程序夹具，实际调用固定提交的纯校验函数：
+  A. decision=verified，输出原文摘要：passed=true，issues=[]。
+  B. 只改为输出计算器所用的 JSON 字符串摘要：passed=false，issues=[SOURCE_HASH_MISMATCH]。
+  C. 保留原文摘要，只改 decision=rejected：passed=false，issues=[NOT_VERIFIED]。
+这些均是明确标识的离线程序夹具，不是模型回答。没有用人工构造 verified 的输出代替真实业务通过。
+
+原公开 results.json 记录的是 modelDecision=rejected、issues=[NOT_VERIFIED]，未列 SOURCE_HASH_MISMATCH。结合上述代码，这与“输出原文摘要正确，但模型对嵌套回执来源标识有疑问而主动拒绝”相容；不能把该历史结果写成宿主摘要判等程序报错。没有审阅本机模型原始解释，无法独立证明模型实际拒绝时的全部依据。
+
+3. 分类与无法排除的原因
+
+已证实：摘要域元数据缺失，同名字段含义不一致，提示对嵌套回执的说明不完整。
+未发现固定入口的这条生成路径把另一个来源的内容绑定到当前回执；本轮只用合成输入，未审阅历史真实材料，故不对任意历史来源完整性背书。
+尚不能排除：模型对协议的具体误读、保守拒绝策略、原任务与取数口径的其他语义疑问、公开摘要省略的拒绝理由。离线代码和人工夹具无法替代实模因果实验；本轮不新增模型调用。
+
+4. 最小复现与停止条件
+
+脚本：qa-support/reproduce-receipt-hash-domains.mjs
+调用：node <脚本绝对路径> <现有Git仓库绝对路径> <全新隔离目录绝对路径> <Python可执行文件绝对路径>
+只用 git show 读取固定提交的三个可共享 JS 文件；仅导入纯计算器和校验函数，不执行读取 operator/preflight 或发送模型请求的真实入口。隔离目录必须不存在，证据不覆盖。
+步骤：计算同一合成原文的原文 UTF8/JSON 字符串 UTF8 两个摘要；与实际计算器回执字段和引用对照；用 Python 独立复核；运行上述三个判等夹具并保存 result.json。
+预期/实际：两个域摘要不同且各自可复算；外层校验接受原文域，拒绝 JSON 字符串域；单独 decision=rejected 只产生 NOT_VERIFIED。实际全部与此一致。
+停止条件：这一份输入的域、引用及判等核对完成即结束；固定提交缺失、输出目录已存在、控制暂停或截止即停止。没有跑既有4项或全量回归，没有模型请求。
+
+5. v2 与交付边界
+
+本轮一次远端核对时，codex/money-8884-20261104 仍指向 23d3421，尚无可核对的 v2 提交，因此仅交付 v1 归因；没有读取或修改 worker-02 工作树里的未提交候选。
+执行端可在新协议中显式提供 hash 算法、输入字节域与编码，区分来源原文摘要和兼容旧回执的 JSON 字符串摘要，并在发送前用程序校验两者的对应关系；新提示使用独立版本标识。旧 receiptId、v1 失败结果及历史成绩继续保留。
+这只是处理方向，本窗口未代为实现或验收 v2。0 模型调用、0 生产操作；不宣称完整 A→B→A、整体合同审核、历史公平对照或用户验收完成。
