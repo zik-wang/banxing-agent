@@ -6,9 +6,9 @@ export async function reportPreflight({docs,harness,config,request,next,signal})
  if(!config.documentComposition||intent.noNewFiles||intent.requiresExternalAction||intent.requiresReprocessing||intent.wantsStatistics||!intent.formats.includes('docx')||docs.factProfile||/入库|知识库|检索|补丁|源码|代码修复/u.test(request))return null;
  const sources=[...docs.assets.values()].filter(a=>a.id===a.sourceId);
  const call=async(name,args)=>{const r=await harness.execute(name,args);if(r.status!=='ok')throw Object.assign(Error(r.error?.message||'报告工具失败'),{code:r.error?.code});return r.data;};
- const previous=config.interactionContext;
+ const previous=config.previousWorkProduct||config.interactionContext;
  let body,modelCalls=0,kind='host_read_then_model_prose',receipts=[];
- if(intent.operation==='convert'&&['answered','completed'].includes(previous?.previousStatus)&&previous.previousAnswer?.trim()&&!/重新|重写|再核|核实|新增|补充|给领导/u.test(request)){
+ if(!sources.some(a=>a.kind==='audio')&&intent.operation==='convert'&&['answered','completed'].includes(previous?.previousStatus)&&previous.previousAnswer?.trim()&&!/重新|重写|再核|核实|新增|补充|给领导/u.test(request)){
   body=previous.previousAnswer;kind='convert_authorized_previous_answer';
  }else{
   if(!sources.length||sources.some(a=>!['text','word','pdf'].includes(a.kind)||/\.(?:py|js|mjs|sh|ps1)$/i.test(a.name)))return null;
