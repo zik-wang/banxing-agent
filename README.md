@@ -1,6 +1,6 @@
 # 伴行 V8 · 文件交办、连续修改与真实交付
 
-> 2026-11-04候选：执行收敛与事实一致性修复位于 `codex/execution-convergence-20261103`。见[真实验收与未完成项](docs/remediation/2026-11-04/README.md)。生产8884未替换，main未合并；简报真实交付仍有超时阻断，独立Gold为0。
+> 2026-11-04真实C端冻结版：`codex/c-end-8884-acceptance-20261104`。开发机8884运行代码 `3824f5e`，十项真实会话与14个推荐文件见 [C端验收入口](docs/c-end-8884-20261104/README.md)。已逐份下载回读，仍有重复Word、部分篇幅约束与追加去重复查失败等限制；不是全量C端签收。main未合并，独立Gold为0。
 
 
 **前一批2026-11-03 更新分支（本轮候选见上方）：`codex/delivery-quality-20261103`。** 本仓库保持私有，`main` 与旧 V7 Release 不是本轮交付。供 2026-11-05（周四）mentor 评估，请先看[部署与验收说明](docs/v8-mentor-current.md)。
