@@ -88,10 +88,35 @@ test('invalid arguments return the actual registered schema without invoking the
 
 test('compacted results retain protocol pairs and a working tool-receipt recovery instruction',async t=>{
  const x=fixture(t),messages=[];for(let page=1;page<=3;page++){const r=await x.harness.execute('read_page',{page});messages.push({role:'assistant',tool_calls:[{id:'c'+page}]},{role:'tool',tool_call_id:'c'+page,content:JSON.stringify(r)});}
- compactHistory(messages,x.directory,{receiptReader:'read_tool_receipt'});assert.equal(messages.length,6);
+ compactHistory(messages,x.directory,{receiptReader:'read_tool_receipt',maxRetainedChars:1000});assert.equal(messages.length,6);
  const compressed=JSON.parse(messages[1].content);assert.equal(compressed.contextReceipt.retrieve.tool,'read_tool_receipt');
  const recovered=await x.harness.execute('read_tool_receipt',{...compressed.contextReceipt.retrieve.arguments,pointer:'/data/text',length:100});
  assert.equal(recovered.status,'ok');assert.match(recovered.data.text,/page 1/);assert.ok(recovered.data.nextOffset);
+});
+
+test('small multi-source evidence remains visible after later tools without receipt recovery loops',async t=>{
+ const x=fixture(t);let round=0;
+ const tool=page=>({id:'page-'+page,type:'function',function:{name:'read_page',arguments:JSON.stringify({page})}});
+ const result=await runToolAgent({harness:x.harness,request:'Compare all three authorized pages',maxRounds:4,next:async messages=>{
+  round++;
+  if(round===1)return{role:'assistant',tool_calls:[1,2,3].map(tool)};
+  for(const page of [1,2,3])assert(messages.some(m=>m.role==='tool'&&m.content.includes('page '+page+' source content')),'already-read source '+page+' disappeared');
+  if(round===2)return{role:'assistant',tool_calls:[{id:'state',type:'function',function:{name:'get_execution_state',arguments:'{"include_recent":false}'}}]};
+  return{role:'assistant',content:'Comparison retains the three source qualifications.'};
+ }});
+ assert.equal(result.status,'model_finished');assert.equal(result.metrics.modelRequests,3);assert.equal(x.harness.history.filter(r=>r.tool==='read_tool_receipt').length,0);
+ assert.equal(fs.existsSync(path.join(x.directory,'context-compaction.jsonl')),false);
+});
+
+test('over-budget compaction removes oldest seen payloads and recovers exact source text',async t=>{
+ const x=fixture(t),messages=[];
+ for(let i=0;i<7;i++){const r=await x.harness.execute('read_page',{page:1+i%3});messages.push({role:'assistant',tool_calls:[{id:'p'+i}]},{role:'tool',tool_call_id:'p'+i,content:JSON.stringify(r)});}
+ const original=JSON.parse(messages[1].content);compactHistory(messages,x.directory,{receiptReader:'read_tool_receipt'});
+ assert.equal(messages.length,14);assert(JSON.parse(messages[1].content).contextReceipt);assert(!JSON.parse(messages.at(-1).content).contextReceipt);
+ assert(messages.filter(m=>m.role==='tool').reduce((n,m)=>n+m.content.length,0)<=48000);
+ const hint=JSON.parse(messages[1].content).contextReceipt.retrieve;
+ assert.equal(hint.arguments.pointer,'/data/text');
+ const recovered=x.support.read({...hint.arguments,length:12000});assert.equal(recovered.text,original.data.text);
 });
 
 test('agent can use schema feedback to recover rather than replay an invalid call',async t=>{
