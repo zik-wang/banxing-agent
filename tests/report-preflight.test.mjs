@@ -27,3 +27,19 @@ test('a second oversized draft stays failed with both drafts preserved; no infin
  x.harness.execute=async(name)=>({status:'ok',data:name==='read_text_range'?{text:'确切原文',nextOffset:null}:{draft_ref:'draft:'+(++saves),renderFailure:{code:'DOCUMENT_LENGTH_LIMIT',message:'未满足篇幅'}}});
  const r=await reportPreflight(x);assert.equal(r.failed,true);assert.equal(r.completed,undefined);assert.equal(models,2);assert.equal(saves,2);assert.equal(r.draftRef,'draft:2');
 });
+
+test('compact length recovery renders actual paragraphs rather than exporting protocol JSON',async t=>{
+ const x=setup(t);x.docs.turnIntent.length={maxChars:800};let models=0,saves=0;
+ x.next=async messages=>{models++;if(models===1)return{content:'# 长稿\n'+'原文'.repeat(500)};const input=JSON.parse(messages[1].content);assert.ok(input.paragraphTargetChars>0&&input.paragraphTargetChars<100);return{content:JSON.stringify({title:'核对说明',paragraphs:['确切原文。','未明确内容待确认。']})};};
+ x.harness.execute=async(name,args)=>{x.calls.push({name,args});if(name==='read_text_range')return{status:'ok',data:{text:'确切原文',nextOffset:null}};return{status:'ok',data:++saves===1?{draft_ref:'draft:long',renderFailure:{code:'DOCUMENT_LENGTH_LIMIT',details:{actualChars:1002}}}:{artifactId:'short',saveReadbackPassed:true,draft_ref:'draft:short'}};};
+ const result=await reportPreflight(x);assert.equal(result.completed,true);assert.equal(models,2);assert.equal(x.calls.at(-1).args.title,'核对说明');assert.equal(x.calls.at(-1).args.content,'确切原文。\n\n未明确内容待确认。');
+});
+
+test('malformed compact output preserves saved draft and bounded failure rather than exporting JSON debris',async t=>{
+ for(const output of ['{"title":"断开","paragraphs":[','{"title":"错误","paragraphs":[{"text":"不合法"}]}']){
+  const x=setup(t);x.docs.turnIntent.length={maxChars:10};let models=0,saves=0;
+  x.next=async()=>({content:++models===1?'# 长稿\n'+ '原文'.repeat(30):output});
+  x.harness.execute=async name=>({status:'ok',data:name==='read_text_range'?{text:'确切原文',nextOffset:null}:{draft_ref:'draft:retained',renderFailure:{code:'DOCUMENT_LENGTH_LIMIT',details:{actualChars:62}}}});
+  const result=await reportPreflight(x);assert.equal(result.failed,true);assert.equal(models,2);assert.equal(result.draftRef,'draft:retained');assert.ok(JSON.parse(fs.readFileSync(path.join(x.docs.directory,'report-composition.json'))).lengthRecovery.error);
+ }
+});
