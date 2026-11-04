@@ -50,3 +50,10 @@ test('length recovery keeps source-backed full company labels and rejects shorte
  x.harness.execute=async(name)=>({status:'ok',data:name==='read_text_range'?{text:'供应商：示例设备股份有限公司\n另有：其他软件有限公司',nextOffset:null}:(saves++,{draft_ref:'draft:retained',renderFailure:{code:'DOCUMENT_LENGTH_LIMIT',details:{actualChars:200}}})});
  const result=await reportPreflight(x);assert.equal(result.failed,true);assert.equal(models,2);assert.equal(saves,1);assert.equal(JSON.parse(fs.readFileSync(path.join(x.docs.directory,'report-composition.json'))).lengthRecovery.error.code,'SOURCE_LABELS_CHANGED');
 });
+
+test('adjacent source company labels stay separate names rather than a fabricated compound identity',async t=>{
+ const x=setup(t);x.docs.turnIntent.length={maxChars:200};let models=0,saves=0;
+ x.next=async messages=>{if(++models===1)return{content:'# 说明\n甲设备有限公司乙软件有限责任公司。'+ '重复说明。'.repeat(50)};const input=JSON.parse(messages[1].content);assert.deepEqual(input.requiredVerbatim,['甲设备有限公司','乙软件有限责任公司']);return{content:JSON.stringify({title:'说明',paragraphs:['采购方包括甲设备有限公司、乙软件有限责任公司。']})};};
+ x.harness.execute=async(name)=>({status:'ok',data:name==='read_text_range'?{text:'采购方：甲设备有限公司乙软件有限责任公司',nextOffset:null}:++saves===1?{draft_ref:'draft:long',renderFailure:{code:'DOCUMENT_LENGTH_LIMIT',details:{actualChars:300}}}:{artifactId:'short',saveReadbackPassed:true,draft_ref:'draft:short'}});
+ assert.equal((await reportPreflight(x)).completed,true);assert.equal(models,2);
+});

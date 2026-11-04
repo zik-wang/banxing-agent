@@ -11,7 +11,7 @@ function compactRevision(text){
 }
 function sourceLabelsInDraft(sources,draft){
  const labels=new Set();
- for(const source of sources)for(const match of String(source.text||'').matchAll(/(?:^|[：:、，,；;|/\n])\s*([\p{Script=Han}A-Za-z0-9·（）()]{2,60}(?:股份有限公司|有限责任公司|有限公司))/gmu)){
+ for(const source of sources)for(const match of String(source.text||'').matchAll(/(?:^|[：:、，,；;|/\n]|(?<=有限公司)|(?<=有限责任公司))\s*([\p{Script=Han}A-Za-z0-9·（）()]{2,60}?(?:股份有限公司|有限责任公司|有限公司))/gmu)){
   if(draft.includes(match[1]))labels.add(match[1]);
  }
  return [...labels];
