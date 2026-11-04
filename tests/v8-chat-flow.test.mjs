@@ -1,3 +1,4 @@
+import {digest} from '../v8-tools/resource-space.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import {EventEmitter} from 'node:events';import {PassThrough} from 'node:stream';import {WebWorkspace} from '../v8-web/server.mjs';
 function setup(t){const parent=path.resolve('qa-output/chat-flow-tests');fs.mkdirSync(parent,{recursive:true});const root=fs.mkdtempSync(path.join(parent,'case-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));const w=new WebWorkspace({dataRoot:root,chat:{provider:'intranet',baseUrl:'http://10.0.0.32/v1',model:'stub'}}),children=[];w.spawnRun=()=>{const c=new EventEmitter();c.stdout=new PassThrough();c.stderr=new PassThrough();c.kill=()=>{};children.push(c);return c;};return {w,children};}
 test('busy requests persist as editable queue entries; idempotent request IDs do not duplicate work',async t=>{const {w}=setup(t),c=w.newConversation();w.jobs.set('active',{});const first=await w.flow.submit(c.id,{message:'first',requestId:'request-one'});assert.equal(first.status,'queued');assert.equal(w.flow.pending().length,1);await w.flow.submit(c.id,{message:'first',requestId:'request-one'});assert.equal(w.flow.pending().length,1);w.flow.edit(c.id,first.id,{message:'corrected'});assert.equal(w.flow.pending()[0].t.request,'corrected');assert.equal(JSON.parse(fs.readFileSync(w.file)).conversations[c.id].pending[0].request,'corrected');w.flow.remove(c.id,first.id);assert.equal(w.flow.pending().length,0);assert.equal(w.conversation(c.id).queueHistory[0].status,'deleted');});
@@ -6,3 +7,19 @@ test('fork at a message retains its exact result; edit/delete branches exclude l
  const fork=await w.flow.fork(c.id,{turnId:'one'});assert.equal(fork.turns.length,1);assert.deepEqual(w.space.work(w.workspaceId,fork.id).current,ref1);const edit=await w.flow.fork(c.id,{turnId:'two',operation:'edit',message:'replacement'});assert.equal(edit.turns.length,2);assert.equal(edit.turns[1].status,'queued');assert.equal(edit.turns[1].request,'replacement');assert.deepEqual(w.space.work(w.workspaceId,edit.id).current,ref1);const removed=await w.flow.fork(c.id,{turnId:'one',operation:'delete'});assert.equal(removed.turns.length,0);assert.equal(w.space.work(w.workspaceId,removed.id).current,null);assert.equal(state.turns[1].request,'later');assert.equal(state.turns.length,2);
 });
 test('queue dispatcher starts one entry at a time with stable message identity and survives reload',async t=>{const {w,children}=setup(t),c=w.newConversation();w.jobs.set('busy',{});const a=await w.flow.submit(c.id,{message:'A'}),b=await w.flow.submit(c.id,{message:'B'});w.jobs.delete('busy');await w.flow.pump();assert.equal(children.length,1);assert.equal(w.conversation(c.id).turns[0].id,a.id);assert.equal(w.flow.pending()[0].t.id,b.id);await w.flow.pump();assert.equal(children.length,1);const restored=new WebWorkspace(w.config);assert.equal(restored.flow.pending()[0].t.id,b.id);assert.equal(restored.conversation(c.id).turns[0].status,'interrupted');children[0].stdout.end();children[0].stderr.end();await new Promise(resolve=>setTimeout(resolve,80));});
+
+
+test('retrieval respects the explicitly selected historical result; explicit turn requests still take precedence',async t=>{
+ for(const mode of ['selected-history','explicit-turn','latest-default']){
+  const {w,children}=setup(t),view=w.newConversation(),c=w.conversation(view.id);
+  const make=(id,text,resourceId)=>{const file=path.join(w.root,id+'.txt');fs.writeFileSync(file,text);const record={artifactId:id,title:id,path:file,sha256:digest(Buffer.from(text)),kind:'text'};const resultRef=w.space.put({projectId:c.workspaceId,workItemId:c.workItemId,kind:'result',resourceId,bytes:Buffer.from(JSON.stringify({tables:[],artifacts:[{record}]}))});const directory=path.join(w.root,'fixture-'+id);fs.mkdirSync(directory);return{id,runId:'synthetic-run-'+id,request:'合成历史文件',answer:'已有合成成果',status:'completed',createdAt:new Date().toISOString(),directory,resultRef,artifacts:[record]};};
+  const older=make('older','旧版合成文字'),newer=make('newer','新版合成文字',older.resultRef.resourceId);c.turns=[older,newer];
+  if(mode!=='latest-default'){const work=w.space.work(c.workspaceId,c.workItemId);w.space.select(c.workspaceId,c.workItemId,older.resultRef,work.selectionRevision);}w.save();
+  const turn=await w.start(c.id,{message:'把刚才的文件给我，不要重新生成。',fileIds:[],...(mode==='explicit-turn'?{retryTurnId:newer.id}:{})});
+  const profile=JSON.parse(fs.readFileSync(path.join(w.root,'runs',turn.id+'.json')));
+  assert.equal(profile.continuity.mode,'rebuild_delivery',mode);
+  assert.equal(profile.continuity.resumeRunId,mode==='selected-history'?older.runId:newer.runId,mode);
+  assert.equal(children.length,1);
+  children[0].stdout.end();children[0].stderr.end();await new Promise(resolve=>setTimeout(resolve,80));
+ }
+});
