@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {calculateMoney} from '../v8-tools/money-calculator.mjs';
+import {validateReceiptReview,REVIEW_SYSTEM} from '../scripts/t2-receipt-verification.mjs';
+const source='设备1.2万元；服务30元。',sourceSha256=createHash('sha256').update(source).digest('hex');
+const receipt=calculateMoney(source,{operation:'sum',operands:[{value:'1.2',unit:'万元',currency:'CNY',quote:'设备1.2万元'},{value:'30',unit:'元',currency:'CNY',quote:'服务30元'}]});
+const make=()=>({decision:'verified',receiptId:receipt.receiptId,sourceSha256,operand_checks:receipt.bindings.map((b,index)=>({index,value:b.value,unit:b.unit,currency:b.currency,quote:b.quote,supported:true,yuan_value:index===0?'12000.00':'30.00'})),missing_components:[],claims:[{currency:'CNY',amount:'12030.00',receiptId:receipt.receiptId}],explanation:'依据两个不同的原文金额项核对。'});
+test('finite verifier accepts only complete source-bound correct review',()=>{assert(validateReceiptReview(make(),{sourceSha256,receipt,source}).passed);assert(REVIEW_SYSTEM.includes('uncertain'));});
+test('omission, duplicate index and wrong units cannot become verified',()=>{for(const change of [o=>o.operand_checks.pop(),o=>o.operand_checks[1].index=0,o=>o.operand_checks[0].unit='亿元',o=>o.operand_checks[0].yuan_value='120000000.00']){const out=make();change(out);assert(!validateReceiptReview(out,{sourceSha256,receipt,source}).passed);}});
+test('wrong final amount or stale source/receipt is rejected',()=>{for(const change of [o=>o.claims[0].amount='12000.00',o=>o.sourceSha256='stale',o=>o.receiptId='stale',o=>o.claims[0].receiptId='stale']){const out=make();change(out);assert(!validateReceiptReview(out,{sourceSha256,receipt,source}).passed);}});
+test('uncertainty is retained as not passed rather than converted to verification',()=>{const out=make();out.decision='uncertain';out.missing_components=['可能缺少另一附件'];assert(!validateReceiptReview(out,{sourceSha256,receipt,source}).passed);});
