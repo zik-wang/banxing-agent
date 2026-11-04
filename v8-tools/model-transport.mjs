@@ -4,6 +4,7 @@ import {randomUUID} from 'node:crypto';
 import {setTimeout as sleep} from 'node:timers/promises';
 import {modelFailure,retryAfterSeconds} from './model-failure.mjs';
 import {streamingFetch} from './streaming-fetch.mjs';
+import {isSiliconflowEndpoint,queuedProviderFetch} from './siliconflow-queue.mjs';
 
 const transientCodes=new Set(['ECONNRESET','EPIPE','ETIMEDOUT','ECONNREFUSED','EAI_AGAIN','UND_ERR_SOCKET','UND_ERR_CONNECT_TIMEOUT','UND_ERR_HEADERS_TIMEOUT','UND_ERR_BODY_TIMEOUT']);
 export function safeModelError(error,redact=x=>x,depth=0,seen=new Set()){
@@ -29,7 +30,7 @@ function retryable(error,phase){
  if(all.length)return false;
  return error?.name==='TypeError'&&/^(fetch failed|terminated)$/i.test(error.message||'');
 }
-export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,streaming=false,timeoutMs=120000,maxTokens=2000,logDirectory,enableThinking,topP,maxAttempts=3,retryDelaysMs=[200,600],disableKeepAlive=provider==='intranet',onAttempt},ErrorType=Error){
+export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,streaming=false,timeoutMs=120000,maxTokens=2000,logDirectory,enableThinking,topP,maxAttempts=3,retryDelaysMs=[200,600],disableKeepAlive=provider==='intranet',onAttempt,siliconflowQueue},ErrorType=Error){
  if(streaming&&fetchImpl===globalThis.fetch)fetchImpl=streamingFetch;
  if(enableThinking!==undefined&&typeof enableThinking!=='boolean')throw Error('enableThinking must be boolean when configured');
  if(!Number.isInteger(maxAttempts)||maxAttempts<1||maxAttempts>3)throw Error('maxAttempts must be an integer from 1 to 3');
@@ -62,19 +63,20 @@ export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,str
   const body=JSON.stringify({model,messages,...toolSettings,temperature:0.1,...(topP===undefined?{}:{top_p:topP}),max_tokens:maxTokens,...settings});
   for(let attempt=1;attempt<=allowed;attempt++){
    if(combined.aborted){stats.failedRequests++;throw makeError(stoppedCode(),signal?.reason?.code==='TASK_TIME_BUDGET_EXHAUSTED'?'任务整体处理时间预算已用尽':userCancelled()?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt-1,phase:'before_request'});}
-   // Host accounting runs before every actual HTTP attempt, including recovery.
-   try{await onAttempt?.({requestId,attempt});}catch(error){stats.failedRequests++;throw error;}
-   stats.networkAttempts++;
-   const startedAt=new Date().toISOString(),started=Date.now();let phase='fetch',response,raw,data;
-   const receipt={startedAt,requestId,attempt,attemptCount:attempt,model,provider:provider||'unspecified',maxTokens,enableThinking,visibleTools:definitions.map(d=>d.name),messageCount:messages.length,networkRequestAttempted:true,connectionPolicy:disableKeepAlive?'close':'default'};
+   const startedAt=new Date().toISOString();let started=Date.now(),phase='fetch',response,raw,data,dispatchRejected=false;
+   const receipt={startedAt,requestId,attempt,attemptCount:attempt,model,provider:provider||'unspecified',maxTokens,enableThinking,visibleTools:definitions.map(d=>d.name),messageCount:messages.length,networkRequestAttempted:false,connectionPolicy:disableKeepAlive?'close':'default'};
    const progress=(state,extra={})=>{if(logDirectory){try{fs.mkdirSync(logDirectory,{recursive:true});fs.writeFileSync(path.join(logDirectory,'request-status.state'),JSON.stringify({requestId,attempt,provider:provider||'unspecified',state,startedAt,updatedAt:new Date().toISOString(),elapsedMs:Date.now()-started,...extra}));}catch{/* Optional live feedback must never replace a model result or its error. */}}};
    const log=extra=>{if(logDirectory){fs.mkdirSync(logDirectory,{recursive:true});fs.writeFileSync(path.join(logDirectory,requestId+'.'+String(attempt).padStart(2,'0')+'.json'),JSON.stringify(sanitize({...receipt,elapsedMs:Date.now()-started,logicalElapsedMs:Date.now()-logicalStarted,...extra}),null,2));}};
    try{
     progress('waiting_response');
-    response=await fetchImpl(baseUrl.replace(/\/$/,'')+'/chat/completions',{
+    response=await queuedProviderFetch(baseUrl.replace(/\/$/,'')+'/chat/completions',{
      method:'POST',redirect:'error',signal:combined,
      headers:{'Content-Type':'application/json',...(apiKey?{Authorization:'Bearer '+apiKey}:{}),...(disableKeepAlive?{Connection:'close'}:{})},body
-    });
+    },{fetchImpl,queue:siliconflowQueue,beforeFetch:async()=>{
+     // Do not count queue waiting or a rejected host budget as a network call.
+     try{await onAttempt?.({requestId,attempt});}catch(error){dispatchRejected=true;throw error;}
+     combined.throwIfAborted();started=Date.now();receipt.startedAt=new Date().toISOString();stats.networkAttempts++;receipt.networkRequestAttempted=true;
+    },onTiming:value=>{receipt.sfQueue=value;}});
     progress('reading_response',{httpStatus:response.status});phase='response_body';raw=redact(await response.text());
     phase='parse';try{data=JSON.parse(raw)}catch{}
     if(!response.ok)throw makeError('MODEL_HTTP_ERROR','Planning model HTTP '+response.status,{requestId,attempts:attempt,httpStatus:response.status,elapsedMs:Date.now()-started,providerErrorCode:redact(String(data?.error?.code||data?.error?.type||'')),providerMessage:redact(String(data?.error?.message||'')).slice(0,600),retryAfterSeconds:retryAfterSeconds(response.headers.get('retry-after')),responsePreview:redact(raw).slice(0,600)});
@@ -85,12 +87,14 @@ export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,str
     if(attempt>1)stats.recoveredRequests++;
     return data.choices?.[0]?.message;
    }catch(error){
+    if(dispatchRejected){stats.failedRequests++;throw error;}
+    const upstreamStatus=response?.status||error.status||error.sfQueueTiming?.httpStatus;
     const cancelled=combined.aborted;
     const transient=(!response||response.ok)&&retryable(error,phase);
-    const canRetry=!cancelled&&attempt<allowed&&transient;
+    const canRetry=!isSiliconflowEndpoint(baseUrl)&&!cancelled&&attempt<allowed&&transient;
     const safe=safeModelError(error,redact);
     const failure=modelFailure(error)||((cancelled&&!userCancelled())?modelFailure({code:'MODEL_REQUEST_TIMEOUT',details:{requestId,elapsedMs:Date.now()-started}}):null);
-    log({phase,httpStatus:response?.status,response:data,responseRaw:raw,error:safe,retryable:!cancelled&&transient,willRetry:canRetry,cancelled});
+    log({phase,httpStatus:upstreamStatus,response:data,responseRaw:raw,error:safe,retryable:!cancelled&&transient,willRetry:canRetry,cancelled});
     progress(canRetry?'retrying':userCancelled()?'cancelled':'failed',{httpStatus:response?.status??null,failure});
     if(canRetry){
      stats.retries++;
@@ -99,8 +103,9 @@ export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,str
      continue;
     }
     stats.failedRequests++;
+    if(typeof error.code==='string'&&error.code.startsWith('SF_QUEUE_'))throw error;
     if(cancelled)throw makeError(stoppedCode(),signal?.reason?.code==='TASK_TIME_BUDGET_EXHAUSTED'?'任务整体处理时间预算已用尽':userCancelled()?'模型请求已取消':'模型请求达到总时限，已停止重试',{requestId,attempts:attempt,phase,elapsedMs:Date.now()-logicalStarted,error:safe},error);
-    if(response&&!response.ok&&phase==='response_body')throw makeError('MODEL_HTTP_ERROR','Planning model HTTP '+response.status,{requestId,attempts:attempt,phase,httpStatus:response.status,error:safe},error);
+    if(upstreamStatus>=400&&phase!=='parse')throw makeError('MODEL_HTTP_ERROR','Planning model HTTP '+upstreamStatus,{requestId,attempts:attempt,phase,httpStatus:upstreamStatus,retryAfterSeconds:error.retry_after_seconds??retryAfterSeconds(response?.headers?.get('retry-after')),error:safe},error);
     if(phase==='parse')throw error;
     const code=codes(error)[0]||'NETWORK_ERROR';
     throw makeError('MODEL_NETWORK_ERROR','模型服务连接失败（'+code+'，已尝试'+attempt+'次），读取结果与工具记录已保留',{requestId,attempts:attempt,phase,error:safe},error);

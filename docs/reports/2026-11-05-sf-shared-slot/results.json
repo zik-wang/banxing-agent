@@ -1,0 +1,46 @@
+{
+  "scope": "isolated production-request-boundary candidate; synthetic local-only tests",
+  "baseCommit": "f28349f844c3d07906e289851c29bd1ad2729270",
+  "tests": {
+    "total": 128,
+    "passed": 128,
+    "failed": 0,
+    "skipped": 0,
+    "newQueueTests": 16,
+    "concurrency": 2,
+    "files": [
+      "tests/v8-siliconflow-queue.test.mjs",
+      "tests/v8-model-transport.test.mjs",
+      "tests/streaming-fetch.test.mjs",
+      "tests/v8-siliconflow-connection.test.mjs",
+      "tests/v8-cloud-local-boundary.test.mjs",
+      "tests/money-calculator.test.mjs",
+      "tests/money-integration.test.mjs",
+      "tests/contract-fix-r1.test.mjs",
+      "tests/contract-profile-v3.test.mjs",
+      "tests/contract-specialization.test.mjs"
+    ]
+  },
+  "initialFailuresPreservedLocally": [
+    "sandbox temp-directory atomic rename permission failure; resolved by isolated writable temp directory",
+    "numeric timeout error code compatibility; fixed in candidate and regression rerun",
+    "new web-health fixture initially failed external workspace validation; corrected fixture to use required isolated workspace identity without relaxing production policy"
+  ],
+  "modelRequests": 0,
+  "realProductionSlotAcquisitions": 0,
+  "mockSchedulerUsed": true,
+  "localhostHttpUsed": true,
+  "deployed": false,
+  "productionRestarted": false,
+  "productionAllTrafficControlledClaimed": false,
+  "historicalComparisonModified": false,
+  "fullProjectRegressionRun": false,
+  "independentQAComplete": false,
+  "userAccepted": false,
+  "remaining": [
+    "candidate integration with actual shared scheduler across production processes not exercised",
+    "no cutover of 8884",
+    "prior T2 finance worker and final verifier still require real completion evidence",
+    "existing shared client may wait until a later grant/control check before returning queued user cancellation; it must not dispatch the cancelled provider call"
+  ]
+}
