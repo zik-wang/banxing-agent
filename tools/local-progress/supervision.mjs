@@ -50,7 +50,9 @@ export async function requestReview(s,deliver=queue){
  write(p,cycle);write(statusPath,{cycle_id:id,status:'queuing',updated_at:cycle.created_at});
  const cli=path.join(root,'supervision.mjs');
  const message=`AFK_SUPERVISION_REQUEST ${id}\n用户已授权每半小时审查并向已绑定的原聊天发送合理推进建议。现在执行 node '${cli}' context ${id}，读取本轮允许记录的进度元数据（不读取私有会话库或敏感材料正文）。根据每个 worker 的真实阶段、阻塞、下一步、任务目标和前次上报判断是否有可推进工作；给需要推进的窗口制定1至3步具体动作、完成验证标准和停止条件。状态过旧先要求核实；需要用户权限/材料或已完成待验收时不要反复试错或代替用户决策。窗口可能跨多项任务，不能用一个任务标签替代当前上下文。用 node '${cli}' send ${id} WORKER_ID '具体建议' 向对应原聊天投递（不迁移进程、不另开原线程执行器、不使用--resume）。同一窗口本轮只发一条汇总建议；明确要求保留原上下文、校验建议适用性并在实际开始/阻塞/完成时主动上报。不要把队列成功声称为收到或执行。审查完执行 node '${cli}' complete ${id} '本轮结论'。这是有限一次审查；定时器由本地独立进程承担。`;
- try{cycle.queue=await deliver(cfg.thread_id,message);cycle.status='queued';write(p,cycle);write(statusPath,{cycle_id:id,status:'queued',updated_at:new Date().toISOString(),message:'审查请求已入队；尚未确认桌面聊天接收或执行'});}
+ const publishing=read(path.join(data,'github-publishing.json'));
+ const reviewMessage=message+'\n先核对当前run-control.json和budget-authorization.json，遵守用户最新暂停、截止及调用范围。'+(publishing?.enabled?'用户已授权有经验证实质进展后推送GitHub；按快照github_publishing中的既有仓库、工作树、分支和进度页同步代码及脱敏摘要，检查真实远端commit；没有实质变化不空提交，不上传材料正文、凭证或运行态，不强推或自行合并主分支，暂停或到期不推送。':'');
+ try{cycle.queue=await deliver(cfg.thread_id,reviewMessage);cycle.status='queued';write(p,cycle);write(statusPath,{cycle_id:id,status:'queued',updated_at:new Date().toISOString(),message:'审查请求已入队；尚未确认桌面聊天接收或执行'});}
  catch(e){cycle.status='uncertain';cycle.error=e.message;write(p,cycle);write(statusPath,{cycle_id:id,status:'uncertain',updated_at:new Date().toISOString(),message:'投递失败或结果不确定，停止自动重试以避免重复指令：'+e.message});}
 }
 export async function command(args,deliver=queue){
