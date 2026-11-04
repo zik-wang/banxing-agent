@@ -1,3 +1,4 @@
+import {completionDecoder} from '../../v8-tools/streaming-fetch.mjs';
 import http from'node:http';import fs from'node:fs';import path from'node:path';import{randomUUID}from'node:crypto';import{convertRequest,responseEnvelope,responseEvents}from'./protocol.mjs';
 import{setTimeout as sleep}from'node:timers/promises';
 const [manifestFile,keyFile]=process.argv.slice(2);if(!manifestFile||!keyFile)throw Error('Usage: gateway.mjs manifest.json api-key-file.json');
@@ -27,10 +28,16 @@ http.createServer(async(req,res)=>{
   let names=new Map(),body;
   if(kind==='responses')({names,body}=convertRequest(request,settings));
   else body={...request,model:settings.model,stream:false,temperature:settings.temperature,top_p:settings.topP,max_tokens:settings.maxTokens,enable_thinking:false};
+  if(settings.upstreamStreaming)Object.assign(body,{stream:true,stream_options:{include_usage:true}});
   fs.writeFileSync(path.join(dir,id+'.client-request.json'),JSON.stringify(request,null,2));fs.writeFileSync(path.join(dir,id+'.upstream-request.json'),JSON.stringify(body,null,2));
   await acquire();locked=true;timer=setTimeout(()=>controller.abort(),settings.singleCallTimeoutMs);
   if(kind==='responses'&&request.stream){res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache'});res.write(': waiting for same SiliconFlow model\n\n');heartbeat=setInterval(()=>res.write(': still waiting\n\n'),10000);}
-  await pace(body,record,controller.signal);record.networkRequestAttempted=true;const r=await fetch(settings.endpoint+'/chat/completions',{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+secret,'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});const raw=redact(await r.text());record.httpStatus=r.status;record.rateHeaders=Object.fromEntries([...r.headers].filter(([k])=>/ratelimit|retry-after/i.test(k)));fs.writeFileSync(path.join(dir,id+'.upstream-response.json'),raw);
+  await pace(body,record,controller.signal);record.networkRequestAttempted=true;record.phase='upstream_pending';fs.writeFileSync(path.join(dir,id+'.receipt.json'),JSON.stringify(record,null,2));const r=await fetch(settings.endpoint+'/chat/completions',{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+secret,'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});record.firstHeadersMs=Date.now()-started;let raw;
+  if(r.ok&&/text\/event-stream/i.test(r.headers.get('content-type')||'')){
+   const parser=completionDecoder(),reader=r.body.getReader(),streamFile=path.join(dir,id+'.upstream-response.sse');record.streamChunks=0;record.streamBytes=0;
+   for(;;){const {done,value}=await reader.read();if(done)break;if(record.firstChunkMs===undefined)record.firstChunkMs=Date.now()-started;record.streamChunks++;record.streamBytes+=value.byteLength;fs.appendFileSync(streamFile,value);parser.write(Buffer.from(value));if(parser.done){await reader.cancel();break;}}
+   raw=redact(JSON.stringify(parser.end()));record.upstreamStreamingUsed=true;
+  }else raw=redact(await r.text());record.phase='upstream_returned';record.httpStatus=r.status;record.rateHeaders=Object.fromEntries([...r.headers].filter(([k])=>/ratelimit|retry-after/i.test(k)));fs.writeFileSync(path.join(dir,id+'.upstream-response.json'),raw);
   let data;try{data=JSON.parse(raw)}catch{throw Error('Provider returned invalid JSON')};record.usage=data.usage;record.providerModel=data.model;record.finishReason=data.choices?.[0]?.finish_reason;
   if(!r.ok){record.providerFailure=true;if(!res.headersSent){res.writeHead(r.status,{'Content-Type':'application/json'});res.end(raw);}else{res.write('event: error\ndata: '+JSON.stringify({type:'error',message:'SiliconFlow HTTP '+r.status,error:data.error})+'\n\n');res.end();}return;}
   if(kind==='responses'){
