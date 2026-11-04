@@ -3,6 +3,7 @@ import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {setTimeout as sleep} from 'node:timers/promises';
 import {modelFailure,retryAfterSeconds} from './model-failure.mjs';
+import {streamingFetch} from './streaming-fetch.mjs';
 
 const transientCodes=new Set(['ECONNRESET','EPIPE','ETIMEDOUT','ECONNREFUSED','EAI_AGAIN','UND_ERR_SOCKET','UND_ERR_CONNECT_TIMEOUT','UND_ERR_HEADERS_TIMEOUT','UND_ERR_BODY_TIMEOUT']);
 export function safeModelError(error,redact=x=>x,depth=0,seen=new Set()){
@@ -28,7 +29,8 @@ function retryable(error,phase){
  if(all.length)return false;
  return error?.name==='TypeError'&&/^(fetch failed|terminated)$/i.test(error.message||'');
 }
-export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,timeoutMs=120000,maxTokens=2000,logDirectory,enableThinking,topP,maxAttempts=3,retryDelaysMs=[200,600],disableKeepAlive=provider==='intranet',onAttempt},ErrorType=Error){
+export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,streaming=false,timeoutMs=120000,maxTokens=2000,logDirectory,enableThinking,topP,maxAttempts=3,retryDelaysMs=[200,600],disableKeepAlive=provider==='intranet',onAttempt},ErrorType=Error){
+ if(streaming&&fetchImpl===globalThis.fetch)fetchImpl=streamingFetch;
  if(enableThinking!==undefined&&typeof enableThinking!=='boolean')throw Error('enableThinking must be boolean when configured');
  if(!Number.isInteger(maxAttempts)||maxAttempts<1||maxAttempts>3)throw Error('maxAttempts must be an integer from 1 to 3');
  if(!Number.isFinite(timeoutMs)||timeoutMs<=0)throw Error('timeoutMs must be positive');
