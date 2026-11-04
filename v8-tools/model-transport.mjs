@@ -30,7 +30,7 @@ function retryable(error,phase,provider){
  return error?.name==='TypeError'&&/^(fetch failed|terminated)$/i.test(error.message||'');
 }
 export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,streaming=false,timeoutMs=120000,maxTokens=2000,logDirectory,enableThinking,topP,maxAttempts=3,retryDelaysMs=[200,600],disableKeepAlive=provider==='intranet',onAttempt},ErrorType=Error){
- if(streaming&&fetchImpl===globalThis.fetch)fetchImpl=streamingFetch;
+ if(streaming&&fetchImpl===globalThis.fetch)fetchImpl=globalThis[Symbol.for('banxing.siliconflow.shared-slot-host')]?.wrapFetch(streamingFetch)||streamingFetch;
  if(enableThinking!==undefined&&typeof enableThinking!=='boolean')throw Error('enableThinking must be boolean when configured');
  if(!Number.isInteger(maxAttempts)||maxAttempts<1||maxAttempts>3)throw Error('maxAttempts must be an integer from 1 to 3');
  if(!Number.isFinite(timeoutMs)||timeoutMs<=0)throw Error('timeoutMs must be positive');
