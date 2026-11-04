@@ -3,7 +3,11 @@ import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 export const digest=x=>createHash('sha256').update(typeof x==='string'||Buffer.isBuffer(x)?x:JSON.stringify(x)).digest('hex');
 const fail=(code)=>{throw Object.assign(Error(code),{code});};
-export function atomic(file,value,{rename=fs.renameSync,pause=ms=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms)}={}){const temp=file+'.'+randomUUID()+'.tmp';fs.writeFileSync(temp,JSON.stringify(value,null,2),{flag:'wx'});for(let attempt=0;attempt<8;attempt++){try{rename(temp,file);return;}catch(e){if(!['EPERM','EBUSY','EACCES'].includes(e.code)||attempt===7){e.atomicRenameAttempts=attempt+1;throw e;}pause(Math.min(20*(attempt+1),100));}}}
+export function atomic(file,value,{rename=fs.renameSync,pause=ms=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms)}={}){const temp=file+'.'+randomUUID()+'.tmp';fs.writeFileSync(temp,JSON.stringify(value,null,2),{flag:'wx'});for(let attempt=0;attempt<8;attempt++){try{rename(temp,file);return;}catch(e){if(!['EPERM','EBUSY','EACCES'].includes(e.code)||attempt===7){e.atomicRenameAttempts=attempt+1;throw e;}pause(Math.min(70*(attempt+1),400));}}}
+export function localPersistenceFailure(error){
+ if(!['EPERM','EBUSY','EACCES','SPACE_BUSY_OR_INTERRUPTED_WRITER'].includes(error?.code))return null;
+ return {kind:'local_persistence',title:'本机保存暂时受限',message:'工作区进度暂时无法安全保存，本次操作尚未完成。原材料和先前交付的文件保留。',action:'请稍后手动重试；若持续出现，请检查工作区写入权限或文件占用。无需重新上传附件。',stopAutomatic:true,code:error.code};
+}
 export class ResourceSpace {
  constructor(root){this.root=path.resolve(root);fs.mkdirSync(this.root,{recursive:true});this.root=fs.realpathSync(this.root);this.file=path.join(this.root,'index.json');this.lock=path.join(this.root,'writer.lock');const blobs=path.join(this.root,'blobs');fs.mkdirSync(blobs,{recursive:true});if(fs.realpathSync(blobs)!==blobs)fail('RESOURCE_PATH_ESCAPE');if(fs.existsSync(this.file)&&fs.realpathSync(this.file)!==this.file)fail('RESOURCE_PATH_ESCAPE');if(!fs.existsSync(this.file))this.tx(()=>{});this.load();}
  load(){const s=JSON.parse(fs.readFileSync(this.file,'utf8'));if(s.schemaVersion!==1)fail('SPACE_SCHEMA_UNSUPPORTED');return s;}
