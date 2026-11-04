@@ -35,7 +35,7 @@ for case in manifest['cases']:
         p=Path(item['source']);copies={f:root/f/('s'+case['id'])/'inputs'/item['name'] for f in ['harness','codex']}
         out['inputs'].append({'case':case['id'],'name':item['name'],'originalShaMatches':sha(p)==item['sha256'],'sha256':sha(p),'copiesUnchanged':{f:q.exists() and sha(q)==item['sha256'] for f,q in copies.items()}})
     for framework in ['harness','codex']:
-        folder=root/framework/('s'+case['id']);artifacts=[]
+        folder=root/framework/('s'+case['id']);artifacts=[];intermediates=[]
         if framework=='harness':
             registry=folder/'run/artifacts.json'
             if registry.exists():
@@ -43,9 +43,15 @@ for case in manifest['cases']:
                     p=Path(a['path'])
                     artifacts.append({**read_file(p),'artifactId':a['artifactId'],'registryHashMatches':sha(p)==a['sha256'],'patchBaseSha256':a.get('patchBaseSha256'),'beforeSpan':a.get('beforeSpan')})
         elif (folder/'outputs').exists():
-            artifacts=[read_file(p) for p in sorted((folder/'outputs').rglob('*')) if p.is_file()]
+            for p in sorted((folder/'outputs').rglob('*')):
+                if not p.is_file(): continue
+                record=read_file(p)
+                if any(part in {'_work','tmp','temp','.cache'} for part in p.relative_to(folder/'outputs').parts[:-1]):
+                    record['role']='supporting_intermediate_not_counted_as_delivery';intermediates.append(record)
+                else:
+                    record['role']='delivery_candidate_requires_content_review';artifacts.append(record)
         final=folder/'final-answer.txt'
-        r={'case':case['id'],'framework':framework,'artifacts':artifacts,'finalAnswer':final.read_text(encoding='utf-8') if final.exists() else None}
+        r={'case':case['id'],'framework':framework,'artifacts':artifacts,'intermediateFiles':intermediates,'finalAnswer':final.read_text(encoding='utf-8') if final.exists() else None}
         if framework=='harness':
             settlement=folder/'run/delivery-settlement.json'
             if settlement.exists():r['finalAnswer']=json.loads(settlement.read_text(encoding='utf-8')).get('answer')
