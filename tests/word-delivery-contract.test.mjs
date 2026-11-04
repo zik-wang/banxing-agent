@@ -64,3 +64,10 @@ test('table cells count toward the same document length boundary',{skip:!configu
  await assert.rejects(x.delivery.export({title:'表',format:'docx',table_ids:['t']}),e=>e.code==='DOCUMENT_LENGTH_LIMIT'&&e.details.actualChars===9);
  assert.equal(x.extras.artifacts.size,0);
 });
+
+test('saved-draft tool reports measured length to the bounded report recovery',{skip:!configured},async t=>{
+ const x=setup(t);x.docs.turnIntent={length:{maxChars:5}};
+ const result=await x.delivery.tools().find(t=>t.name==='save_draft').execute({title:'摘要',content:'一二三四五六七八九十'});
+ assert.equal(result.renderFailure.code,'DOCUMENT_LENGTH_LIMIT');assert.equal(result.renderFailure.details.actualChars,12);
+ assert.ok(result.draft_ref);assert.equal(x.extras.artifacts.size,0);
+});

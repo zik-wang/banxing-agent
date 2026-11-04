@@ -10,7 +10,7 @@ test('content revision uses original evidence plus full prior draft rather than 
 
 test('an oversized report gets one source-bound rewrite and exports the actual revised draft',async t=>{
  const x=setup(t);x.docs.turnIntent.length={maxChars:30};let drafts=0,models=0;
- x.next=async messages=>{models++;if(models===1)return{content:'# 过长草稿\n'+ '正文'.repeat(40)};const input=JSON.parse(messages[1].content);assert.equal(input.maxChars,30);assert.equal(input.authorizedSources[0].text,'确切原文');return{content:'# 短报告\n确切原文，未明确内容待确认。'};};
+ x.next=async messages=>{models++;if(models===1)return{content:'# 过长草稿\n'+ '正文'.repeat(40)};const input=JSON.parse(messages[1].content);assert.equal(input.maxChars,30);assert.ok(input.observedChars>30);assert.ok(input.targetChars<30);assert.equal(input.authorizedSources[0].text,'确切原文');return{content:'# 短报告\n确切原文，未明确内容待确认。'};};
  x.harness.execute=async(name,args)=>{x.calls.push({name,args});if(name==='read_text_range')return{status:'ok',data:{text:'确切原文',nextOffset:null}};drafts++;return{status:'ok',data:drafts===1?{draft_ref:'draft:long',renderFailure:{code:'DOCUMENT_LENGTH_LIMIT',message:'超限'}}:{artifactId:'actual-short',draft_ref:'draft:short',saveReadbackPassed:true}};};
  const r=await reportPreflight(x);assert.equal(r.completed,true);assert.equal(models,2);assert.equal(drafts,2);assert.equal(x.calls.at(-1).args.content,'确切原文，未明确内容待确认。');
  assert.equal(JSON.parse(fs.readFileSync(path.join(x.docs.directory,'report-composition.json'))).lengthRecovery.accepted,true);
