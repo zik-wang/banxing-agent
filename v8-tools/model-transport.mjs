@@ -22,10 +22,10 @@ function codes(error,seen=new Set()){
  if(!error||typeof error!=='object'||seen.has(error))return [];
  seen.add(error);return [error.code,...codes(error.cause,seen),...(error.errors||[]).flatMap(e=>codes(e,seen))].filter(Boolean);
 }
-function retryable(error,phase){
+function retryable(error,phase,provider){
  if(!['fetch','response_body'].includes(phase))return false;
  const all=codes(error);
- if(all.some(c=>transientCodes.has(c)))return true;
+ if(all.some(c=>transientCodes.has(c))||provider==='siliconflow'&&all.includes('ENOTFOUND'))return true;
  if(all.length)return false;
  return error?.name==='TypeError'&&/^(fetch failed|terminated)$/i.test(error.message||'');
 }
@@ -86,7 +86,7 @@ export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,str
     return data.choices?.[0]?.message;
    }catch(error){
     const cancelled=combined.aborted;
-    const transient=(!response||response.ok)&&retryable(error,phase);
+    const transient=(!response||response.ok)&&retryable(error,phase,provider);
     const canRetry=!cancelled&&attempt<allowed&&transient;
     const safe=safeModelError(error,redact);
     const failure=modelFailure(error)||((cancelled&&!userCancelled())?modelFailure({code:'MODEL_REQUEST_TIMEOUT',details:{requestId,elapsedMs:Date.now()-started}}):null);
