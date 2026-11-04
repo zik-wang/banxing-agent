@@ -1,4 +1,5 @@
 import {statisticsPreflight} from './statistics-preflight.mjs';
+import {localAudioPreflight} from './local-audio-preflight.mjs';
 import {enforceContentContract,exportTextProduct} from './content-contract.mjs';
 import {businessStatistics} from './statistics-report.mjs';
 import {MaterialDiagnostics} from './material-diagnostics.mjs';
@@ -97,7 +98,7 @@ try {
   else {
   const api=chatApi({...config.chat,logDirectory:path.join(directory,'model-responses'),onAttempt:()=>continuity?.spend('model')});
   const missingInput=!config.meetingPolicy&&!connectedFolders.visible().length&&documents.turnIntent.materialTask&&!documents.assets.size&&!workbooks?.tables.size&&!extras.artifacts.size&&!documents.results.size&&!(continuity?.workspace?.list({limit:1,excluded:workspaceTools.excluded}).total);
-  const materialPreflight=await diagnostics.preflight();
+  const materialPreflight=await localAudioPreflight({docs:documents,audio,harness,config,request:taskRequest})||await diagnostics.preflight();
   const approvedDecision=materialPreflight?null:await decisions.approved();
   const textProductExport=materialPreflight||approvedDecision?null:await exportTextProduct({docs:documents,harness,intent:documents.turnIntent});
   const statisticsDecision=materialPreflight||approvedDecision||textProductExport?null:await statisticsPreflight({docs:documents,books:workbooks,harness,config});
