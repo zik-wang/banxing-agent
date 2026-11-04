@@ -94,6 +94,7 @@ export class ToolHarness {
     if(this.executionRepair&&result.status==='error'&&['DOCUMENT_CONTENT_REQUIRED','INVALID_ARGUMENT','ARTIFACT_CONVERSION_UNSUPPORTED','REPEATED_FAILURE_LIMIT','UNKNOWN_TOOL'].includes(result.error.code)){
       const definition=this.tools.get(name);
       result.error.recovery={retryable_without_change:false,next_action:result.error.details?.next_action||'Correct arguments using the registered schema, or discover a supported tool. Source IDs are provenance, not document body.',...(definition?{tool_schema:{name,inputSchema:structuredClone(definition.inputSchema)}}:{available_tools:this.listTools().map(t=>t.name)})};
+      if(name==='read_tool_receipt'&&typeof args?.query==='number'&&Number.isFinite(args.query))Object.assign(result.error.recovery,{suggested_arguments:{...args,query:String(args.query)},next_action:'The literal query must be a JSON string. Use suggested_arguments and keep the same receipt scope; do not restart a whole-receipt scan to correct this type error.'});
     }
     const progress=this.evidenceProgress.observe(name,args,result);if(progress)result.evidenceProgress=progress;
     if(name==='discover_tools'&&result.status!=='error')for(const t of result.data.tools||[])this.discoveredTools.add(t.name);
@@ -141,7 +142,7 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
     const remaining=roundLimit-physicalRequests();
     if(remaining<=0){termination={reason:'model_round_budget_exhausted'};break;}
     const finalOnly=reserveFinalRound&&remaining===1;if(finalOnly)messages.push({role:'user',content:'宿主：这是预留的最终答复轮次。只依据现有回执给出核对结论、分歧和未完成项；不要再调用工具，不得声称未执行的核对已经完成。'});
-    if(harness.executionRepair)compactHistory(messages,harness.directory,{seenThrough,receiptReader:harness.executionSupport?'read_tool_receipt':undefined});
+    if(harness.executionRepair)compactHistory(messages,harness.directory,{seenThrough,receiptReader:harness.executionSupport?'read_tool_receipt':undefined,recoveryHint:harness.executionSupport?r=>harness.executionSupport.recoveryHint(r):undefined});
     const submittedThrough=messages.length;
     let reply;try{modelRoundsUsed++;reply=await next(messages, finalOnly?[]:harness.listTools(), harness.signal,{maxAttempts:remaining});seenThrough=submittedThrough;}catch(e){termination={reason:harness.signal.aborted?abortReason():'model_error',error:{code:e.code||'MODEL_REQUEST_FAILED',message:e.message,...(e.details?{details:e.details}:{}),...(modelFailure(e)?{failure:modelFailure(e)}:{})}};break;}
     if (!reply || reply.role !== 'assistant') throw new Error('Invalid model message');

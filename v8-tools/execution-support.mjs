@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
+import {ReceiptProgress} from './receipt-progress.mjs';
 
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const fail=(code,message)=>{throw Object.assign(Error(message),{code});};
@@ -25,6 +26,7 @@ export class ExecutionSupport{
   this.directory=path.join(path.resolve(directory),'execution-support',scopeKey);
   this.receiptDirectory=path.join(this.directory,'receipts');fs.mkdirSync(this.receiptDirectory,{recursive:true});
   this.planFile=path.join(this.directory,'plan.json');
+  this.progress=new ReceiptProgress(this.directory,scopeKey);
   this.plan=fs.existsSync(this.planFile)?JSON.parse(fs.readFileSync(this.planFile,'utf8')):{version:0,steps:[],explanation:''};
   if(this.plan.scopeKey&&this.plan.scopeKey!==scopeKey)fail('PLAN_SCOPE_CHANGED','Saved plan belongs to a different authorized execution scope');
  }
@@ -52,9 +54,16 @@ export class ExecutionSupport{
     value=value[key];
    }
   }
-  const text=typeof value==='string'?value:JSON.stringify(value);let start=offset;
+  const text=typeof value==='string'?value:JSON.stringify(value);let start=Math.min(offset,text.length);
   if(query){start=text.indexOf(query,offset);if(start<0)return{callId:call_id,pointer,matched:false,totalChars:text.length,nextOffset:null,historicalReceipt:true};}
-  return{callId:call_id,tool:stored.receipt.tool,receiptSha256:stored.sha256,pointer,text:text.slice(start,start+length),start,end:Math.min(start+length,text.length),totalChars:text.length,nextOffset:start+length<text.length?start+length:null,historicalReceipt:true,contentVerified:false,note:'Recovered prior tool output; this is not a fresh source read or semantic verification.'};
+  const end=Math.min(start+length,text.length),recoveryProgress=this.progress.record({callId:call_id,pointer,receiptSha256:stored.sha256,start,end,totalChars:text.length});
+  return{callId:call_id,tool:stored.receipt.tool,receiptSha256:stored.sha256,pointer,text:text.slice(start,end),start,end,totalChars:text.length,nextOffset:end<text.length?end:null,recoveryProgress,historicalReceipt:true,contentVerified:false,note:recoveryProgress.repeatedRange?'This historical slice was already returned. Its bytes are unchanged. Use recoveryProgress.nextUnreadOffset for an unread slice, a narrower pointer/query, or finish from available evidence; do not restart whole-receipt pagination to repair arguments.':'Recovered prior tool output; cursor progress tracks returned receipt text, not source coverage or semantic correctness.'};
+ }
+ recoveryHint(receipt){
+  this.authorize();if(!this.canRecover())return null;
+  const d=receipt.data||{},target=receipt.contextReceipt?.retrieve?.arguments||(receipt.tool==='read_tool_receipt'&&d.historicalReceipt?{call_id:d.callId,pointer:d.pointer||''}:{call_id:receipt.callId,pointer:typeof d.text==='string'?'/data/text':''});
+  const view=this.progress.get(target.call_id,target.pointer||'');if(!view)return null;
+  return{arguments:{call_id:target.call_id,...(target.pointer?{pointer:target.pointer}:{}),offset:view.nextUnreadOffset??view.totalChars},progress:{...view,note:'Returned receipt-text ranges only; not source or business completeness. At end, no unread historical text remains. Explicit offsets may still reread any authorized range.'}};
  }
  update({steps,explanation='',expected_version}){
   this.authorize();
@@ -73,7 +82,7 @@ export class ExecutionSupport{
   this.authorize();
   const snapshot={...this.snapshot()};
   if(!include_recent)delete snapshot.recentCalls;
-  return{plan:this.plan,...snapshot,scopeKey:this.scopeKey,metaOnly:true,contentVerified:false,note:'Current host state and saved work; tool receipts, not plan wording, determine actual delivery.'};
+  return{plan:this.plan,...snapshot,receiptRecovery:this.canRecover()?this.progress.list():[],scopeKey:this.scopeKey,metaOnly:true,contentVerified:false,note:'Current host state and saved work; receipt recovery ranges are pagination control state, not source/business completeness.'};
  }
  tools(){return[
   {name:'update_plan',description:'Persist a short execution plan for multi-step tasks. Use pending/in_progress/completed; only one step may be in_progress. Completed steps require successful business tool callIds, never invented evidence. Does not certify semantic correctness.',inputSchema:object({steps:{type:'array',minItems:1,maxItems:12,items:object({id:string(60),step:string(400),status:{...string(),enum:['pending','in_progress','completed']},evidence_call_ids:{type:'array',maxItems:20,items:string(36)}},['id','step','status'])},explanation:{type:'string',maxLength:1000},expected_version:integer(1000000)},['steps']),execute:a=>this.update(a)},

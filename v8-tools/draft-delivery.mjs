@@ -18,7 +18,7 @@ export function getDraft(docs,id){const r=docs.results.get(id);if(!r||r.method!=
 // Keeps complete receipts on disk. Historical payloads in the next model request are
 // references, not another copy of every page. Source text stays complete even when
 // an identical quote field is replaced by an explicit reference before first use.
-export function compactHistory(messages,directory,{seenThrough=messages.length,receiptReader,maxRetainedChars=48000}={}){
+export function compactHistory(messages,directory,{seenThrough=messages.length,receiptReader,maxRetainedChars=48000,recoveryHint}={}){
  const deduplications=[];
  for(let i=0;i<messages.length;i++){
   const m=messages[i];if(m.role!=='tool')continue;
@@ -29,6 +29,7 @@ export function compactHistory(messages,directory,{seenThrough=messages.length,r
   m.content=JSON.stringify(r);deduplications.push({callId:r.callId,file,charactersSaved:original.length-m.content.length});
  }
  const indices=messages.flatMap((m,i)=>m.role==='tool'?[i]:[]),recent=new Set(indices.slice(-2)),coverage=[];
+ for(const i of indices){let r;try{r=JSON.parse(messages[i].content);}catch{continue;}if(!r.contextReceipt)continue;const hint=recoveryHint?.(r);if(hint){r.contextReceipt.retrieve={tool:receiptReader,arguments:hint.arguments};r.contextReceipt.recoveryProgress=hint.progress;messages[i].content=JSON.stringify(r);}}
  let retained=indices.reduce((n,i)=>n+messages[i].content.length,0);
  for(const i of indices){if(retained<=maxRetainedChars)break;const m=messages[i];if(i>=seenThrough||recent.has(i)||m.content.length<2000)continue;
   let r;try{r=JSON.parse(m.content);}catch{continue;}if(r.contextReceipt)continue;
@@ -37,6 +38,8 @@ export function compactHistory(messages,directory,{seenThrough=messages.length,r
   const summary={callId:r.callId,tool:r.tool,status:r.status,error:r.error,contextReceipt:{sha256:hash(m.content),characters:m.content.length},data:{sourceId:d.sourceId||binding.sourceId,sourceSha256:d.sourceSha256||binding.sourceSha256,resultId:d.resultId,artifactId:d.artifactId,tableId:d.tableId,draft_ref:d.draft_ref,pointer:d.pointer,nextOffset:d.nextOffset,next_cursor:d.next_cursor,totalChars:d.totalChars,totalItems:d.totalItems,coverage:d.coverage,sourceRange:binding.start!==undefined?{start:binding.start,end:binding.end}:undefined,items:d.items?.map(x=>({pointer:x.pointer,start:x.start,end:x.end})),note:'历史全文已保存。需要原文时按sourceId+pointer/range或resultId取回；这不是语义完整性证明。'}};
   if(receiptReader&&r.callId)summary.contextReceipt.retrieve={tool:receiptReader,arguments:r.tool==='read_tool_receipt'&&d.historicalReceipt?{call_id:d.callId,pointer:d.pointer,offset:d.start,length:Math.min(12000,d.end-d.start)}:{call_id:r.callId,...(typeof d.text==='string'?{pointer:'/data/text'}:{})}};
   if(r.tool==='discover_tools')summary.data.tools=d.tools;
+  if(r.tool==='read_source_records')summary.data.sourcePagination={unit:'registered source records',returnedRecords:d.records?.length,totalRecords:d.totalRecords,nextOffset:d.nextOffset,note:'This record offset is not a character offset for read_tool_receipt.'};
+  const hint=recoveryHint?.(r);if(hint){summary.contextReceipt.retrieve={tool:receiptReader,arguments:hint.arguments};summary.contextReceipt.recoveryProgress=hint.progress;}
   const encoded=JSON.stringify(summary);if(encoded.length>=m.content.length)continue;
   coverage.push({callId:r.callId,file,characters:m.content.length});retained-=m.content.length-encoded.length;m.content=encoded;
  }
