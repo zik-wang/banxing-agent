@@ -3,6 +3,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const date=s=>s?new Date(s).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'尚无上报';
 const labels={todo:'待办',running:'进行中',blocked:'阻塞',done:'worker 汇报完成（待用户验收）'};
 const reviewBox=document.createElement('aside');reviewBox.id='supervision';$('inspection').insertAdjacentElement('afterend',reviewBox);
+const sfBox=document.createElement('aside');sfBox.id='siliconflow';reviewBox.insertAdjacentElement('afterend',sfBox);
 function worker(w){return `<div class="worker"><h3><code>${esc(w.worker_id)}</code></h3><p><span class="tag ${w.freshness==='状态待核实'?'warn':''}">${esc(w.freshness)}</span><span class="tag">${esc(labels[w.status]||'未开始上报')}</span></p><p>当前阶段：${esc(w.stage||'—')}</p><p>下一步：${esc(w.next_step||'—')}</p><p class="${w.blocker?'warn':''}">阻塞：${esc(w.blocker||'无上报')}</p><p>产物位置：<code>${esc(w.result_path||'—')}</code></p><p class="muted">更新时间：${esc(date(w.updated_at))}</p></div>`;}
 let busy=false;
 async function refresh(){if(busy)return;busy=true;try{
@@ -15,6 +16,7 @@ async function refresh(){if(busy)return;busy=true;try{
  $('demos').innerHTML=s.demo.map(w=>`<article><span class="tag warn">模拟数据 / DEMO</span>${worker(w)}</article>`).join('');
  $('milestones').innerHTML=s.milestones.map(m=>`<li>${esc(m)}</li>`).join('');
  const h=s.inspector;const alive=h&&Date.now()-Date.parse(h.heartbeat_at)<60000;
+ const sf=s.siliconflow;sfBox.textContent=sf?`硅基流动共享队列 · 并发上限1 · 调用任务占用：${sf.active?.worker_id||'无'} · 排队：${sf.waiting.map(w=>w.worker_id).join(' → ')||'无'} · 冷却剩余${Math.ceil(sf.cooldown_remaining_ms/1000)}秒 · 待旧调用收尾确认：${sf.awaiting_drain_workers.join('、')||'无'}。仅接入此调度器的调用受控；状态不等于模型正在运行。`:'硅基流动队列尚未加载';
  const paused=s.run_control?.mode==='paused'||(s.run_control?.deadline&&Date.now()>=Date.parse(s.run_control.deadline));
  $('inspection').textContent=`独立 AFK 巡检：${alive?'心跳正常':'状态待核实'} · 派发${paused?'已暂停':'允许'} · 截止 ${date(s.run_control?.deadline)} · 周期 ${s.interval_ms/60000} 分钟 · 上次 ${date(h?.last_inspection_at)} · 下次 ${date(h?.next_inspection_at)}。自动审查：${s.supervision?.message||'尚未配置'}。汇总保存在 local-progress/data/summaries。`;
  reviewBox.innerHTML='<h2>AFK 建议与回执</h2><p>'+esc(s.supervision?.message||'暂无自动审查记录')+'</p>'+Object.entries(s.supervision?.deliveries||{}).map(([id,d])=>`<p><code>${esc(id)}</code>：${s.supervision?.receipts?.[id]?'worker 已主动回执，实际结果看后续上报':d.status==='queued_pending_worker_ack'?'建议已入队，待 worker 回执':'投递结果待核实'}<br>${esc(d.advice)}</p>`).join('');

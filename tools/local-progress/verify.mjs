@@ -7,7 +7,7 @@ import {createRequire} from 'node:module';
 import {root} from './core.mjs';
 const output=path.join(root,'test-output',new Date().toISOString().replace(/[:.]/g,'-'));fs.mkdirSync(output,{recursive:true});
 const probe=net.createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
-const env={...process.env,BOARD_DATA:path.join(output,'data'),BOARD_PORT:String(port),BOARD_INTERVAL_MS:'400',BOARD_STALE_MS:'600'};
+const env={...process.env,BOARD_DATA:path.join(output,'data'),BOARD_PORT:String(port),BOARD_INTERVAL_MS:'400',BOARD_STALE_MS:'600',BOARD_SF_GAP_MS:'20'};
 const base=`http://127.0.0.1:${port}`;
 const children=[];const results=[];const delay=ms=>new Promise(r=>setTimeout(r,ms));
 function launch(role){const c=spawn(process.execPath,[path.join(root,role+'.mjs')],{env,windowsHide:true,stdio:['ignore',fs.openSync(path.join(output,role+'.log'),'a'),fs.openSync(path.join(output,role+'.err'),'a')]});children.push(c);return c;}
@@ -18,6 +18,21 @@ try{
  const server=launch('server');await waitFor(async()=>{try{return (await fetch(base+'/health')).ok;}catch{return false;}});
  const creds=JSON.parse(fs.readFileSync(path.join(env.BOARD_DATA,'credentials.json'),'utf8'));
  const get=async()=>await (await fetch(base+'/api/state')).json();
+ async function sf(action,id,body={}){return fetch(base+'/api/siliconflow/'+action,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+creds.workers[id]},body:JSON.stringify({worker_id:id,...body})});}
+ const slotA=await (await sf('acquire','demo-a',{request_id:'11111111-aaaa-bbbb-cccc-111111111111'})).json();
+ const slotB=await (await sf('acquire','demo-b',{request_id:'22222222-aaaa-bbbb-cccc-222222222222'})).json();
+ check('真实HTTP共享槽：一项获得许可，另一项排队',()=>{assert(slotA.granted);assert.equal(slotB.granted,false);});
+ assert.equal((await sf('release','demo-b',{lease_id:slotA.lease_id})).status,409);
+ assert((await sf('release','demo-a',{lease_id:slotA.lease_id})).ok);await delay(25);
+ const slotBGranted=await (await sf('acquire','demo-b',{request_id:'22222222-aaaa-bbbb-cccc-222222222222'})).json();assert(slotBGranted.granted);assert((await sf('release','demo-b',{lease_id:slotBGranted.lease_id})).ok);
+ const orderFile=path.join(output,'slot-run-order.jsonl');
+ const fakeCall=`const fs=require('node:fs');const p=${JSON.stringify(orderFile)};fs.appendFileSync(p,JSON.stringify({at:Date.now(),event:'start',pid:process.pid})+'\\n');setTimeout(()=>{fs.appendFileSync(p,JSON.stringify({at:Date.now(),event:'end',pid:process.pid})+'\\n')},80);`;
+ function fakeJob(worker){return new Promise((resolve,reject)=>{const c=spawn(process.execPath,[path.join(root,'sf-turn.mjs'),'run',worker,'--',process.execPath,'-e',fakeCall],{env,windowsHide:true,stdio:'ignore'});children.push(c);c.once('error',reject);c.once('close',code=>code===0?resolve():reject(Error('fake slot job exit '+code)));});}
+ await Promise.all([fakeJob('demo-a'),fakeJob('demo-b')]);
+ const order=fs.readFileSync(orderFile,'utf8').trim().split('\n').map(x=>JSON.parse(x));check('两个真实子进程经包装命令串行执行，未调用付费API',()=>assert.deepEqual(order.map(x=>x.event),['start','end','start','end']));
+ const failedCode=await new Promise((resolve,reject)=>{const c=spawn(process.execPath,[path.join(root,'sf-turn.mjs'),'run','demo-a','--',process.execPath,'-e','process.exit(2)'],{env,windowsHide:true,stdio:'ignore'});children.push(c);c.once('error',reject);c.once('close',resolve);});
+ const held=await(await fetch(base+'/api/siliconflow')).json();check('异常子进程结束不冒充远端请求结束，保留槽位待核实',()=>{assert.equal(failedCode,2);assert.equal(held.active.worker_id,'demo-a');});
+ const heldLease=JSON.parse(fs.readFileSync(path.join(env.BOARD_DATA,'siliconflow-queue.json'),'utf8')).active.lease_id;assert((await sf('release','demo-a',{lease_id:heldLease,outcome:'error'})).ok);
  const report=async(id,stage,extra={})=>fetch(base+'/api/report',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+creds.workers[id]},body:JSON.stringify({task_id:'DEMO',worker_id:id,status:'running',stage,next_step:'演示下一步',blocker:'',result_path:'DEMO/only',...extra})});
  let s=await get();check('四项任务均待办，七个真实 worker 未接入',()=>{assert.equal(s.tasks.length,4);assert(s.tasks.every(t=>t.status==='待办'&&t.workers.every(w=>!w.connected)));});
  const reports=await Promise.all(Array.from({length:30},(_,i)=>report(i%2?'demo-a':'demo-b','演示并发 '+i)));assert(reports.every(r=>r.ok));

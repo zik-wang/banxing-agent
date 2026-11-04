@@ -40,6 +40,16 @@ data/summaries 时间戳 JSON/Markdown、data/afk.jsonl 巡检日志、data/even
 
 独立巡检进程同时每15秒轻量核对本地连接结果，仅在新worker完成真实阶段产物核对或明确上报阻塞时向总控聊天排队一次验证通知。首次启动只建立观察基线，状态不变保持安静，不反复催促或重新派发。此观察不调用模型；正式模型审查请求仍每30分钟一次。connection-watch-state.json 记录通知游标与投递结果，不依赖永久占用的模型聊天充当计时器。
 
+## 硅基流动错峰
+
+`GET /api/siliconflow` 展示全机共享槽位、FIFO队列、冷却和迁移收尾确认。`sf-turn.mjs status` 同样可查看；`sf-turn.mjs run WORKER -- EXECUTABLE ARGS` 包装一个有限任务，Node请求入口也可导入 withSiliconflowSlot。完整接入说明见“硅基流动接入.txt”。调度只接收本机worker凭证与租约元数据，不接收SF密钥、请求正文或材料；原请求仍由原进程调用原已获准端点。
+
+当前保守设置全机SF并发1、任务/请求结束后默认间隔60秒。真实429由客户端报告，统一按Retry-After及指数退避冷却，不自动重放原请求。官方按账号及模型计量，不按API Key分别计量；这里统一串行是本机保守策略，不能保证消除所有平台配额型429。来源：https://docs.siliconflow.cn/docs/userguide/faqs/rate-limit-and-upgradation 。
+
+迁移时只有worker-01/04/05确认旧直连请求已结束并实际接入后才开闸，不能用消息入队当收尾确认。只约束接入此入口的调用，不拦截未改造的旧进程。槽位心跳丢失时保留占用，不能凭超时抢占；实际核实原调用已经结束后，持有者可用 `sf-turn.mjs release-confirmed WORKER --confirmed-ended` 恢复队列。服务重启保留活动租约，避免并发重叠。暂停/截止阻止新授予，上报与释放仍允许。
+
+测试 `verify-siliconflow.mjs` 使用模拟时间验证迁移屏障、单槽、FIFO、60秒间隔、共享429冷却、错误归属、心跳失联保留及重启持久化。HTTP/浏览器验证另启两个真实假任务子进程，经包装入口确认开始/结束严格串行，无付费API调用。
+
 ## GitHub进度同步
 
 用户已授权有经验证实质进展后提交代码与脱敏进度摘要到既有GitHub远端工作分支；不得提交data、runtime、test-output、.env、凭证、公司材料或敏感原始模型请求。不得force push或擅自合并主分支。推送前执行control.mjs check，同样受明确暂停和截止时间约束。推送成功需核对远端commit；失败保留本地提交并如实记录阻塞，不能把commit当作push成功。

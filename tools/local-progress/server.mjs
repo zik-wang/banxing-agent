@@ -3,7 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {root,config,data,port,base,init,read,write,file,assignment,workerEntries,snapshot} from './core.mjs';
 import {auditConnections} from './connection-audit.mjs';
+import {SiliconflowQueue} from './siliconflow-queue.mjs';
 const credentials=init();
+const sf=new SiliconflowQueue({load:()=>read(path.join(data,'siliconflow-queue.json')),save:s=>write(path.join(data,'siliconflow-queue.json'),s),gapMs:Number(process.env.BOARD_SF_GAP_MS||60000),requiredDrainWorkers:read(path.join(data,'siliconflow-policy.json'),{}).required_drain_workers||[]});
 function send(res,status,obj){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(obj));}
 const server=http.createServer(async(req,res)=>{
  res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
@@ -11,10 +13,12 @@ const server=http.createServer(async(req,res)=>{
  if(req.headers.origin && req.headers.origin!==base && req.headers.origin!==`http://localhost:${port}`)return send(res,403,{error:'invalid origin'});
  try{
   if(req.method==='GET' && req.url==='/health')return send(res,200,{ok:true,pid:process.pid,service:'local-progress',uptime:process.uptime()});
-  if(req.method==='GET' && req.url==='/api/state'){const state=snapshot();state.connection_verification=auditConnections(state);return send(res,200,state);}
+  if(req.method==='GET' && req.url==='/api/state'){const state=snapshot();state.connection_verification=auditConnections(state);state.siliconflow=sf.status();return send(res,200,state);}
+  if(req.method==='GET' && req.url==='/api/siliconflow')return send(res,200,sf.status());
   if(req.method==='GET' && req.url==='/'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'"});return res.end(fs.readFileSync(path.join(root,'index.html')));}
   if(req.method==='GET' && ['/app.js','/style.css'].includes(req.url)){res.writeHead(200,{'Content-Type':req.url.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8'});return res.end(fs.readFileSync(path.join(root,req.url.slice(1))));}
-  if(req.method!=='POST' || !['/api/report','/api/accept'].includes(req.url))return send(res,404,{error:'not found'});
+  const sfAction=req.url?.match(/^\/api\/siliconflow\/(acquire|heartbeat|release|cancel|cooldown|drained)$/)?.[1];
+  if(req.method!=='POST' || (!sfAction&&!['/api/report','/api/accept'].includes(req.url)))return send(res,404,{error:'not found'});
   if(!req.headers['content-type']?.startsWith('application/json'))return send(res,415,{error:'JSON required'});
   let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>16384)return send(res,413,{error:'metadata only, max 16KB'});}
   let body;try{body=JSON.parse(raw);}catch{return send(res,400,{error:'invalid JSON'});}
@@ -26,6 +30,7 @@ const server=http.createServer(async(req,res)=>{
   }
   const w=assignment(body.worker_id);
   if(!w || !token || token!==credentials.workers[body.worker_id])return send(res,403,{error:'unknown worker or invalid credential'});
+  if(sfAction){try{return send(res,200,sf.act(sfAction,body));}catch(e){return send(res,409,{error:e.message});}}
   const stored=read(file(w.worker_id));
   if(body.thread_id!==undefined && (typeof body.thread_id!=='string'||! /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(body.thread_id)))return send(res,400,{error:'invalid thread_id'});
   if(stored?.thread_id && body.thread_id && stored.thread_id!==body.thread_id)return send(res,409,{error:'worker_id already belongs to another chat; choose a distinct worker_id'});

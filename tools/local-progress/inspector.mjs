@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {data,interval,base,init,write,snapshot} from './core.mjs';
-import {requestReview,observeConnectionResults} from './supervision.mjs';
+import {requestReview,observeConnectionResults,observeSiliconflowAdoption} from './supervision.mjs';
 import {auditConnections} from './connection-audit.mjs';
 import {enforceControl} from './control.mjs';
 init();let last=null,next=Date.now();
@@ -21,5 +21,5 @@ async function inspect(){
 }
 async function loop(){try{await inspect();}catch(e){console.error(new Date().toISOString(),e);next=Date.now()+interval;}setTimeout(loop,Math.max(1,next-Date.now()));}
 let observing=false;
-async function observe(){if(observing)return;observing=true;try{await enforceControl();await observeConnectionResults(auditConnections());}catch(e){console.error(new Date().toISOString(),e);}finally{observing=false;}}
+async function observe(){if(observing)return;observing=true;try{await enforceControl();await observeConnectionResults(auditConnections());await observeSiliconflowAdoption();}catch(e){console.error(new Date().toISOString(),e);}finally{observing=false;}}
 setInterval(heartbeat,15000);setInterval(observe,15000);observe();loop();

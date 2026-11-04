@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {SiliconflowQueue} from './siliconflow-queue.mjs';
+let now=100000,saved,allowed=true;const ids=['11111111-1111-1111-1111-111111111111','22222222-2222-2222-2222-222222222222','33333333-3333-3333-3333-333333333333'];
+const q=new SiliconflowQueue({now:()=>now,save:s=>{saved=structuredClone(s)},gapMs:60000,allowed:()=>allowed,requiredDrainWorkers:['worker-01','worker-04']});
+const acquire=(worker_id,request_id)=>q.act('acquire',{worker_id,request_id});
+assert.equal(acquire('worker-01',ids[0]).granted,false);
+q.act('drained',{worker_id:'worker-01'});assert.equal(acquire('worker-01',ids[0]).granted,false);q.act('drained',{worker_id:'worker-04'});
+const a=acquire('worker-01',ids[0]);assert(a.granted);assert.equal(acquire('worker-02',ids[1]).granted,false);
+assert.throws(()=>q.act('release',{worker_id:'worker-02',lease_id:a.lease_id}),/owner/);
+now+=100000;assert.match(q.status().active.freshness,/待核实/);assert.equal(acquire('worker-02',ids[1]).granted,false);
+q.act('release',{worker_id:'worker-01',lease_id:a.lease_id});assert.equal(acquire('worker-02',ids[1]).granted,false);
+now+=60000;const b=acquire('worker-02',ids[1]);assert(b.granted);
+q.act('release',{worker_id:'worker-02',lease_id:b.lease_id,outcome:'rate_limited',retry_after_seconds:180});assert(q.status().cooldown_remaining_ms>=180000);
+assert.equal(acquire('worker-01',ids[2]).granted,false);now+=180000;allowed=false;assert(acquire('worker-01',ids[2]).paused);allowed=true;const c=acquire('worker-01',ids[2]);assert(c.granted);
+const restarted=new SiliconflowQueue({load:()=>saved,now:()=>now,allowed:()=>true});assert.equal(restarted.status().active.worker_id,'worker-01');
+const fair=new SiliconflowQueue({now:()=>now,gapMs:0,allowed:()=>true});const f=fair.act('acquire',{worker_id:'a',request_id:ids[0]});fair.act('acquire',{worker_id:'b',request_id:ids[1]});fair.act('acquire',{worker_id:'c',request_id:ids[2]});fair.act('release',{worker_id:'a',lease_id:f.lease_id});assert.equal(fair.act('acquire',{worker_id:'c',request_id:ids[2]}).granted,false);assert(fair.act('acquire',{worker_id:'b',request_id:ids[1]}).granted);
+console.log('PASS siliconflow: migration drain barrier, single slot, FIFO fairness, 60s gap, shared 429 cooldown, ownership, stale lease retention, pause, restart persistence; zero model calls');

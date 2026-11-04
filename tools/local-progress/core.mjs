@@ -24,10 +24,11 @@ export function snapshot(now=Date.now()){
  const workers=sessions.filter(w=>!w.worker_id.startsWith('demo-'));
  const reports=workers.flatMap(w=>w.reports);
  const acceptance=read(path.join(data,'acceptance.json'),{});
+ const sfQueue=read(path.join(data,'siliconflow-queue.json'));
  const supervision=read(path.join(data,'supervision-status.json'));
  if(supervision?.deliveries&&supervision.cycle_id){supervision.receipts=Object.fromEntries(Object.keys(supervision.deliveries).map(id=>[id,read(path.join(data,'supervision-receipts',supervision.cycle_id,id+'.json'))]));}
  return {generated_at:new Date(now).toISOString(),timezone:config.timezone,stale_ms:stale,interval_ms:interval,
- workers,unclassified:reports.filter(r=>r.task_id==='GENERAL'),supervision,run_control:read(path.join(data,'run-control.json')),budget_authorization:read(path.join(data,'budget-authorization.json')),github_publishing:read(path.join(data,'github-publishing.json')),connection_verification:read(path.join(data,'connection-verification.json')),
+ workers,unclassified:reports.filter(r=>r.task_id==='GENERAL'),supervision,siliconflow_policy:read(path.join(data,'siliconflow-policy.json')),siliconflow_queue:sfQueue?{active_worker:sfQueue.active?.worker_id||null,queued_workers:sfQueue.waiting.map(w=>w.worker_id),next_allowed_at:sfQueue.next_allowed_at}:null,run_control:read(path.join(data,'run-control.json')),budget_authorization:read(path.join(data,'budget-authorization.json')),github_publishing:read(path.join(data,'github-publishing.json')),connection_verification:read(path.join(data,'connection-verification.json')),
  tasks:config.tasks.map(t=>{const ws=reports.filter(w=>w.task_id===t.task_id);return {...t,status:ws.length?'已有上报':'待办',acceptance:acceptance[t.task_id]||{accepted:false},workers:ws};}),
  demo:sessions.filter(w=>w.worker_id.startsWith('demo-')),milestones:config.milestones,inspector:read(path.join(data,'inspector.json'))};
 }

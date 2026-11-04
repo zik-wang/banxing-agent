@@ -1,0 +1,32 @@
+硅基流动共享排队接入规则
+
+这是实际请求/有限任务的全局单槽调度。同一硅基流动账号的同一模型必须共用，即使用不同API Key；官方配额按账号/模型区分。为解决本机当前竞争，先保守地让所有SF任务共用一个槽位，并不声称所有模型共享同一个平台配额。非硅基流动端点不必占用此槽位。
+
+先核实你当前调用的实际端点（不要打印密钥）。让已在途的旧请求自然结束，在新的直接请求开始前接入。当前活跃的worker-01/04/05都需确认不再直连并发；确认前全局保持迁移等待。只有确认你的旧直连请求已经结束且后续调用均接入后，执行：
+node 'D:\pro222\pccr-eye-gaze\local-progress\sf-turn.mjs' drained <本窗口worker_id>
+不能用收到消息代替实际收尾确认。
+
+Node请求入口可导入：
+import {withSiliconflowSlot,reportSiliconflow429} from 'D:/pro222/pccr-eye-gaze/local-progress/sf-turn.mjs';
+const result=await withSiliconflowSlot('worker-04',async()=>{
+  // 在这里调用原已获准的客户端，参数、端点和认证保持原样。
+  // 必须等待原JSON完整读取或SSE流实际结束，才可以返回；不能直接返回未消费的Response。
+  const response=await originalRequest();
+  const parsed=await consumeWholeResponse(response);
+  return {status:response.status,retry_after_seconds:response.headers.get('retry-after'),parsed};
+},{label:'已有案例的一次真实请求'});
+
+Python、CLI等有限单例任务可包装：
+node 'D:\pro222\pccr-eye-gaze\local-progress\sf-turn.mjs' run <本窗口worker_id> -- <原可执行文件绝对路径> <原参数...>
+包装应覆盖单次请求或一个有界案例，不要包永不退出的服务器或整个桌面应用。任务内部也必须串行SF请求，不要持有槽位再嵌套申请另一把槽位。避免把排队等待计入供应商调用耗时；单独保存队列等待，并如实说明比较条件变化，不改写原对照成绩。
+
+所有新SF调用均通过同一入口；等待槽位时可继续离线审查、报告和代码整理。完成后自动释放，默认间隔60秒再运行下一项。FIFO先到先运行。
+若原客户端检测HTTP429但不会向包装脚本返回429，请在实际发生时执行：
+node 'D:\pro222\pccr-eye-gaze\local-progress\sf-turn.mjs' 429 <本窗口worker_id> <Retry-After秒数或60>
+全局会统一冷却并指数退避；不允许各窗口另开自己的并发重试。包装进程可用退出码75表示429。这里不自动重试原请求，避免重复费用和副作用。
+
+查看：node 'D:\pro222\pccr-eye-gaze\local-progress\sf-turn.mjs' status
+租约心跳丢失不会自动抢占，原调用可能还在运行；先核实原调用结束，再由持有者正常释放，不能清空锁碰运气。
+调度只存worker编号、状态与时间，不存请求正文或硅基API密钥。每次授予槽位都检查暂停和截止（2026-11-05 14:00 +08:00），上报和只读工作仍可继续。
+
+接入后用原report.mjs上报当前状态，stage带 SF_QUEUE_READY，说明实际受控入口路径；不能只改环境变量或发个接入消息就声称所有旧进程已受控。
