@@ -9,13 +9,13 @@ export function auditConnections(s=snapshot()){
   if(pending?.cycle_id){
    const cycle=read(path.join(data,'supervision',pending.cycle_id+'.json'));const delivery=cycle?.deliveries?.[w.worker_id];
    const ack=read(path.join(data,'supervision-receipts',pending.cycle_id,w.worker_id+'.json'));
-   if(delivery&&(!enrollment||ack)){
+   if(delivery){
     enrollment={id:pending.cycle_id,requested_at:delivery.queued_at||cycle.created_at};
     receipt=ack?{...ack,progress_reported_at:Date.parse(w.updated_at)>Date.parse(ack.acknowledged_at)?w.updated_at:null,progress_report:Date.parse(w.updated_at)>Date.parse(ack.acknowledged_at)?w.reports[0]:null}:null;
    }
   }
   const report=receipt?.progress_report;
-  const result={worker_id:w.worker_id,id:enrollment?.id||null,thread_bound:!!w.thread_id,acknowledged:!!receipt?.acknowledged_at,progress_reported:!!receipt?.progress_reported_at,status:report?.status||w.status,result_path:report?.result_path||null,verified_at:new Date().toISOString()};
+  const result={worker_id:w.worker_id,id:enrollment?.id||null,thread_bound:!!w.thread_id,acknowledged:!!receipt?.acknowledged_at,progress_reported:!!receipt?.progress_reported_at,status:report?.status||w.status,blocker:w.blocker||'',result_path:report?.result_path||null,verified_at:new Date().toISOString()};
   if(result.result_path){
    const resolved=path.resolve(result.result_path);
    if(resolved.toLowerCase().startsWith(workspace.toLowerCase()+path.sep)){

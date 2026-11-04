@@ -45,7 +45,7 @@ const server=http.createServer(async(req,res)=>{
   const entries=workerEntries(w.worker_id);for(const report of reports)entries[report.task_id]=report;
   fs.mkdirSync(path.join(data,'events'),{recursive:true});fs.appendFileSync(path.join(data,'events',new Date().toISOString().slice(0,10)+'.jsonl'),reports.map(r=>JSON.stringify(r)).join('\n')+'\n');write(file(w.worker_id),{worker_id:w.worker_id,thread_id:stored?.thread_id||body.thread_id||null,entries});
   const ack=body.stage.match(/AFK_ACK:([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})/i);
-  if(ack){const cycle=read(path.join(data,'supervision',ack[1]+'.json'));if(cycle?.deliveries?.[w.worker_id]&&cycle.workers.some(x=>x.worker_id===w.worker_id&&x.thread_id===(stored?.thread_id||body.thread_id))){write(path.join(data,'supervision-receipts',ack[1],w.worker_id+'.json'),{worker_id:w.worker_id,cycle_id:ack[1],acknowledged_at:new Date().toISOString(),message:'worker 已主动回执；具体执行与完成以真实上报为准'});}}
+  if(ack){const cycle=read(path.join(data,'supervision',ack[1]+'.json'));if(cycle?.deliveries?.[w.worker_id]&&cycle.workers.some(x=>x.worker_id===w.worker_id&&x.thread_id===(stored?.thread_id||body.thread_id))){const ackPath=path.join(data,'supervision-receipts',ack[1],w.worker_id+'.json');if(!read(ackPath))write(ackPath,{worker_id:w.worker_id,cycle_id:ack[1],acknowledged_at:new Date().toISOString(),message:'worker 已主动回执；具体执行与完成以真实上报为准'});}}
   const connection=body.stage.match(/AFK_CONNECT_(ACK|PROGRESS):([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})/i);
   if(connection){
    const enrollment=read(path.join(data,'onboarding',w.worker_id+'.json'));

@@ -26,5 +26,12 @@ await requestReview(s,async()=>{throw Error('test transport unavailable');});ass
 await requestReview(s,fake);assert.equal(count,2);
 const observation={workers:[{worker_id:'worker-01',id:'probe',verification:'消息入队，未收到回执'}]};await observeConnectionResults(observation,fake);assert.equal(count,2);
 observation.workers[0].verification='已核对回执及本轮新产物路径';await observeConnectionResults(observation,fake);assert.equal(count,3);await observeConnectionResults(observation,fake);assert.equal(count,3);
+observation.workers[0].verification='消息入队，未收到回执';await observeConnectionResults(observation,fake);observation.workers[0].verification='已核对回执及本轮新产物路径';await observeConnectionResults(observation,fake);assert.equal(count,3);
+observation.workers[0].id='new-round';await observeConnectionResults(observation,fake);assert.equal(count,4);
+observation.workers[0].status='blocked';observation.workers[0].acknowledged=true;observation.workers[0].blocker='TPM';await observeConnectionResults(observation,fake);assert.equal(count,5);await observeConnectionResults(observation,fake);assert.equal(count,5);
+const {auditConnections}=await import('./connection-audit.mjs');
+const current='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+write(path.join(data,'supervision',current+'.json'),{created_at:new Date().toISOString(),deliveries:{'worker-01':{queued_at:new Date().toISOString()}}});write(path.join(data,'supervision-pending','worker-01.json'),{cycle_id:current});
+const audited=auditConnections({workers:[{worker_id:'worker-01',thread_id:worker,status:'running',onboarding:{id:'old-round',requested_at:'2020-01-01T00:00:00Z'},onboarding_receipt:{acknowledged_at:'2020-01-01T00:00:00Z',progress_reported_at:'2020-01-01T00:00:01Z',progress_report:{status:'done',result_path:'old-file'}},reports:[]}]});assert.equal(audited.workers[0].id,current);assert.equal(audited.workers[0].acknowledged,false);assert.equal(audited.workers[0].result_path,null);
 fs.writeFileSync(path.join(data,'verification.json'),JSON.stringify({at:new Date().toISOString(),passed:['未绑定不派发','审查请求不叠加','按绑定向对应窗口投递','每轮每窗口最多一条','入队仍待回执','未回执窗口跨轮不重复派发','明确完成审查','投递不确定停止自动重试','后台观察仅在新的真实阶段结果时通知一次'],fake_transport:true},null,2));
 console.log('PASS supervision control flow (fake transport, no real chat messages): '+testdir);

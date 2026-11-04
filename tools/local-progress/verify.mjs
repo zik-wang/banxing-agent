@@ -35,6 +35,9 @@ try{
  const ackCycle='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';fs.mkdirSync(path.join(env.BOARD_DATA,'supervision'),{recursive:true});fs.writeFileSync(path.join(env.BOARD_DATA,'supervision',ackCycle+'.json'),JSON.stringify({workers:[{worker_id:'worker-01',thread_id:thread}],deliveries:{'worker-01':{status:'queued_pending_worker_ack'}}}));
  assert((await report('worker-01','已实际核实并开始 AFK_ACK:'+ackCycle,{task_id:'GENERAL',thread_id:thread})).ok);
  check('只有绑定worker的明确回执才记录收到，不把入队当执行完成',()=>{const receipt=JSON.parse(fs.readFileSync(path.join(env.BOARD_DATA,'supervision-receipts',ackCycle,'worker-01.json'),'utf8'));assert(receipt.acknowledged_at);});
+ const firstAck=JSON.parse(fs.readFileSync(path.join(env.BOARD_DATA,'supervision-receipts',ackCycle,'worker-01.json'),'utf8')).acknowledged_at;
+ await delay(15);assert((await report('worker-01','后续结果 AFK_ACK:'+ackCycle,{task_id:'GENERAL',thread_id:thread})).ok);
+ check('重复回执保留首次收到时间，不把后续结果退回刚开始',()=>assert.equal(JSON.parse(fs.readFileSync(path.join(env.BOARD_DATA,'supervision-receipts',ackCycle,'worker-01.json'),'utf8')).acknowledged_at,firstAck));
  fs.mkdirSync(path.join(env.BOARD_DATA,'onboarding'),{recursive:true});fs.writeFileSync(path.join(env.BOARD_DATA,'onboarding','worker-01.json'),JSON.stringify({id:ackCycle,thread_id:thread,requested_at:new Date().toISOString()}));
  assert((await report('worker-01','收到接入 AFK_CONNECT_ACK:'+ackCycle,{task_id:'GENERAL',thread_id:thread})).ok);
  assert((await report('worker-01','完成有限步骤 AFK_CONNECT_PROGRESS:'+ackCycle,{task_id:'GENERAL',thread_id:thread,status:'done'})).ok);

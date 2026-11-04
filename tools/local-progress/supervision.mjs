@@ -23,12 +23,20 @@ export async function observeConnectionResults(audit,deliver=queue){
  const cfg=read(path.join(data,'supervisor-config.json'),{});if(!cfg.enabled)return;
  const p=path.join(data,'connection-watch-state.json');const old=read(p);
  const phases=Object.fromEntries(audit.workers.map(w=>[w.worker_id,{id:w.id,phase:w.verification}]));
- if(!old){write(p,{phases,initialized_at:new Date().toISOString(),notifications:[]});return;}
- const changes=audit.workers.filter(w=>(w.verification==='已核对回执及本轮新产物路径'||(w.acknowledged&&w.status==='blocked'))&&(old.phases?.[w.worker_id]?.id!==w.id||old.phases?.[w.worker_id]?.phase!==w.verification));
- old.phases=phases;old.checked_at=new Date().toISOString();write(p,old);
+ const events=audit.workers.flatMap(w=>{
+  const result=[];
+  if(w.verification==='已核对回执及本轮新产物路径')result.push({worker:w,key:JSON.stringify([w.worker_id,w.id,'artifact',w.result_path,w.modified_at,w.bytes]),label:'已核对本轮新产物路径'});
+  if(w.acknowledged&&w.status==='blocked')result.push({worker:w,key:JSON.stringify([w.worker_id,w.id,'blocked',w.blocker||'未详述']),label:'上报阻塞：'+(w.blocker||'原因待核实')});
+  return result;
+ });
+ // On first start or migration, seed current evidence without repeating old notifications.
+ if(!old||!Array.isArray(old.seen_events)){write(p,{...old,phases,seen_events:events.map(e=>e.key),initialized_at:old?.initialized_at||new Date().toISOString(),notifications:old?.notifications||[]});return;}
+ const seen=new Set(old.seen_events);const changes=events.filter(e=>!seen.has(e.key));
+ for(const e of changes)seen.add(e.key);
+ old.seen_events=[...seen];old.phases=phases;old.checked_at=new Date().toISOString();write(p,old);
  if(!changes.length)return;
- const message=`AFK_CONNECTION_VERIFICATION_CHANGE\n本地独立观察发现新的真实阶段结果：${changes.map(w=>w.worker_id+' '+w.verification).join('；')}。请运行 node '${path.join(root,'connection-audit.mjs')}' 核对回执、产物路径存在性及本轮修改时间，并向用户更新实际验证结果。不要重复派发已投递建议，不把文件存在当内容质量或用户验收，不读取敏感材料正文。这是一次有限验证通知。`;
- const notification={at:new Date().toISOString(),workers:changes.map(w=>w.worker_id),status:'queuing'};old.notifications.push(notification);write(p,old);
+ const message=`AFK_CONNECTION_VERIFICATION_CHANGE\n本地独立观察发现需要核实的变化：${changes.map(e=>e.worker.worker_id+' '+e.label).join('；')}。请运行 node '${path.join(root,'connection-audit.mjs')}' 核对当前轮次、回执和产物文件元数据；阻塞不代表产物完成。仅更新实际新事实，不重复派发已投递建议，不把文件存在当内容质量或用户验收，不读取敏感材料正文。这是一次有限验证通知。`;
+ const notification={at:new Date().toISOString(),workers:[...new Set(changes.map(e=>e.worker.worker_id))],events:changes.map(e=>e.key),status:'queuing'};old.notifications.push(notification);write(p,old);
  try{Object.assign(notification,await deliver(cfg.thread_id,message),{status:'queued_pending_supervisor'});}catch(e){notification.status='uncertain';notification.error=e.message;}write(p,old);
 }
 export async function requestReview(s,deliver=queue){
