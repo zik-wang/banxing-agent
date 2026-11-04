@@ -1,0 +1,28 @@
+{
+  "scope": "source-code-only snapshot, no runtime state or credentials",
+  "capturedFrom": "existing local-progress implementations",
+  "files": [
+    {
+      "file": "sf-turn.mjs",
+      "sha256": "029df001e169b20ba3ec5fabff78f76c142b2f93dd9f9ea5fb69a2a3552a5e58",
+      "rawCapturedSha256": "029df001e169b20ba3ec5fabff78f76c142b2f93dd9f9ea5fb69a2a3552a5e58"
+    },
+    {
+      "file": "siliconflow-queue.mjs",
+      "sha256": "18f95f3df16112d26e55641e1d4a888191cfe3621215da09ed03b58612bc20d0",
+      "rawCapturedSha256": "18f95f3df16112d26e55641e1d4a888191cfe3621215da09ed03b58612bc20d0"
+    },
+    {
+      "file": "core.mjs",
+      "sha256": "031476ff8e2a1b567092dca5112e5e8c4391bee4f7253345e9e0db904c0af675",
+      "rawCapturedSha256": "031476ff8e2a1b567092dca5112e5e8c4391bee4f7253345e9e0db904c0af675"
+    },
+    {
+      "file": "control.mjs",
+      "sha256": "1206146ce3b7631c6fbbef5341c778bf0f19fb19bbd342895e574c108af1303c",
+      "rawCapturedSha256": "1206146ce3b7631c6fbbef5341c778bf0f19fb19bbd342895e574c108af1303c"
+    }
+  ],
+  "config": "minimal synthetic fixture, not production config",
+  "normalization": "UTF-8 source, CRLF normalized to LF"
+}

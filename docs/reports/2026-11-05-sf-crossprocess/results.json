@@ -1,0 +1,308 @@
+{
+  "scope": "real cross-process scheduler + mock upstream",
+  "baseCommit": "04097bc3e22f15f186c9906464abe6f70357c1e1",
+  "tests": {
+    "passed": 134,
+    "failed": 0,
+    "skipped": 0,
+    "crossProcessCases": 6,
+    "fullProjectRegression": false
+  },
+  "cases": [
+    {
+      "case": "429",
+      "realClientProcesses": 2,
+      "actualSfBranch": true,
+      "sourceUrl": "https://api.siliconflow.cn/v1/chat/completions",
+      "grants": 2,
+      "upstreamStarts": 2,
+      "maximumUpstreamConcurrency": 1,
+      "completeBodies": 2,
+      "releases": 2,
+      "clientDispatchCounts": [
+        1,
+        1
+      ],
+      "clientSuccessfulResults": [
+        false,
+        true
+      ],
+      "timings": [
+        {
+          "worker": "worker-02",
+          "attempts": 1,
+          "providerTiming": {
+            "queueWaitMs": 32.26429999999999,
+            "supplierRequestMs": 460.7799,
+            "bodyFullyConsumed": true,
+            "httpStatus": 429
+          },
+          "networkRequestAttempted": true
+        },
+        {
+          "worker": "worker-03",
+          "attempts": 1,
+          "providerTiming": {
+            "queueWaitMs": 461.1106,
+            "supplierRequestMs": 29.470899999999915,
+            "bodyFullyConsumed": true,
+            "httpStatus": 200
+          },
+          "networkRequestAttempted": true
+        }
+      ],
+      "observedCooldownMs": 119963,
+      "retryAfterSeconds": 120,
+      "testClockAdvanceMs": 120100
+    },
+    {
+      "case": "deadline",
+      "realClientProcesses": 2,
+      "actualSfBranch": true,
+      "sourceUrl": "https://api.siliconflow.cn/v1/chat/completions",
+      "grants": 1,
+      "upstreamStarts": 1,
+      "maximumUpstreamConcurrency": 1,
+      "completeBodies": 1,
+      "releases": 1,
+      "clientDispatchCounts": [
+        1,
+        0
+      ],
+      "clientSuccessfulResults": [
+        true,
+        false
+      ],
+      "timings": [
+        {
+          "worker": "worker-02",
+          "attempts": 1,
+          "providerTiming": {
+            "queueWaitMs": 30.760299999999994,
+            "supplierRequestMs": 1007.5358000000001,
+            "bodyFullyConsumed": true,
+            "httpStatus": 200
+          },
+          "networkRequestAttempted": true
+        },
+        {
+          "worker": "worker-03",
+          "attempts": 1,
+          "providerTiming": null,
+          "networkRequestAttempted": false
+        }
+      ]
+    },
+    {
+      "case": "disconnect",
+      "realClientProcesses": 2,
+      "actualSfBranch": true,
+      "sourceUrl": "https://api.siliconflow.cn/v1/chat/completions",
+      "grants": 1,
+      "upstreamStarts": 1,
+      "maximumUpstreamConcurrency": 1,
+      "completeBodies": 0,
+      "releases": 0,
+      "clientDispatchCounts": [
+        1,
+        0
+      ],
+      "clientSuccessfulResults": [
+        false,
+        false
+      ],
+      "timings": [
+        {
+          "worker": "worker-02",
+          "attempts": 1,
+          "providerTiming": {
+            "queueWaitMs": 30.339500000000008,
+            "supplierRequestMs": 463.2009,
+            "bodyFullyConsumed": false,
+            "httpStatus": 200
+          },
+          "networkRequestAttempted": true
+        },
+        {
+          "worker": "worker-03",
+          "attempts": 1,
+          "providerTiming": null,
+          "networkRequestAttempted": false
+        }
+      ],
+      "uncertainLeaseRetained": true,
+      "staleStatus": "状态待核实（保留占用，禁止自动抢占）",
+      "noLeaseCleared": true
+    },
+    {
+      "case": "json",
+      "realClientProcesses": 2,
+      "actualSfBranch": true,
+      "sourceUrl": "https://api.siliconflow.cn/v1/chat/completions",
+      "grants": 2,
+      "upstreamStarts": 2,
+      "maximumUpstreamConcurrency": 1,
+      "completeBodies": 2,
+      "releases": 2,
+      "clientDispatchCounts": [
+        1,
+        1
+      ],
+      "clientSuccessfulResults": [
+        true,
+        true
+      ],
+      "timings": [
+        {
+          "worker": "worker-02",
+          "attempts": 1,
+          "providerTiming": {
+            "queueWaitMs": 30.384700000000002,
+            "supplierRequestMs": 471.80879999999996,
+            "bodyFullyConsumed": true,
+            "httpStatus": 200
+          },
+          "networkRequestAttempted": true
+        },
+        {
+          "worker": "worker-03",
+          "attempts": 1,
+          "providerTiming": {
+            "queueWaitMs": 313.3696,
+            "supplierRequestMs": 457.79220000000004,
+            "bodyFullyConsumed": true,
+            "httpStatus": 200
+          },
+          "networkRequestAttempted": true
+        }
+      ]
+    },
+    {
+      "case": "pause",
+      "realClientProcesses": 2,
+      "actualSfBranch": true,
+      "sourceUrl": "https://api.siliconflow.cn/v1/chat/completions",
+      "grants": 1,
+      "upstreamStarts": 1,
+      "maximumUpstreamConcurrency": 1,
+      "completeBodies": 1,
+      "releases": 1,
+      "clientDispatchCounts": [
+        1,
+        0
+      ],
+      "clientSuccessfulResults": [
+        true,
+        false
+      ],
+      "timings": [
+        {
+          "worker": "worker-02",
+          "attempts": 1,
+          "providerTiming": {
+            "queueWaitMs": 31.260299999999994,
+            "supplierRequestMs": 1016.6055000000001,
+            "bodyFullyConsumed": true,
+            "httpStatus": 200
+          },
+          "networkRequestAttempted": true
+        },
+        {
+          "worker": "worker-03",
+          "attempts": 1,
+          "providerTiming": null,
+          "networkRequestAttempted": false
+        }
+      ]
+    },
+    {
+      "case": "sse",
+      "realClientProcesses": 2,
+      "actualSfBranch": true,
+      "sourceUrl": "https://api.siliconflow.cn/v1/chat/completions",
+      "grants": 2,
+      "upstreamStarts": 2,
+      "maximumUpstreamConcurrency": 1,
+      "completeBodies": 2,
+      "releases": 2,
+      "clientDispatchCounts": [
+        1,
+        1
+      ],
+      "clientSuccessfulResults": [
+        true,
+        true
+      ],
+      "timings": [
+        {
+          "worker": "worker-02",
+          "attempts": 1,
+          "providerTiming": {
+            "queueWaitMs": 34.059,
+            "supplierRequestMs": 462.91639999999995,
+            "bodyFullyConsumed": true,
+            "httpStatus": 200
+          },
+          "networkRequestAttempted": true
+        },
+        {
+          "worker": "worker-03",
+          "attempts": 1,
+          "providerTiming": {
+            "queueWaitMs": 359.9174,
+            "supplierRequestMs": 466.67539999999997,
+            "bodyFullyConsumed": true,
+            "httpStatus": 200
+          },
+          "networkRequestAttempted": true
+        }
+      ]
+    }
+  ],
+  "sourceIdentity": {
+    "scope": "source-code-only snapshot, no runtime state or credentials",
+    "capturedFrom": "existing local-progress implementations",
+    "files": [
+      {
+        "file": "sf-turn.mjs",
+        "sha256": "029df001e169b20ba3ec5fabff78f76c142b2f93dd9f9ea5fb69a2a3552a5e58",
+        "rawCapturedSha256": "029df001e169b20ba3ec5fabff78f76c142b2f93dd9f9ea5fb69a2a3552a5e58"
+      },
+      {
+        "file": "siliconflow-queue.mjs",
+        "sha256": "18f95f3df16112d26e55641e1d4a888191cfe3621215da09ed03b58612bc20d0",
+        "rawCapturedSha256": "18f95f3df16112d26e55641e1d4a888191cfe3621215da09ed03b58612bc20d0"
+      },
+      {
+        "file": "core.mjs",
+        "sha256": "031476ff8e2a1b567092dca5112e5e8c4391bee4f7253345e9e0db904c0af675",
+        "rawCapturedSha256": "031476ff8e2a1b567092dca5112e5e8c4391bee4f7253345e9e0db904c0af675"
+      },
+      {
+        "file": "control.mjs",
+        "sha256": "1206146ce3b7631c6fbbef5341c778bf0f19fb19bbd342895e574c108af1303c",
+        "rawCapturedSha256": "1206146ce3b7631c6fbbef5341c778bf0f19fb19bbd342895e574c108af1303c"
+      }
+    ],
+    "config": "minimal synthetic fixture, not production config",
+    "normalization": "UTF-8 source, CRLF normalized to LF"
+  },
+  "testSettings": {
+    "isolatedBoardData": true,
+    "independentLoopbackPorts": true,
+    "freshTestCredentials": true,
+    "gapMs": 20,
+    "pollMs": 25,
+    "productionGapMsUnchanged": 60000,
+    "clockAdvances": [
+      120100,
+      100000
+    ]
+  },
+  "actualSfUpstreamRequests": 0,
+  "productionSlotAcquisitions": 0,
+  "productionRestarted": false,
+  "productionCodeChangedThisCommit": false,
+  "oldT2ResultsChanged": false,
+  "independentQAComplete": false
+}

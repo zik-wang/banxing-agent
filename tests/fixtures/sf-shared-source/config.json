@@ -1,0 +1,17 @@
+{
+  "timezone": "Asia/Shanghai",
+  "port": 1,
+  "interval_ms": 60000,
+  "stale_ms": 90000,
+  "workers": [
+    {
+      "worker_id": "worker-02"
+    },
+    {
+      "worker_id": "worker-03"
+    }
+  ],
+  "legacy_workers": [],
+  "tasks": [],
+  "milestones": []
+}
