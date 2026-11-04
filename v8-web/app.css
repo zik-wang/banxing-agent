@@ -402,3 +402,12 @@ body.product-ui .model-service-notice strong{display:block;font-size:14px;margin
 html,body{height:100%;overflow:hidden}
 #chat-main{scroll-behavior:auto;overscroll-behavior-y:contain;overflow-anchor:none}
 #conversation .technical-receipt pre,#conversation .run-failure-details pre,#conversation .trace-content,#conversation .user-decision fieldset{max-height:none;overflow:visible}
+
+/* Compact composer: keep model/workspace information in their existing navigation. */
+body.product-ui #current-result{padding:2px 10px;margin:0 2px 4px;gap:2px 10px;line-height:1.5}
+body.product-ui #current-result button{min-height:28px;padding:2px 0;line-height:1.5}
+body.product-ui #materials-panel{margin:0 2px 4px;line-height:1.5}
+body.product-ui #materials-panel summary{min-height:28px;padding:4px 0;line-height:1.5}
+@media(pointer:coarse){
+ body.product-ui #current-result button,body.product-ui #materials-panel summary{min-height:44px}
+}
