@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import net from 'node:net';
 import {WorkspaceExecution} from '../v8-tools/workspace-execution.mjs';import {DocumentTools} from '../v8-tools/document-tools.mjs';import {DocumentExtras} from '../v8-tools/document-extras.mjs';import {TextTools} from '../v8-tools/text-tools.mjs';import {DeliveryTools} from '../v8-tools/delivery-tools.mjs';
 import {ResultTools} from '../v8-tools/result-tools.mjs';
+import {createHash} from 'node:crypto';
 const python=process.env.V8_PYTHON||'C:/Users/31125/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe';
 const codex=process.env.BX_CODEX_EXE||'C:/Users/31125/AppData/Local/OpenAI/Codex/bin/b6c7fc9497179c98/codex.exe';
 const powershell=process.env.BX_POWERSHELL;
@@ -20,7 +21,13 @@ test('host paths, inputs, control configuration, junctions and hardlinks cannot 
  assert.equal(fs.readFileSync(x.original,'utf8'),'原文 0.1 + 0.2');
 });
 test('requests prohibiting code execution do not expose a general command tool',t=>{
- const x=setup(t,'修复源码，不要运行代码，不要创建PR。');assert.equal(x.workspace.commandsAllowed,false);assert.equal(x.workspace.tools().some(t=>t.name==='workspace_run'),false);
+ for(const request of ['修复源码，不要运行代码，不要创建PR。','只做静态分析，不执行代码。']){const x=setup(t,request);assert.equal(x.workspace.commandsAllowed,false);assert.equal(x.workspace.tools().some(t=>t.name==='workspace_run'),false);}
+});
+test('newly selected workspace inputs are staged only after current resource authorization',t=>{
+ const x=setup(t),file=path.join(x.root,'selected.txt');fs.writeFileSync(file,'authorized later');const id='later-source',a={id,sourceId:id,name:'selected.txt',path:file,sha256:createHash('sha256').update('authorized later').digest('hex'),resourceRef:{resourceId:'r'}};x.docs.assets.set(id,a);
+ let allowed=false;x.docs.continuity={allowed:()=>{if(!allowed)throw Object.assign(Error('excluded'),{code:'RESOURCE_EXCLUDED_IN_CONVERSATION'});}};
+ assert.throws(()=>x.workspace.files(),{code:'RESOURCE_EXCLUDED_IN_CONVERSATION'});assert.equal(x.workspace.sources.some(s=>s.assetId===id),false);allowed=true;
+ const staged=x.workspace.files().sources.find(s=>s.assetId===id);assert.ok(staged);assert.equal(x.workspace.read({file:staged.path}).text,'authorized later');allowed=false;assert.throws(()=>x.workspace.read({file:staged.path}),{code:'RESOURCE_EXCLUDED_IN_CONVERSATION'});
 });
 test('private local-only audio policy cannot be bypassed by a general execution workspace',t=>{
  const x=setup(t);x.docs.privateAudioMetadataOnly=true;assert.throws(()=>new WorkspaceExecution(x.docs,x.extras,{},x.config),{code:'LOCAL_ONLY_EXECUTION'});
@@ -45,8 +52,8 @@ test('native sandbox blocks staged-input writes, host canary reads/writes, loopb
  const server=net.createServer(s=>s.end('reachable-on-host'));await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>server.close());
  process.env.BX_FAKE_API_KEY='not-a-real-secret';t.after(()=>delete process.env.BX_FAKE_API_KEY);
  const input=x.workspace.sources[0].path;
- const code=`import pathlib,json,os,socket\nr={}\nfor key,p,write in [('read_input',${JSON.stringify('../'+input)},False),('write_input',${JSON.stringify('../'+input)},True),('read_host',${JSON.stringify(canary)},False),('write_host',${JSON.stringify(path.join(x.root,'outside.txt'))},True)]:\n try:\n  p=pathlib.Path(p); p.write_text('bad') if write else p.read_text(encoding='utf8');r[key]=True\n except Exception:r[key]=False\ntry:\n s=socket.create_connection(('127.0.0.1',${server.address().port}),timeout=2);s.close();r['loopback']=True\nexcept Exception:r['loopback']=False\nr['inherited_secret']=os.getenv('BX_FAKE_API_KEY')\nprint(json.dumps(r))`;
- const r=await x.workspace.run({language:'python',code});assert.equal(r.exitCode,0,r.stderr);assert.deepEqual(JSON.parse(r.stdout),{read_input:true,write_input:false,read_host:false,write_host:false,loopback:false,inherited_secret:null});assert.equal(fs.existsSync(path.join(x.root,'outside.txt')),false);
+ const code=`import pathlib,json,os,socket\nr={}\nfor key,p,write in [('read_input',${JSON.stringify('../'+input)},False),('write_input',${JSON.stringify('../'+input)},True),('read_host',${JSON.stringify(canary)},False),('write_host',${JSON.stringify(path.join(x.root,'outside.txt'))},True),('write_control',${JSON.stringify(path.join(x.workspace.home,'config.toml'))},True)]:\n try:\n  p=pathlib.Path(p); p.write_text('bad') if write else p.read_text(encoding='utf8');r[key]=True\n except Exception:r[key]=False\ntry:\n s=socket.create_connection(('127.0.0.1',${server.address().port}),timeout=2);s.close();r['loopback']=True\nexcept Exception:r['loopback']=False\nr['inherited_secret']=os.getenv('BX_FAKE_API_KEY')\nprint(json.dumps(r))`;
+ const r=await x.workspace.run({language:'python',code});assert.equal(r.exitCode,0,r.stderr);assert.deepEqual(JSON.parse(r.stdout),{read_input:true,write_input:false,read_host:false,write_host:false,write_control:false,loopback:false,inherited_secret:null});assert.equal(fs.existsSync(path.join(x.root,'outside.txt')),false);
 });
 test('native command timeout kills its spawned process tree',{skip:!native},async t=>{
  const x=setup(t);const late=path.join(x.workspace.work,'outputs/late.txt');

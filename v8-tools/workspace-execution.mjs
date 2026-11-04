@@ -13,12 +13,12 @@ export class WorkspaceExecution{
   for(const key of ['codexExecutable','pythonExecutable','powershellExecutable'])if(!path.isAbsolute(this.config[key]||'')||!fs.existsSync(this.config[key]))throw new ToolError('WORKSPACE_BACKEND_UNAVAILABLE','Host executable missing: '+key);
   this.root=path.join(docs.directory,'command-workspace');this.work=path.join(this.root,'work');this.inputs=path.join(this.root,'inputs');this.home=path.join(this.root,'control','home');
   for(const folder of [this.work,this.inputs,this.home,path.join(this.work,'scripts'),path.join(this.work,'outputs'),path.join(this.work,'temp')])fs.mkdirSync(folder,{recursive:true});
-  this.sources=[];for(const a of docs.assets.values())if(a.id===a.sourceId){const name=a.id+'-'+path.basename(a.name).replace(/[<>:"/\\|?*\x00-\x1f]/g,'_'),target=path.join(this.inputs,name),bytes=fs.readFileSync(docs.asset(a.id).path);if(fs.existsSync(target)){if(sha(fs.readFileSync(target))!==a.sha256)throw new ToolError('WORKSPACE_INPUT_CHANGED','Staged input changed');}else fs.writeFileSync(target,bytes,{flag:'wx'});this.sources.push({assetId:a.id,name:a.name,path:'inputs/'+name,sha256:a.sha256});}
-  this.commandsAllowed=!/(?:不要|不得|禁止|不能|不允许).{0,8}(?:运行|执行).{0,8}(?:代码|源码)/u.test(docs.request||'');
+  this.sources=[];this.syncInputs();
+  this.commandsAllowed=!String(docs.request||'').split(/[，,。；;\n]/u).some(c=>/(?:不要|不得|禁止|不能|不允许|无需|不).{0,8}(?:运行|执行).{0,8}(?:代码|源码)/u.test(c));
   const roots=[path.dirname(this.config.pythonExecutable),path.dirname(this.config.powershellExecutable),...(this.config.readOnlyRuntimeRoots||[])].map(p=>fs.realpathSync(p));
-  const grants={':minimal':'read',[this.work]:'write',[this.inputs]:'read',...Object.fromEntries(roots.map(p=>[p,'read']))};
+  const grants={':minimal':'read',[this.work]:'write',[this.inputs]:'read',...Object.fromEntries(roots.map(p=>[p,'read'])),[path.join(this.root,'control')]:'deny'};
   // A fresh, credential-free CLI home: never inherit a user's Codex auth/config.
-  fs.writeFileSync(path.join(this.home,'config.toml'),'[windows]\nsandbox="mxc"\n[permissions.banxing.filesystem]\n'+Object.entries(grants).map(([p,a])=>JSON.stringify(p)+'='+JSON.stringify(a)).join('\n')+'\n[permissions.banxing.network]\nenabled=false\n');
+  this.policyText='[windows]\nsandbox="mxc"\n[permissions.banxing.filesystem]\n'+Object.entries(grants).map(([p,a])=>JSON.stringify(p)+'='+JSON.stringify(a)).join('\n')+'\n[permissions.banxing.network]\nenabled=false\n';fs.writeFileSync(path.join(this.home,'config.toml'),this.policyText);
   this.invocations=[];
  }
  safe(relative,{write=false}={}){
@@ -28,8 +28,13 @@ export class WorkspaceExecution{
   let part=this.root;for(const segment of path.relative(this.root,file).split(path.sep)){part=path.join(part,segment);let stat;try{stat=fs.lstatSync(part);}catch(e){if(e.code!=='ENOENT')throw e;}if(stat&&(stat.isSymbolicLink()||stat.isFile()&&stat.nlink>1))throw new ToolError('WORKSPACE_LINK_DENIED','Workspace links, junctions and hardlinks are not exposed to host file tools');}
   return file;
  }
- verifyInputs(){if(this.docs.privateAudioMetadataOnly)throw new ToolError('LOCAL_ONLY_EXECUTION','Local-only content is not available through the general workspace');for(const s of this.sources){this.docs.asset(s.assetId);if(sha(fs.readFileSync(this.safe(s.path)))!==s.sha256)throw new ToolError('WORKSPACE_INPUT_CHANGED','Staged input changed');}}
+ syncInputs(){
+  if(this.docs.privateAudioMetadataOnly)throw new ToolError('LOCAL_ONLY_EXECUTION','Local-only content is not available through the general workspace');
+  for(const a of this.docs.assets.values())if(a.id===a.sourceId){if(a.resourceRef)this.docs.continuity?.allowed(a.resourceRef);const actual=this.docs.asset(a.id),existing=this.sources.find(s=>s.assetId===a.id);if(existing){if(existing.sha256!==actual.sha256)throw new ToolError('WORKSPACE_INPUT_CHANGED','Registered source version changed');continue;}const name=String(a.id).replace(/[^a-zA-Z0-9_-]/g,'_')+'-'+path.basename(a.name).replace(/[<>:"/\\|?*\x00-\x1f]/g,'_'),target=path.join(this.inputs,name),bytes=fs.readFileSync(actual.path);if(fs.existsSync(target)){if(sha(fs.readFileSync(target))!==a.sha256)throw new ToolError('WORKSPACE_INPUT_CHANGED','Staged input changed');}else fs.writeFileSync(target,bytes,{flag:'wx'});this.sources.push({assetId:a.id,name:a.name,path:'inputs/'+name,sha256:a.sha256});}
+ }
+ verifyInputs(){this.syncInputs();for(const s of this.sources){const a=this.docs.asset(s.assetId);if(a.resourceRef)this.docs.continuity?.allowed(a.resourceRef);if(sha(fs.readFileSync(this.safe(s.path)))!==s.sha256)throw new ToolError('WORKSPACE_INPUT_CHANGED','Staged input changed');}}
  files({include_inputs=true}={}){
+  this.verifyInputs();
   const files=[];const walk=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isSymbolicLink())continue;if(entry.isDirectory()){if(files.length<300)walk(file);}else if(files.length<300)files.push({path:path.relative(this.root,file).replaceAll('\\','/'),bytes:fs.statSync(file).size});}};walk(this.work);
   return{sources:include_inputs?this.sources:[],files,commandsAllowed:this.commandsAllowed,network:'disabled',backend:'codex-mxc',workspace:'work/',outputs:'work/outputs/',contentVerified:false};
  }
@@ -38,6 +43,7 @@ export class WorkspaceExecution{
  async run({language,code,timeout_seconds=45},{signal}={}){
   if(!this.commandsAllowed)throw new ToolError('WORKSPACE_EXECUTION_FORBIDDEN','This request prohibits executing code; use the static source tools');
   this.verifyInputs();const id=randomUUID(),script=path.join(this.work,'scripts',id+(language==='python'?'.py':'.ps1'));fs.writeFileSync(script,code,{flag:'wx'});
+  fs.writeFileSync(path.join(this.home,'config.toml'),this.policyText);
   const executable=language==='python'?this.config.pythonExecutable:this.config.powershellExecutable;
   const argv=language==='python'?['-I','-B','-X','utf8',script]:['-NoLogo','-NoProfile','-NonInteractive','-File',script];
   const env=Object.fromEntries(['SystemRoot','WINDIR','COMSPEC','USERPROFILE','LOCALAPPDATA','APPDATA','OS','PROCESSOR_ARCHITECTURE','PATHEXT'].filter(k=>process.env[k]).map(k=>[k,process.env[k]]));

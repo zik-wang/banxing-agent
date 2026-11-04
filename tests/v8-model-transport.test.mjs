@@ -194,6 +194,28 @@ test('HTTP errors, malformed output, model truncation and unknown errors are not
   });
 });
 
+test('SiliconFlow root-shaped balance errors preserve redacted diagnostics and stop without retry', async t => {
+  const directory = fixture(t), key = 'sk-fixture-balance-secret';
+  let calls = 0;
+  const api = apiWith(async () => {
+    calls++;
+    return new Response(JSON.stringify({code: 30001, message: 'Sorry, your account balance is insufficient ' + key, data: null}), {status: 402});
+  }, {provider: 'siliconflow', apiKey: key, logDirectory: directory});
+  await assert.rejects(api(messages, [], freshSignal()), error => {
+    assert.equal(error.code, 'MODEL_HTTP_ERROR');
+    assert.equal(error.details.providerErrorCode, '30001');
+    assert.match(error.details.providerMessage, /account balance is insufficient/);
+    assert(!JSON.stringify(error.details).includes(key));
+    assert.equal(error.failure.kind, 'quota');
+    assert.equal(error.failure.stopAutomatic, true);
+    assert(!JSON.stringify(error.failure).includes('Sorry,'));
+    return true;
+  });
+  assert.equal(calls, 1);
+  assert.equal(api.metrics().retries, 0);
+  assert(!JSON.stringify(receipts(directory)).includes(key));
+});
+
 test('an HTTP failure remains nonretryable when its error response body disconnects', async t => {
   for (const status of [401, 503]) await t.test(String(status), async () => {
     let calls = 0;

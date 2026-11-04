@@ -77,7 +77,7 @@ export function createChatApi({baseUrl,model,apiKey,provider,fetchImpl=fetch,str
     });
     progress('reading_response',{httpStatus:response.status});phase='response_body';raw=redact(await response.text());
     phase='parse';try{data=JSON.parse(raw)}catch{}
-    if(!response.ok)throw makeError('MODEL_HTTP_ERROR','Planning model HTTP '+response.status,{requestId,attempts:attempt,httpStatus:response.status,elapsedMs:Date.now()-started,providerErrorCode:redact(String(data?.error?.code||data?.error?.type||'')),providerMessage:redact(String(data?.error?.message||'')).slice(0,600),retryAfterSeconds:retryAfterSeconds(response.headers.get('retry-after')),responsePreview:redact(raw).slice(0,600)});
+    if(!response.ok)throw makeError('MODEL_HTTP_ERROR','Planning model HTTP '+response.status,{requestId,attempts:attempt,httpStatus:response.status,elapsedMs:Date.now()-started,providerErrorCode:redact(String(data?.error?.code||data?.error?.type||data?.code||'')),providerMessage:redact(String(data?.error?.message||data?.message||'')).slice(0,600),retryAfterSeconds:retryAfterSeconds(response.headers.get('retry-after')),responsePreview:redact(raw).slice(0,600)});
     if(!data)throw makeError('MODEL_INVALID_JSON','Planning model returned invalid JSON');
     if(data.choices?.[0]?.finish_reason==='length')throw makeError('MODEL_OUTPUT_TRUNCATED','Planning model response was truncated');
     log({phase:'complete',httpStatus:response.status,response:data,responseRaw:raw,recovered:attempt>1});
