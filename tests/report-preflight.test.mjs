@@ -43,3 +43,10 @@ test('malformed compact output preserves saved draft and bounded failure rather 
   const result=await reportPreflight(x);assert.equal(result.failed,true);assert.equal(models,2);assert.equal(result.draftRef,'draft:retained');assert.ok(JSON.parse(fs.readFileSync(path.join(x.docs.directory,'report-composition.json'))).lengthRecovery.error);
  }
 });
+
+test('length recovery keeps source-backed full company labels and rejects shortened replacements',async t=>{
+ const x=setup(t);x.docs.turnIntent.length={maxChars:100};let models=0,saves=0;
+ x.next=async messages=>{if(++models===1)return{content:'# 说明\n供应商：示例设备股份有限公司。'+ '冗长原文。'.repeat(30)};const input=JSON.parse(messages[1].content);assert.deepEqual(input.requiredVerbatim,['示例设备股份有限公司']);return{content:JSON.stringify({title:'说明',paragraphs:['供应商：示例设备。']})};};
+ x.harness.execute=async(name)=>({status:'ok',data:name==='read_text_range'?{text:'供应商：示例设备股份有限公司\n另有：其他软件有限公司',nextOffset:null}:(saves++,{draft_ref:'draft:retained',renderFailure:{code:'DOCUMENT_LENGTH_LIMIT',details:{actualChars:200}}})});
+ const result=await reportPreflight(x);assert.equal(result.failed,true);assert.equal(models,2);assert.equal(saves,1);assert.equal(JSON.parse(fs.readFileSync(path.join(x.docs.directory,'report-composition.json'))).lengthRecovery.error.code,'SOURCE_LABELS_CHANGED');
+});
