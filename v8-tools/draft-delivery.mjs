@@ -16,10 +16,11 @@ export function saveDraft(docs,{content,title='文稿',source_ids=[]}){
 }
 export function getDraft(docs,id){const r=docs.results.get(id);if(!r||r.method!=='submitted_draft'||hash(r.answer)!==r.sha256)fail('DRAFT_MISSING_OR_CHANGED','使用当前授权任务中已保存的draft_ref',{next_action:'重新提交文稿；不要用source_ids代替正文'});for(const source of r.sourceRefs)if(docs.asset(source.id).sha256!==source.sha256)fail('STALE_DRAFT_SOURCE','文稿来源版本已变化');return r;}
 // Keeps complete receipts on disk. Historical payloads in the next model request are
-// references, not another copy of every page. Recent receipts remain verbatim.
+// references, not another copy of every page. Source text stays complete even when
+// an identical quote field is replaced by an explicit reference before first use.
 export function compactHistory(messages,directory,{seenThrough=messages.length,receiptReader,maxRetainedChars=48000}={}){
  const deduplications=[];
- for(let i=0;i<Math.min(seenThrough,messages.length);i++){
+ for(let i=0;i<messages.length;i++){
   const m=messages[i];if(m.role!=='tool')continue;
   let r;try{r=JSON.parse(m.content);}catch{continue;}
   if(r.contextReceipt||typeof r.data?.text!=='string'||r.data.text.length<1000||r.data.quote!==r.data.text)continue;

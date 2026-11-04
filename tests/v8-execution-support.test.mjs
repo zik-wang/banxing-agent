@@ -127,9 +127,9 @@ test('duplicate quote payloads cannot evict three fully retained source texts fr
  assert(messages.filter(m=>m.role==='tool').reduce((n,m)=>n+m.content.length,0)<=48000);
 });
 
-test('fresh replies and nonidentical source quotations remain unchanged',t=>{
+test('fresh source text stays exact while its identical quote is referenced; different quotations are untouched',t=>{
  const x=fixture(t),text='完整正文'.repeat(1000),content=JSON.stringify({data:{text,quote:text}}),messages=[{role:'tool',content}];
- compactHistory(messages,x.directory,{seenThrough:0});assert.equal(messages[0].content,content);
+ compactHistory(messages,x.directory,{seenThrough:0});const fresh=JSON.parse(messages[0].content);assert.equal(fresh.data.text,text);assert.equal(fresh.data.quoteRef,'/data/text');assert.equal(fresh.contextReceipt,undefined);assert.equal(fs.readFileSync(path.join(x.directory,'context-receipts',fresh.contextDeduplication.sha256+'.json'),'utf8'),content);
  const partial=JSON.stringify({data:{text,quote:'真实的不同节选'}});messages[0].content=partial;compactHistory(messages,x.directory);assert.equal(messages[0].content,partial);
 });
 
