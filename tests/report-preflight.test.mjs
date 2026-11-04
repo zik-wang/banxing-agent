@@ -57,3 +57,10 @@ test('adjacent source company labels stay separate names rather than a fabricate
  x.harness.execute=async(name)=>({status:'ok',data:name==='read_text_range'?{text:'采购方：甲设备有限公司乙软件有限责任公司',nextOffset:null}:++saves===1?{draft_ref:'draft:long',renderFailure:{code:'DOCUMENT_LENGTH_LIMIT',details:{actualChars:300}}}:{artifactId:'short',saveReadbackPassed:true,draft_ref:'draft:short'}});
  assert.equal((await reportPreflight(x)).completed,true);assert.equal(models,2);
 });
+
+test('omitted ancillary company is recorded separately from a shortened company replacement',async t=>{
+ const x=setup(t);x.docs.turnIntent.length={maxChars:100};let models=0,saves=0;
+ x.next=async()=>({content:++models===1?'# 说明\n供应商：示例设备股份有限公司。代理方：其他服务有限公司。'+ '冗长说明。'.repeat(30):JSON.stringify({title:'说明',paragraphs:['供应商：示例设备股份有限公司。']})});
+ x.harness.execute=async(name)=>({status:'ok',data:name==='read_text_range'?{text:'供应商：示例设备股份有限公司\n代理方：其他服务有限公司',nextOffset:null}:++saves===1?{draft_ref:'draft:long',renderFailure:{code:'DOCUMENT_LENGTH_LIMIT',details:{actualChars:200}}}:{artifactId:'short',saveReadbackPassed:true,draft_ref:'draft:short'}});
+ assert.equal((await reportPreflight(x)).completed,true);assert.equal(models,2);const audit=JSON.parse(fs.readFileSync(path.join(x.docs.directory,'report-composition.json')));assert.deepEqual(audit.lengthRecovery.unrepeatedSourceLabels,['其他服务有限公司']);assert.equal(audit.semanticVerified,false);
+});
