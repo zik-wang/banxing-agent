@@ -4,9 +4,24 @@
   "sourceSha256": "5be70038ed3deef2307cf2e05ca7e89b79c199ecbaa6cdb44886357d708f5905",
   "expectedCNY": "128648000.00",
   "historicalArmsNotRerun": [
-    { "arm": "existing_27b", "actualCNY": "128648000.00", "modelCalls": 1, "elapsedMs": 7771 },
-    { "arm": "single_calculator", "actualCNY": "128648000.00", "modelCalls": 2, "elapsedMs": 13455 },
-    { "arm": "host_orchestrated_finance", "actualCNY": "128648000.00", "modelCalls": 3, "elapsedMs": 35722 }
+    {
+      "arm": "existing_27b",
+      "actualCNY": "128648000.00",
+      "modelCalls": 1,
+      "elapsedMs": 7771
+    },
+    {
+      "arm": "single_calculator",
+      "actualCNY": "128648000.00",
+      "modelCalls": 2,
+      "elapsedMs": 13455
+    },
+    {
+      "arm": "host_orchestrated_finance",
+      "actualCNY": "128648000.00",
+      "modelCalls": 3,
+      "elapsedMs": 35722
+    }
   ],
   "newLocalProbes": {
     "model": "Qwen2.5-1.5B-Instruct+R2-LoRA",
@@ -46,5 +61,246 @@
   "productCodeChanged": false,
   "weightsChanged": false,
   "deployed": false,
-  "userAccepted": false
+  "userAccepted": false,
+  "historyScopeNote": "All pre-existing fields retain the earlier historical snapshot; status/blocker/deployed are not a fresh service or deployment assessment. See consolidatedUpdate for the latest evidence index.",
+  "consolidatedUpdate": {
+    "revision": "t2-shared-consolidated-20261105-v1",
+    "reportUpdateComplete": true,
+    "overallT2ExperimentComplete": false,
+    "modelCallsThisUpdate": 0,
+    "newTestsOrQaRunsThisUpdate": 0,
+    "scope": "metadata, prior authorized synthetic results and shared sanitized QA only",
+    "selection": {
+      "main": "27B single Agent for the complete contract-review workflow",
+      "money": "deterministic calculator for a limited numerical subtask",
+      "local": "trained three-category signal plugin",
+      "financeCollaboration": "incremental benefit not proven; not default"
+    },
+    "localFineTune": {
+      "baseModel": "Qwen/Qwen2.5-1.5B-Instruct",
+      "trainingState": "prior training log completed, no retraining or weight reading this update",
+      "trainedSteps": 240,
+      "selectedStep": 160,
+      "selectionRule": "lowest validation loss, no test-based selection",
+      "quantization": "none; BF16 native LoRA (4bit native loader crashed before updates)",
+      "rank": 8,
+      "targetModules": [
+        "q_proj",
+        "v_proj"
+      ],
+      "maxTrainingTokens": 1024,
+      "learningRate": 0.0001,
+      "seed": 61102,
+      "actualEvaluationSamples": 40,
+      "oldConfiguredEvaluationDescription": "24 held-out clauses balanced by source labels, greedy, max_new_tokens=96",
+      "pairedEvaluationSamples": 25,
+      "missingCloudResponses": 15,
+      "recordedInferenceAdapterSha256": "01bbc9213e237b2f3ea9be5d84f7327751ec015121e849624653851a2bafa34d",
+      "checkpointReloadedThisUpdate": false,
+      "scope": "single-clause three-category screening; not trained full-review/arithmetic proof"
+    },
+    "qwenConditions": {
+      "historicalThreeArm": {
+        "provider": "siliconflow",
+        "model": "Qwen/Qwen3.8-27B",
+        "temperature": 0.1,
+        "maxTokens": 1400,
+        "enableThinking": false,
+        "originalFullPromptIndependentlyFrozen": false
+      },
+      "finiteV1": {
+        "provider": "siliconflow",
+        "baseUrl": "https://api.siliconflow.cn/v1",
+        "model": "Qwen/Qwen3.8-27B",
+        "maxTokens": 8192,
+        "enableThinking": false,
+        "topP": 0.95,
+        "temperature": 0.1,
+        "maxAttempts": 1,
+        "providerReportedModel": "Qwen/Qwen3.8-27B",
+        "timeoutMs": 600000,
+        "quantization": "unknown",
+        "inferenceBackend": "unknown"
+      },
+      "finiteV2": {
+        "provider": "siliconflow",
+        "baseUrl": "https://api.siliconflow.cn/v1",
+        "model": "Qwen/Qwen3.8-27B",
+        "maxTokens": 8192,
+        "enableThinking": false,
+        "topP": 0.95,
+        "temperature": 0.1,
+        "maxAttempts": 1,
+        "providerReportedModel": "Qwen/Qwen3.8-27B",
+        "timeoutMs": 600000,
+        "quantization": "unknown",
+        "inferenceBackend": "unknown",
+        "seed": "unknown"
+      },
+      "samePromptModelRankingSupported": false
+    },
+    "moneyComparison": {
+      "caseId": "mixed-units",
+      "expectedCNY": "128648000.00",
+      "historicalArmsUnchanged": true,
+      "localActualCNY": "125000000",
+      "localShortfallCNY": "3648000.00",
+      "nativeLocalArithmeticResult": null,
+      "oldDeveloperSetCases": 8,
+      "newForwardReviewCases": 1,
+      "newForwardCaseAlsoInHistoricalSet": true,
+      "mergeNewCaseIntoOldRates": false,
+      "independentHumanGoldAdded": 0
+    },
+    "realRouting": {
+      "historicalHandoffObserved": true,
+      "historicalWorkObserved": true,
+      "historicalWorkerCalculationCompleted": false,
+      "historicalFinalAVerifierExecuted": false,
+      "explicitUserDelegation": true,
+      "productionChainCompleted": false,
+      "standaloneArchivedReceiptReviewIsNotRouteCompletion": true
+    },
+    "finiteReviews": {
+      "v1": {
+        "status": "FINITE_RECEIPT_VERIFY_NOT_PASSED",
+        "modelDecision": "rejected",
+        "businessPassed": false,
+        "expectedCNY": "128648000.00",
+        "actualCNY": "128648000.00",
+        "promptSha256": "a27c58d2ad4d0b446a63aed64acbc06925f8bdc1a2f1bde69ccae6d9545f94b7",
+        "httpRequests": 1,
+        "usageTotal": 1841,
+        "queueWaitMs": 10.376800000000003,
+        "supplierRequestMs": 32869.713800000005,
+        "retainedNotVerified": true
+      },
+      "v2": {
+        "status": "FINITE_RECEIPT_VERIFY_PASSED",
+        "modelDecision": "verified",
+        "businessPassed": true,
+        "expectedCNY": "128648000.00",
+        "actualCNY": "128648000.00",
+        "promptSha256": "06d7b3d557edad9b25406654bb52c9120a9487aae02c0f1290d5af2270e94cbc",
+        "httpRequests": 1,
+        "usageTotal": 3003,
+        "queueWaitMs": 11.977699999999999,
+        "supplierRequestMs": 34236.820199999995,
+        "fiveDomainHostValidated": true,
+        "fiveDomainModelUnderstanding": "unverified",
+        "realEvidenceConsistencyQa": {
+          "commit": "44ffc3dff8934b237e8595d412766d91eb6dfa91",
+          "reportPath": "docs/evaluations/2026-11-05/worker05-c30e33d-real-v2-evidence-qa.txt",
+          "reportSha256": "977c66729339efa5b3f59fe578175fec5583bd009532f3f4158d38f98006fdb0",
+          "caseCount": 1,
+          "consistencyAssertionCount": 46,
+          "claimsSupported": [
+            "model verified",
+            "host passed",
+            "three selected amount conversions and receipt references match"
+          ],
+          "notUserAcceptance": true,
+          "rawV1SupplierFileRecheckedByThisQa": false
+        }
+      }
+    },
+    "errorCategories": [
+      {
+        "category": "extraction_or_training_task_extrapolation",
+        "observed": "local 1.5B amount omission and invalid source-bound plan; not proof all unit conversion/addition failed"
+      },
+      {
+        "category": "arithmetic_or_tool",
+        "observed": "bound calculator amounts verified for selected inputs only; no full-source omission guarantee"
+      },
+      {
+        "category": "framework_or_protocol",
+        "observed": "historical UNKNOWN_ASSET recovery overhead and v1 undeclared digest-domain mismatch are separate from arithmetic"
+      },
+      {
+        "category": "service",
+        "observed": "historical 429/TPM interruption; two later successful finite calls do not prove continuous availability"
+      },
+      {
+        "category": "business_verdict",
+        "observed": "v1 NOT_VERIFIED preserved; v2 one prospective finite receipt review passed, not full contract/product acceptance"
+      }
+    ],
+    "evidenceIndex": [
+      {
+        "id": "local-finetune-metadata",
+        "repository": "docs/contract-local-1p5b.txt",
+        "workspaceMetadata": [
+          "qa-output/contract-qwen15b-r2-20261101/training-config.json",
+          "qa-output/contract-qwen15b-r2-20261101/training-log.json",
+          "qa-output/contract-qwen15b-r2-20261101/selected-checkpoint.json",
+          "qa-output/contract-qwen15b-r2-20261101/configuration-errata.json",
+          "qa-output/contract-qwen15b-r2-20261101/delivery-manifest.json"
+        ]
+      },
+      {
+        "id": "local-actual-probes",
+        "repository": "docs/reports/2026-11-04-t2-supplement/results.json",
+        "workspaceMetadata": [
+          "qa-output/worker-02-t2-supplement-20261104-7f9bdc69/local-model-result.json",
+          "qa-output/worker-02-t2-supplement-20261104-7f9bdc69/streaming-load-receipt.json"
+        ]
+      },
+      {
+        "id": "historical-27b-calculator-finance-arms",
+        "repository": "experiments/money/README.md",
+        "workspaceMetadata": [
+          "qa-output/money-three-arm-20261104/results.json"
+        ],
+        "historicalRecipeNotCurrentDispatchPermission": true
+      },
+      {
+        "id": "real-ui-single-calculator-and-routing",
+        "repository": "docs/reports/2026-11-04-t2-supplement/results.json",
+        "workspaceMetadata": [
+          "qa-output/worker-02-t2-supplement-20261104-7f9bdc69/comparison-supplement.json",
+          "qa-output/worker-02-t2-supplement-20261104-7f9bdc69/routing-ui-results.json",
+          "qa-output/worker-02-t2-supplement-20261104-7f9bdc69/routing-ui-recovery.json"
+        ]
+      },
+      {
+        "id": "real-v1-not-verified",
+        "repository": "docs/reports/2026-11-05-t2-real-verify/results.json",
+        "workspaceMetadata": [
+          "qa-output/worker-02-t2-real-verify-20261105-a6f94286/fix-ready.json"
+        ]
+      },
+      {
+        "id": "real-v2-finite-passed",
+        "repository": "docs/reports/2026-11-05-t2-v2-real-verify/results.json",
+        "workspaceMetadata": [
+          "qa-output/worker-02-t2-v2-real-verify-20261105-f9eb858c/fix-ready.json"
+        ]
+      },
+      {
+        "id": "contract-main-flow-choice",
+        "repository": "docs/contract-review-20261104/README.md",
+        "workspaceMetadata": []
+      }
+    ],
+    "notVerified": [
+      "model explicit five-domain understanding",
+      "production B calculation then actual A review",
+      "independent legal gold and unknown-document semantic accuracy",
+      "finance routing incremental benefit",
+      "unique causal attribution of v1 rejection",
+      "current production deployment/health",
+      "user acceptance"
+    ],
+    "minimalNextConditions": [
+      "New-stage scope/request authorization and fully queued safe isolated path before real B-to-A end-to-end evidence; not undertaken this update.",
+      "Approved holdout materials, independent references and matched task/prompt/tool conditions before superiority or generalization claims.",
+      "Deployment and final acceptance remain user decisions; no permission/account changes made."
+    ],
+    "productionTouched": false,
+    "latestQaIsNotReviewOfThisConsolidatedReport": true,
+    "userAccepted": false,
+    "companyMaterialBodyReadOrCopied": false,
+    "trainingCorpusOrWeightsRead": false
+  }
 }
