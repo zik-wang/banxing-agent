@@ -1,0 +1,37 @@
+worker-05｜01 来源恢复修复独立定向复验
+交付候选：e8dcbe2c65e0f5cffc469d489350deadef2bf169
+实际代码修复提交：d7e2f5bcaa1b1c7ca6fad38d710cb29ba7210396（为e8dcbe2祖先）
+来源分支：codex/c-end-quality-20261104
+结论：原来源恢复缺陷的三个有限合成边界现在全部通过。不是生产EPERM根因确认或用户验收。
+
+一、修复代码定位
+v8-tools/continuity.mjs:24（e8dcbe2）
+  同任务resume/retry不再因b.currentTableId存在而跳过b.assets。仍逐项通过allowed和ResourceSpace读取恢复字节、原asset ID、资源引用及映射；rebuild_delivery的只取回成果分支没有因此导入原件。
+同文件:28及v8-tools/draft-delivery.mjs:23、45
+  原件恢复先于持久草稿来源检查，后续getDraft仍保留来源哈希校验。本次不删除source_ids、不修改原稿、不放宽权限或哈希检查。
+同文件:15
+  恢复运行仍需项目/工作项身份及能力、规则、材料分类匹配。本轮执行两种身份负例验证。
+
+二、复用本窗口原三例，预期与实际
+原合成TXT、旧成果、草稿正文和故障步骤保持原三例设定，只切换固定候选；每例使用全新隔离目录。source_ids仍包含一个真实注册的合成asset ID。
+1. 无表格、有来源草稿、检查点失败后同任务resume：预期bind/getDraft可用，实际通过，恢复1份来源。
+2. 有表格、来源草稿尚未进入检查点后resume：预期不再在bind报UNKNOWN_ASSET，实际bind及getDraft通过，恢复1份来源。
+3. 有表格、来源草稿已经进入检查点后resume：预期列出后可实际取用，实际bind及getDraft通过，恢复1份来源。
+三例逐项核对sourceRefs非空且与原稿完全相同；原asset ID、来源SHA、资源映射、root/project/work身份保持。两份表格场景的表格ID和42这一合成数值保持。
+三例的原件、原稿、旧成果哈希全部不变，模型调用计数均为0。
+
+身份边界在含表格、未补存来源草稿这一fixture上核对：
+  - 同项目、不同work item：预期RESUME_SCOPE_DENIED，实际一致。
+  - 不同project、相同work item名：预期RESUME_SCOPE_DENIED，实际一致。
+两个负例均在合成空间内，未修改未知权限或进程。
+
+三、与旧证据的关系
+本窗口此前对489cfa5的冻结结果为1通过、2失败。本轮只运行e8dcbe2的3例，3通过、0失败；没有再次执行旧候选。旧P2报告与失败证据保留，不回写旧成绩。
+已读候选新增来源边界测试及修复说明；没有重复作者提供的26项相关回归或此前414项全量。本轮也没有新增Word/Office、撤销来源、rebuild_delivery或真实业务页面执行证据，不能将作者那些成绩写成独立重跑通过。
+
+四、复现与未验证
+脚本：qa-support/recheck-draft-source-recovery.mjs
+运行：node <脚本绝对路径> <Git仓库绝对路径> <全新隔离证据目录绝对路径>
+脚本通过git show仅提取e8dcbe2的静态JS依赖，在新建隔离目录复用三例并核对两种身份负例；不会检出或修改01工作树，不覆盖旧证据、不读取真实材料。三例及这两个身份检查完成即停。
+故障注入明确为SYNTHETIC_CHECKPOINT_BLOCKED，不是新复现的系统EPERM。生产Windows锁持有者/权限根因、真实材料、并发写入、Word实际业务交付、整站回归及用户验收均未验证。
+0新增模型调用、0生产操作、不合并主分支；此结论仅支持本次来源恢复修复的有限离线边界。

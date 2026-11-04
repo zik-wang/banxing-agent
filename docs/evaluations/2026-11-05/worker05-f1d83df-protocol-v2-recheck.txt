@@ -1,0 +1,31 @@
+worker-05｜02 摘要协议 v2 独立有限离线复验
+候选：f1d83df0d805529b8c0457acda279d2f3a2bfaee
+来源分支：codex/money-8884-20261104
+对照：本窗口 f71f1d8 中的 v1 归因；本轮没有重跑 v1。
+结论：五域标识与绑定的本轮有限离线检查通过，未发现本轮所审边界缺陷。不是实模或业务验收。
+
+一、代码审查
+scripts/t2-receipt-protocol-v2.mjs:9–12、25–44
+  摘要描述符明确对象、SHA-256、UTF-8、表示、序列化及规范化版本；比较前校验描述符。异域返回 comparable=false/equal=null，同域才比较值和字节长度。
+同文件:46–54
+  构造五域：sourceRawUtf8（解析原文的UTF8，不是物理PDF/DOCX文件哈希）、sourceJsonStringUtf8（JSON字符串UTF8）、financePlanJson（计划）、calculatorReceiptJson（完整回执）、receiptCoreJson（由版本化计算器重建、排除receiptId后的核心）。重新计算来源、计划及回执内容；旧 receiptId 明确等于 MONEY- 加核心摘要，不等于完整回执摘要。
+同文件:56–67、70–84
+  校验器重新生成预期描述符并逐域及逐旧绑定比较。提示解释所有五域、原文/JSON域不可直接判等、完整回执/核心的区别及宿主验证的有限范围；消息构造和输出判定都接入这些检查，最后仍保留原v1的取数、金额和拒绝决定校验。
+scripts/t2-real-receipt-verify.mjs:10、32、51
+  有限入口改为v2消息构造与身份/输出校验；本轮没有执行真实入口，不读取operator或preflight，不调用模型。
+
+二、本窗口实际新增检查：一份合成材料，三项通过
+1. 从实际 buildReviewMessagesV2 生成的序列化用户消息解码，再用独立Python hashlib/json重算五个域，值与长度全部匹配。五域在实际系统提示中均有说明，原文往返不变，旧source/plan/receiptId引用分别符合已声明域。五域两两10种跨域比较均明确不可比较，没有把不同摘要认作来源篡改。
+2. 在解码后的身份信封交换完整回执与核心的完整描述符：预期拒绝，实际产生 IDENTITY_DIGEST_MISMATCH:calculatorReceiptJson 和 IDENTITY_DIGEST_MISMATCH:receiptCoreJson。
+3. 只改计划中一个合成标签，保留相同来源和相同金额：金额仍为12030.00，旧回执/身份应失效，实际以 CALCULATOR_RECEIPT_CONTENT_MISMATCH 拒绝。金额正确没有掩盖绑定变化。
+另在同一材料上确认手工rejected夹具仍返回 NOT_VERIFIED，没有升级为verified；夹具不是模型回答。
+
+三、旧证据保留
+比较23d3421与f1d83df的Git blob：money-calculator.mjs、v1校验模块及公开v1 results.json逐项完全相同。旧计算器及其构造顺序未被改写，合成回执ID可按原核心重算。没有改历史v1业务未通过记录。
+已读候选10项新协议测试和4项旧校验测试，没有重跑那14项，也没有跑全量。以上3项是本窗口新增边界证据，不能与候选原测试相加后声称同批回归成绩。
+
+四、复现及边界
+脚本：qa-support/recheck-typed-receipt-v2.mjs
+运行：node <脚本绝对路径> <Git仓库绝对路径> <全新隔离证据目录绝对路径> <Python可执行文件绝对路径>
+脚本只用git show读取固定提交的3个纯JS依赖，生成合成消息，使用独立Python脚本核对；不修改02工作树，不覆盖既有证据，不访问模型或凭证。三个必要检查结束即停。
+0模型调用、0生产操作。真实v2模型是否仍拒绝、历史v1拒绝的唯一原因、完整A→B→A、真实合同审核和用户验收均未验证。本轮离线通过不能改写这些结论。
