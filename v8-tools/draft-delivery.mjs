@@ -18,6 +18,15 @@ export function getDraft(docs,id){const r=docs.results.get(id);if(!r||r.method!=
 // Keeps complete receipts on disk. Historical payloads in the next model request are
 // references, not another copy of every page. Recent receipts remain verbatim.
 export function compactHistory(messages,directory,{seenThrough=messages.length,receiptReader,maxRetainedChars=48000}={}){
+ const deduplications=[];
+ for(let i=0;i<Math.min(seenThrough,messages.length);i++){
+  const m=messages[i];if(m.role!=='tool')continue;
+  let r;try{r=JSON.parse(m.content);}catch{continue;}
+  if(r.contextReceipt||typeof r.data?.text!=='string'||r.data.text.length<1000||r.data.quote!==r.data.text)continue;
+  const original=m.content,sha256=hash(original),file=path.join(directory,'context-receipts',sha256+'.json');fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,original);
+  delete r.data.quote;r.data.quoteRef='/data/text';r.contextDeduplication={sha256,omittedExactDuplicate:'/data/quote',identicalTo:'/data/text',charactersBefore:original.length};
+  m.content=JSON.stringify(r);deduplications.push({callId:r.callId,file,charactersSaved:original.length-m.content.length});
+ }
  const indices=messages.flatMap((m,i)=>m.role==='tool'?[i]:[]),recent=new Set(indices.slice(-2)),coverage=[];
  let retained=indices.reduce((n,i)=>n+messages[i].content.length,0);
  for(const i of indices){if(retained<=maxRetainedChars)break;const m=messages[i];if(i>=seenThrough||recent.has(i)||m.content.length<2000)continue;
@@ -30,5 +39,5 @@ export function compactHistory(messages,directory,{seenThrough=messages.length,r
   const encoded=JSON.stringify(summary);if(encoded.length>=m.content.length)continue;
   coverage.push({callId:r.callId,file,characters:m.content.length});retained-=m.content.length-encoded.length;m.content=encoded;
  }
- if(coverage.length)fs.appendFileSync(path.join(directory,'context-compaction.jsonl'),JSON.stringify({at:new Date().toISOString(),coverage})+'\n');
+ if(coverage.length||deduplications.length)fs.appendFileSync(path.join(directory,'context-compaction.jsonl'),JSON.stringify({at:new Date().toISOString(),coverage,deduplications})+'\n');
 }

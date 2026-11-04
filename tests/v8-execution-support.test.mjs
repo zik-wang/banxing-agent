@@ -119,6 +119,20 @@ test('over-budget compaction removes oldest seen payloads and recovers exact sou
  const recovered=x.support.read({...hint.arguments,length:12000});assert.equal(recovered.text,original.data.text);
 });
 
+test('duplicate quote payloads cannot evict three fully retained source texts from the history budget',t=>{
+ const x=fixture(t),messages=[],originals=[];
+ for(let page=1;page<=3;page++){const text='SOURCE_'+page+' '+ '条款'.repeat(5000),content=JSON.stringify({callId:randomUUID(),tool:'read_text_range',status:'ok',data:{text,quote:text,sourceId:'s'+page,start:0,end:text.length}});originals.push(content);messages.push({role:'assistant',tool_calls:[{id:'p'+page}]},{role:'tool',tool_call_id:'p'+page,content});}
+ compactHistory(messages,x.directory);
+ for(let i=0;i<3;i++){const r=JSON.parse(messages[i*2+1].content),original=JSON.parse(originals[i]);assert.equal(r.data.text,original.data.text);assert.equal(r.data.sourceId,original.data.sourceId);assert.equal(r.data.quoteRef,'/data/text');assert.equal(r.data.quote,undefined);assert.equal(r.contextReceipt,undefined);const saved=path.join(x.directory,'context-receipts',r.contextDeduplication.sha256+'.json');assert.equal(fs.readFileSync(saved,'utf8'),originals[i]);}
+ assert(messages.filter(m=>m.role==='tool').reduce((n,m)=>n+m.content.length,0)<=48000);
+});
+
+test('fresh replies and nonidentical source quotations remain unchanged',t=>{
+ const x=fixture(t),text='完整正文'.repeat(1000),content=JSON.stringify({data:{text,quote:text}}),messages=[{role:'tool',content}];
+ compactHistory(messages,x.directory,{seenThrough:0});assert.equal(messages[0].content,content);
+ const partial=JSON.stringify({data:{text,quote:'真实的不同节选'}});messages[0].content=partial;compactHistory(messages,x.directory);assert.equal(messages[0].content,partial);
+});
+
 test('agent can use schema feedback to recover rather than replay an invalid call',async t=>{
  const x=fixture(t);let round=0;
  const run=await runToolAgent({harness:x.harness,request:'read page',maxRounds:4,next:async messages=>{
