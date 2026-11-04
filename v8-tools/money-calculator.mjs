@@ -17,7 +17,11 @@ function bind(source,term){
   const actualUnit=source.slice(valueStart+term.value.length).match(/^\s*(亿元|万元|元)/)?.[1];
   if(!actualUnit)throw Error('UNIT_NOT_IN_EVIDENCE');if(actualUnit!==term.unit)throw Error('UNIT_CONTRADICTS_SOURCE');
   const markers=[...clause.matchAll(/人民币|CNY|USD|美元|EUR|欧元|￥|¥/gi)];
-  const marker=markers.at(-1)?.[0].toUpperCase(),currency=marker?(/USD|美元/.test(marker)?'USD':/EUR|欧元/.test(marker)?'EUR':'CNY'):'CNY';
+    const code=m=>/USD|美元/i.test(m)?'USD':/EUR|欧元/i.test(m)?'EUR':'CNY';
+  const marker=markers.at(-1)?.[0],tail=source.slice(valueStart+term.value.length).replace(/^\s*(亿元|万元|元)/,'');
+  const suffix=tail.match(/^\s*(?:[（(]\s*(人民币|CNY|USD|美元|EUR|欧元)\s*[）)]|(人民币|CNY|USD|美元|EUR|欧元)(?=\s*(?:$|[;；,，。\n])))/i),suffixMarker=suffix?.[1]||suffix?.[2];
+  if(marker&&suffixMarker&&code(marker)!==code(suffixMarker))throw Error('AMBIGUOUS_CURRENCY');
+  const currency=marker?code(marker):suffixMarker?code(suffixMarker):'CNY';
   if(currency!==term.currency)throw Error('CURRENCY_CONTRADICTS_SOURCE');
  }
  return {valueStart,clause};
