@@ -397,3 +397,8 @@ body.product-ui .model-service-notice strong{display:block;font-size:14px;margin
 .local-file-download{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 9px;font-size:12px;white-space:nowrap;color:#446a50;text-underline-offset:3px;flex-shrink:0}
 
 .run-notice.report-open-questions{background:#f4f7fb;border:1px solid #d9e3f0;color:#334b68}.report-open-questions strong{color:#294968}.report-open-questions p{margin-bottom:0}
+
+/* The conversation owns vertical reading; expanded receipts must not trap the wheel. */
+html,body{height:100%;overflow:hidden}
+#chat-main{scroll-behavior:auto;overscroll-behavior-y:contain;overflow-anchor:none}
+#conversation .technical-receipt pre,#conversation .run-failure-details pre,#conversation .trace-content,#conversation .user-decision fieldset{max-height:none;overflow:visible}
