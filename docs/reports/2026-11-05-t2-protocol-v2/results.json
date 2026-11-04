@@ -1,0 +1,125 @@
+{
+  "scope": "offline protocol-v2 candidate only",
+  "promptVersion": "t2-archived-finance-receipt-review-v2",
+  "identitySchema": "typed-digest-envelope-v2",
+  "promptSha256": "06d7b3d557edad9b25406654bb52c9120a9487aae02c0f1290d5af2270e94cbc",
+  "sourceSha256": "5be70038ed3deef2307cf2e05ca7e89b79c199ecbaa6cdb44886357d708f5905",
+  "identity": {
+    "schema": "typed-digest-envelope-v2",
+    "digests": {
+      "sourceRawUtf8": {
+        "objectId": "source_text",
+        "objectType": "text",
+        "algorithm": "SHA-256",
+        "encoding": "UTF-8",
+        "normalization": "none",
+        "normalizationVersion": "no-normalization-v1",
+        "representation": "utf8-text-bytes",
+        "serialization": "none",
+        "serializationVersion": "none-v1",
+        "byteLength": 145,
+        "value": "5be70038ed3deef2307cf2e05ca7e89b79c199ecbaa6cdb44886357d708f5905"
+      },
+      "sourceJsonStringUtf8": {
+        "objectId": "source_text",
+        "objectType": "text",
+        "algorithm": "SHA-256",
+        "encoding": "UTF-8",
+        "normalization": "none",
+        "normalizationVersion": "no-normalization-v1",
+        "representation": "json-serialized-text-bytes",
+        "serialization": "ECMAScript JSON.stringify",
+        "serializationVersion": "no-replacer-no-space-v1",
+        "byteLength": 147,
+        "value": "bf028575ae63d3fa9ed79241593796ba3f531ee791b13016347291e8a4437482"
+      },
+      "financePlanJson": {
+        "objectId": "finance_plan",
+        "objectType": "json-data",
+        "algorithm": "SHA-256",
+        "encoding": "UTF-8",
+        "normalization": "none",
+        "normalizationVersion": "no-normalization-v1",
+        "representation": "json-serialized-text-bytes",
+        "serialization": "ECMAScript JSON.stringify",
+        "serializationVersion": "no-replacer-no-space-v1",
+        "byteLength": 334,
+        "value": "07ff9d799db44ab19ca0bd303601c8aefb693642e90598d3be782b83e046e28c"
+      },
+      "calculatorReceiptJson": {
+        "objectId": "calculator_receipt",
+        "objectType": "json-data",
+        "algorithm": "SHA-256",
+        "encoding": "UTF-8",
+        "normalization": "none",
+        "normalizationVersion": "no-normalization-v1",
+        "representation": "json-serialized-text-bytes",
+        "serialization": "ECMAScript JSON.stringify",
+        "serializationVersion": "no-replacer-no-space-v1",
+        "byteLength": 988,
+        "value": "f91db62ef4316e61d607fb1c358878fde69f1ac6c0e7dc11e959417ffc8fc06a"
+      },
+      "receiptCoreJson": {
+        "objectId": "calculator_receipt_core:money-rational-v1",
+        "objectType": "json-data",
+        "algorithm": "SHA-256",
+        "encoding": "UTF-8",
+        "normalization": "none",
+        "normalizationVersion": "no-normalization-v1",
+        "representation": "json-serialized-text-bytes",
+        "serialization": "ECMAScript JSON.stringify",
+        "serializationVersion": "no-replacer-no-space-v1",
+        "byteLength": 903,
+        "value": "22d376b6c2e381dae111e685ee1f8804a47102613b46e40548034ea285f6044b"
+      }
+    },
+    "legacySourceBinding": {
+      "receiptVersion": "money-rational-v1",
+      "receiptField": "sourceSha256",
+      "digestRef": "sourceJsonStringUtf8",
+      "checkedByHost": true
+    },
+    "legacyPlanBinding": {
+      "receiptField": "planSha256",
+      "digestRef": "financePlanJson",
+      "checkedByHost": true
+    },
+    "legacyReceiptIdBinding": {
+      "receiptField": "receiptId",
+      "prefix": "MONEY-",
+      "digestRef": "receiptCoreJson",
+      "derivation": "Host recomputes money-rational-v1 core excluding receiptId, using that calculator constructor field order.",
+      "checkedByHost": true
+    },
+    "limitations": [
+      "Host verified digest computations/bindings only, not semantic completeness or business correctness.",
+      "JSON object member order follows ECMAScript JSON.stringify; no canonical sorting is performed.",
+      "calculatorReceiptJson hashes the full supplied receipt representation; it is NOT the receiptId suffix."
+    ]
+  },
+  "crossDomainComparison": {
+    "comparable": false,
+    "equal": null,
+    "reason": "DIFFERENT_DIGEST_DOMAINS"
+  },
+  "legacyReceiptIdUnchanged": true,
+  "oldV1Status": "FINITE_RECEIPT_VERIFY_NOT_PASSED",
+  "oldV1Decision": "rejected",
+  "oldV1PromptSha256": "a27c58d2ad4d0b446a63aed64acbc06925f8bdc1a2f1bde69ccae6d9545f94b7",
+  "oldV1ProviderReceiptSha256": "570a56710a1474372227324a344c646c387c7e309b504d6328f6c6faad5e0c5f",
+  "oldEvidencePreserved": true,
+  "newModelCalls": 0,
+  "v2RealModelValidated": false,
+  "productionDeployed": false,
+  "productionABtoAComplete": false,
+  "independentQAComplete": false,
+  "sourceTextCopied": false,
+  "tests": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0,
+    "newProtocolTests": 10,
+    "existingValidatorTests": 4,
+    "full134Repeated": false
+  }
+}

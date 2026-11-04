@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 import {createChatApi} from '../v8-tools/model-transport.mjs';
 import {apiKeyFor} from '../v8-tools/provider-config.mjs';
 import {calculateMoney} from '../v8-tools/money-calculator.mjs';
-import {PROMPT_VERSION,REVIEW_SYSTEM,validateReceiptReview} from './t2-receipt-verification.mjs';
+import {PROMPT_VERSION,buildReviewMessagesV2,validateReceiptReview} from './t2-receipt-protocol-v2.mjs';
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8').replace(/^\uFEFF/,'')),hash=value=>createHash('sha256').update(value).digest('hex');
 const here=path.dirname(fileURLToPath(import.meta.url)),shared=path.resolve(here,'../../local-progress');
 const {assertDispatchAllowed}=await import(pathToFileURL(path.join(shared,'control.mjs')).href);
@@ -29,16 +29,17 @@ const archived=JSON.parse(financeBytes).results.find(r=>r.caseId===preflight.cas
 if(sourceCase.kind!=='synthetic'||hash(sourceCase.source)!==preflight.sourceSha256||hash(sourceCase.request)!==preflight.requestSha256)throw Error('INPUT_SCOPE_OR_HASH_MISMATCH');
 const receipt=calculateMoney(sourceCase.source,archived.finance.plan);
 if(receipt.receiptId!==preflight.calculator.receiptId)throw Error('CALCULATOR_RECEIPT_CHANGED');
+const {messages,identity}=buildReviewMessagesV2({source:sourceCase.source,request:sourceCase.request,financePlan:archived.finance.plan,receipt,archivedClaims:archived.output.claims});
 const getQueue=async()=>{const response=await fetch(base+'/api/siliconflow',{signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error('SHARED_QUEUE_STATUS_UNAVAILABLE');return response.json();};
 const queueBefore=await getQueue();
 if(!queueBefore.dispatch_allowed||queueBefore.awaiting_drain_workers?.length)throw Error('SHARED_QUEUE_BARRIER_NOT_OPEN');
 if(queueBefore.active||queueBefore.waiting?.length||queueBefore.cooldown_remaining_ms>0)throw Error('SHARED_QUEUE_BUSY_DEFER_WITHOUT_POLLING');
 const apiKey=apiKeyFor(chat);if(typeof apiKey!=='string'||!apiKey.trim())throw Error('EXISTING_CREDENTIAL_NOT_AVAILABLE');
 assertDispatchAllowed();fs.mkdirSync(output,{recursive:false});
-const messages=[{role:'system',content:REVIEW_SYSTEM},{role:'user',content:JSON.stringify({scope:'prospective independent verification of archived host-orchestrated finance output; no production route completion implied',source:sourceCase.source,sourceSha256:preflight.sourceSha256,request:sourceCase.request,financePlan:archived.finance.plan,calculatorReceipt:receipt,archivedClaims:archived.output.claims})}];
 fs.writeFileSync(path.join(output,'input-messages.json'),JSON.stringify(messages,null,2));
 const result={status:'STARTING',scope:'prospective finite archived finance receipt verification',promptVersion:PROMPT_VERSION,promptSha256:hash(JSON.stringify(messages)),sourceSha256:preflight.sourceSha256,requestSha256:preflight.requestSha256,model:{provider:chat.provider,baseUrl:chat.baseUrl,model:chat.model,maxTokens:chat.maxTokens,enableThinking:chat.enableThinking,topP:chat.topP??'provider default',temperature:0.1,maxAttempts:1},queueBefore,slotReceipts:[],httpAttempts:0,queueLayerCount:1,expectedCNY:preflight.calculator.expectedCNY,calculatorActualCNY:receipt.results[0].amount,productionABtoAComplete:false,originalPromptByteIdenticalProven:false,startedAt:new Date().toISOString()};
 result.modelConfigFingerprint=hash(JSON.stringify(result.model));
+result.sourceIdentity=identity;
 const save=()=>fs.writeFileSync(path.join(output,'result.json'),JSON.stringify(result,null,2));save();
 // The callback below observes the lease; it does not acquire a second lease.
 const queue={workerId:'worker-02',withSlot:(worker,fn,options)=>withSiliconflowSlot(worker,async lease=>{result.slotReceipts.push({worker,requestId:lease.request_id,leaseId:lease.lease_id,grantedAt:new Date().toISOString()});save();return fn(lease);},options)};
@@ -47,7 +48,7 @@ try{
  const message=await api(messages,[]);fs.writeFileSync(path.join(output,'model-message.json'),JSON.stringify(message,null,2));
  const content=message?.content;if(typeof content!=='string')throw Error('REVIEW_CONTENT_MISSING');
  const parsed=JSON.parse(content.replace(/^\s*```(?:json)?\s*/i,'').replace(/\s*```\s*$/,''));
- result.businessVerification=validateReceiptReview(parsed,{sourceSha256:preflight.sourceSha256,source:sourceCase.source,receipt});
+ result.businessVerification=validateReceiptReview(parsed,{source:sourceCase.source,financePlan:archived.finance.plan,receipt,identity});
  result.actualClaims=parsed.claims||null;result.decision=parsed.decision;result.status=result.businessVerification.passed?'FINITE_RECEIPT_VERIFY_PASSED':'FINITE_RECEIPT_VERIFY_NOT_PASSED';
 }catch(e){result.status='STOPPED_WITH_ERROR';result.error={code:e.code||null,message:String(e.message).split(apiKey).join('[REDACTED]'),httpStatus:e.details?.httpStatus||e.status||null};}
 finally{
