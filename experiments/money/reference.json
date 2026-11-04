@@ -1,0 +1,11 @@
+{
+ "notice":"Developer-authored synthetic reference, NOT independent human gold. Never passed to model.",
+ "tax-inclusive":{"CNY":"636.00"},
+ "mixed-units":{"CNY":"128648000.00"},
+ "decimal-refund":{"CNY":"80.60"},
+ "payment-percent":{"CNY":"860250.00"},
+ "different-currencies":{"CNY":"336.00","USD":"20.00"},
+ "unknown-unit":null,
+ "quoted-total-trap":{"CNY":"1330000.00"},
+ "holdout-perturbed":{"CNY":"314.42"}
+}

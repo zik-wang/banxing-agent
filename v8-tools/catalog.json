@@ -3,6 +3,7 @@
   "note": "Only implemented entries are callable. Planned names are a backlog, not registered tools. Discovery queries the actual registry rather than this planning list.",
   "implemented": [
     "discover_tools",
+    "calculate_money",
     "list_materials",
     "inspect_material",
     "render_pdf_page",
