@@ -4,7 +4,7 @@ import {reportSourceView} from './report-source-view.mjs';
 // the host reads authorized originals and persists/exports the actual draft.
 export async function reportPreflight({docs,harness,config,request,next,signal}){
  const intent=docs.turnIntent;
- if(!config.documentComposition||intent.noNewFiles||intent.requiresExternalAction||intent.wantsStatistics||!intent.formats.includes('docx')||docs.factProfile||/入库|知识库|检索|补丁|源码|代码修复/u.test(request))return null;
+ if(!config.documentComposition||config.meetingPolicy||intent.noNewFiles||intent.requiresExternalAction||intent.wantsStatistics||!intent.formats.includes('docx')||docs.factProfile||/入库|知识库|检索|补丁|源码|代码修复/u.test(request))return null;
  const sources=[...docs.assets.values()].filter(a=>a.id===a.sourceId);
  const call=async(name,args)=>{const r=await harness.execute(name,args);if(r.status!=='ok')throw Object.assign(Error(r.error?.message||'报告工具失败'),{code:r.error?.code});return r.data;};
  const previous=config.previousWorkProduct||config.interactionContext;

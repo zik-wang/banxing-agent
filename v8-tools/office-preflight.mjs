@@ -1,14 +1,15 @@
+import {randomUUID} from 'node:crypto';
 // Only explicit, unambiguous user operations are compiled here. Originals do not
 // supply instructions or permissions; ambiguous columns/keywords ask the user.
 const normal=x=>String(x).replace(/[\s_（）()]/g,'').toLowerCase();
 export function resolveMergeKeys(request,headers){
  const m=request.match(/(?:去重键|主键)(?:建议)?\s*[：:]\s*([^\n。；（(]+)/u);if(!m)return null;
  const requested=m[1].split(/[+＋、,，]/u).map(x=>x.trim()).filter(Boolean);if(!requested.length||requested.length>10)return{ambiguous:true};
- const aliases={供应商:/^(?:供应商(?:名称)?|中标人|中标供应商(?:名称)?|supplier|vendor)$/iu,报价:/^(?:报价|中标金额|投标报价|金额|总金额|amount)(?:元|cny|rmb)?$|价税合计|含税金额|不含税金额|税前金额|金额不含税/iu,项目名称:/^(?:项目名称|采购项目名称|projectname)$/iu};
- const keys=[];for(const key of requested){const exact=headers.filter(h=>normal(h)===normal(key)),matched=exact.length?exact:headers.filter(h=>aliases[key]?.test(normal(h)));if(matched.length!==1)return{ambiguous:true,requested,headers};keys.push(matched[0]);}return{keys,requested};
+ const aliases={供应商:/^(?:供应商(?:名称)?|中标人|中标供应商(?:名称)?|supplier|vendor)$/iu,报价:/^(?:报价|报价金额|中标金额|投标报价|投标金额|中标报价|金额|总金额|amount)(?:元|cny|rmb)?$|价税合计|含税金额|不含税金额|税前金额|金额不含税/iu,项目名称:/^(?:项目名称|采购项目名称|projectname)$/iu};
+ const keys=[];for(const key of requested){const exact=headers.filter(h=>normal(h)===normal(key)),group=Object.values(aliases).find(re=>re.test(normal(key))),matched=exact.length?exact:headers.filter(h=>group?.test(normal(h)));if(matched.length!==1)return{ambiguous:true,requested,headers};keys.push(matched[0]);}return{keys,requested};
 }
 export async function officePreflight({docs,records,harness,config,request}){
- if(!config.documentComposition||docs.turnIntent.noNewFiles||docs.turnIntent.requiresExternalAction)return null;
+ if(!config.documentComposition||config.meetingPolicy||docs.turnIntent.noNewFiles||docs.turnIntent.requiresExternalAction)return null;
  const inputs=[...docs.assets.values()].filter(a=>a.id===a.sourceId);if(!inputs.length)return null;
  const call=async(name,args)=>{const r=await harness.execute(name,args);if(r.status!=='ok')throw Object.assign(Error(r.error?.message||'办公工具执行失败'),{code:r.error?.code});return r.data;};
  if(docs.factProfile==='expiry'&&inputs.length===1&&['text','pdf'].includes(inputs[0].kind)&&docs.turnIntent.formats.length){
@@ -22,7 +23,8 @@ export async function officePreflight({docs,records,harness,config,request}){
   const match=request.match(/(?:检索|搜索)[\s\S]{0,35}[「“"]([^」”"]{1,150})[」”"]/u);if(!match)return null;
   const queries=match[1].split(/[\/、，,]/u).map(s=>s.trim()).filter(Boolean);if(!queries.length||queries.length>10)return null;
   const stored=[];for(const a of inputs)stored.push(await call('store_knowledge',{asset_id:a.id,title:a.name}));
-  const sections=[];for(const query of queries){const r=await call('search_knowledge',{query,limit:100});sections.push('### '+query+'\n字面匹配 '+r.totalMatches+' 处。'+(r.nextOffset!==null?'下方仅展示部分命中，完整原文和索引保留。':'')+'\n'+r.matches.slice(0,4).map(m=>'- '+m.sourceName+' 第'+m.line+'行：'+m.quote.trim()).join('\n'));}
+  const sections=[],fullSections=[];for(const query of queries){const r=await call('search_knowledge',{query,limit:100});fullSections.push('## '+query+'：'+r.totalMatches+'处字面匹配'+(r.nextOffset!==null?'（本文件仅含已取得的一页；仍有未取回范围）':'')+'\n'+r.matches.map(m=>m.sourceName+' 第'+m.line+'行 ['+m.start+'..'+m.end+'] SHA256 '+m.sourceSha256+'\n'+m.quote).join('\n\n'));sections.push('### '+query+'\n字面匹配 '+r.totalMatches+' 处。'+(r.nextOffset!==null?'原句仍有未取回范围。':'')+'聊天仅摘录最多4处，完整已取得命中见下载文件。\n'+r.matches.slice(0,4).map(m=>'- '+m.sourceName+' 第'+m.line+'行：'+m.quote.trim()).join('\n'));}
+  const allowed=['docx','txt','md'],formats=docs.turnIntent.formats.length?docs.turnIntent.formats.filter(f=>allowed.includes(f)):['txt'];if(!formats.length)return{needsInput:true,message:'条目和检索结果已保存；请指定Word或TXT等可用的原句交付格式，未擅自替换所需格式。'};const resultId=randomUUID();docs.results.set(resultId,{resultId,method:'knowledge_search_report',answer:'# 知识原句检索结果\n\n这是字面检索，不是语义完整性或个人事项办结证明。\n\n'+fullSections.join('\n\n'),sourceIds:inputs.map(a=>a.id)});docs.save();for(const format of formats)await call('export_document',{title:'知识原句检索结果',format,result_ids:[resultId]});
   return{completed:true,message:'# 知识入库与原句检索\n\n已持久保存以下全文条目，附件登记不代替入库：\n'+stored.map(x=>'- '+x.title+' · 文档ID '+x.documentId+' · SHA256 '+x.sourceSha256).join('\n')+'\n\n'+sections.join('\n\n')+'\n\n这是字面检索，不保证语义召回；没有个人办理回执，不能据此认定个人事项已办结。'};
  }
  if(inputs.length>=2&&inputs.every(a=>a.kind==='workbook')&&/合并|追加|合起来/u.test(request)&&!/不要.{0,5}去重|保留重复/u.test(request)){
