@@ -28,14 +28,16 @@ export function externalActionRequested(request=''){
 }
 export function executionIntent(request=''){
  request=String(request);const clauses=request.split(/[，,。；;\n]/).map(x=>x.trim()),active=clauses.filter(c=>!/^避免|^别只|^不要只|^不(?:要|应)仅/u.test(c));
+ const affirmative=active.filter(c=>! /^(?:请|麻烦)?(?:不要(?!只|仅)|不用|无需|不得|禁止|不必|别(?!只|仅))/u.test(c)).join('；');
+ const retrievalPhrase=/^(?:文件呢|成果呢)[？?。!！\s]*$/u.test(affirmative)||/(?:之前|刚才|已有|那先把|先把).{0,15}(?:Word|Excel|PDF|文件|成果).{0,10}(?:给我|发我|取回|下载)/iu.test(affirmative)||/(?:给我|取回|下载).{0,10}(?:之前|刚才|已有|上轮).{0,12}(?:Word|Excel|PDF|文件|成果)/iu.test(affirmative);
  const formats=outputFormats(request),affirmativeExport=active.some(c=>!/^(?:不(?:要|用|需要)?|无需|别)/u.test(c)&&/(?:修订(?:成|为)?|修改(?:成|为)?|更新(?:成|为)?|交付|(?:重新|再)给(?:我)?|生成|导出|实际生成|整理成|写成|制作成|做成|存成|转成|给我).{0,18}(?:Word|Excel|PDF|文件|报告|文档)/iu.test(c));
- const answerOnly=!affirmativeExport&&active.some(c=>/^(?:请)?(?:只|直接)(?:需|要)?(?:回答|告诉|说)|^(?:请)?(?:不|不要|不用|无需)(?:再)?(?:生成|导出|交付|创建).{0,8}(?:文件|表|报告)/u.test(c));
- const reviewAgain=/(?:重新|再次|重做|补充材料后).{0,8}(?:审核|审查|复核)|重审|(?:改为|换成|从|按).{0,8}(?:采购方|供方|卖方|买方|中立).{0,8}(?:立场|角度)/u.test(request);
- const referenceReview=/(?:刚才|之前|上轮|已有|这份).{0,10}(?:审核|审查).{0,8}(?:重点|结果|结论|报告)/u.test(request);
- const freshReview=reviewAgain||!referenceReview&&/(?:审核|审查|重审|复核|补审|检查)/u.test(request.replace(/(?:审核|审查)(?:报告|重点|结果|结论)/gu,'报告'));
- const modification=/(?:修改|修订|更正|补列|加一列|增加|补充说明|删掉|删除列)/u.test(request);
- const conversion=/(?:Word|Excel|PDF).{0,8}再给个(?:Word|Excel|PDF)|(?:转成|转为|转换|导出|整理成|写成|制作成|做成|做个|存成|存为)|(?:Word|Excel|PDF)(?:版)?给我|用(?:Word|Excel|PDF)给我/iu.test(request);
- const retrieve=!answerOnly&&!modification&&!reviewAgain&&!/(?:转成|转为|转换|导出|生成|整理成|写成|制作成|做成|做个|存成|存为)/u.test(request)&&(/^(?:文件呢|成果呢)[？?。!！\s]*$/u.test(request)||/(?:之前|刚才|已有|那先把|先把).{0,15}(?:Word|Excel|PDF|文件|成果).{0,10}(?:给我|发我|取回|下载)/iu.test(request)||/(?:给我|取回|下载).{0,10}(?:之前|刚才|已有|上轮).{0,12}(?:Word|Excel|PDF|文件|成果)/iu.test(request));
+ const answerOnly=!affirmativeExport&&!retrievalPhrase&&active.some(c=>/^(?:请)?(?:只|直接)(?:需|要)?(?:回答|告诉|说)|^(?:请)?(?:不|不要|不用|无需)(?:再)?(?:生成|导出|交付|创建).{0,8}(?:文件|表|报告)/u.test(c));
+ const reviewAgain=/(?:重新|再次|重做|补充材料后).{0,8}(?:审核|审查|复核)|重审|(?:改为|换成|从|按).{0,8}(?:采购方|供方|卖方|买方|中立).{0,8}(?:立场|角度)/u.test(affirmative);
+ const referenceReview=/(?:刚才|之前|上轮|已有|这份).{0,10}(?:审核|审查).{0,8}(?:重点|结果|结论|报告)/u.test(affirmative);
+ const freshReview=reviewAgain||!referenceReview&&/(?:审核|审查|重审|复核|补审|检查)/u.test(affirmative.replace(/(?:审核|审查)(?:报告|重点|结果|结论)/gu,'报告'));
+ const modification=/(?:修改|修订|更正|补列|加一列|增加|补充说明|删掉|删除列)/u.test(affirmative);
+ const conversion=/(?:Word|Excel|PDF).{0,8}再给个(?:Word|Excel|PDF)|(?:转成|转为|转换|导出|整理成|写成|制作成|做成|做个|存成|存为)|(?:Word|Excel|PDF)(?:版)?给我|用(?:Word|Excel|PDF)给我/iu.test(affirmative);
+ const retrieve=!answerOnly&&!modification&&!reviewAgain&&!freshReview&&!/(?:转成|转为|转换|导出|生成|整理成|写成|制作成|做成|做个|存成|存为)/u.test(affirmative)&&retrievalPhrase;
  const summary=/说重点|讲重点|核心(?:问题|风险)|最重要|总结/u.test(request);
  const implicitDelivery=/(?:合并|合.{0,3}(?:起来|一起)|去重|汇总|修改|修订|转换|转成|转为).{0,20}(?:报表|表格|台账|文档|文件)|(?:报表|表格|台账|文档|文件).{0,20}(?:合并|合.{0,3}(?:起来|一起)|去重|汇总|修改|修订|转换|转成|转为)/u.test(request);
  const operation=reviewAgain?'review':answerOnly?'answer':retrieve?'retrieve':modification?'modify':formats.length&&conversion&&!freshReview?'convert':freshReview?'review':formats.length||implicitDelivery?'create':summary?'summarize':'answer';
