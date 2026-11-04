@@ -12,9 +12,10 @@ export function createSiliconflowSlotFetch({fetchImpl,withSlot,workerId,onReceip
   onReceipt({...receipt});
   try{
    const value=await withSlot(workerId,async()=>{
+    const started=clock();receipt.queueWaitMs=started-queuedAt;
     const signal=init?.signal||(input instanceof Request?input.signal:null);
     if(signal?.aborted)throw Object.assign(Error('Request cancelled before shared SF slot was granted'),{request_not_started:true});
-    const started=clock();upstreamStarted=true;Object.assign(receipt,{state:'requesting',queueWaitMs:started-queuedAt,networkRequestAttempted:true,upstreamStartedAt:new Date(started).toISOString()});onReceipt({...receipt});
+    upstreamStarted=true;Object.assign(receipt,{state:'requesting',networkRequestAttempted:true,upstreamStartedAt:new Date(started).toISOString()});onReceipt({...receipt});
     const response=await fetchImpl(input,init),chunks=[];let bytes=0,firstChunkMs=null;
     if(response.body){const reader=response.body.getReader();try{while(true){const next=await reader.read();if(next.done)break;if(firstChunkMs===null)firstChunkMs=clock()-started;chunks.push(next.value);bytes+=next.value.byteLength;}}finally{reader.releaseLock();}}
     const body=new Uint8Array(bytes);let offset=0;for(const chunk of chunks){body.set(chunk,offset);offset+=chunk.byteLength;}
@@ -24,6 +25,8 @@ export function createSiliconflowSlotFetch({fetchImpl,withSlot,workerId,onReceip
    Object.assign(receipt,{state:'completed',finishedAt:new Date(clock()).toISOString(),totalElapsedMs:clock()-queuedAt});onReceipt({...receipt});
    return new Response([204,205,304].includes(value.status)?null:value.body,{status:value.status,statusText:value.statusText,headers:value.headers});
   }catch(error){
+   if(!upstreamStarted)Object.assign(receipt,{queueWaitMs:clock()-queuedAt,providerElapsedMs:0});
+   else if(!receipt.fullBodyConsumed)receipt.providerElapsedMs=clock()-Date.parse(receipt.upstreamStartedAt);
    Object.assign(receipt,{state:'failed',finishedAt:new Date(clock()).toISOString(),totalElapsedMs:clock()-queuedAt,fullBodyConsumed:receipt.fullBodyConsumed===true,uncertain:upstreamStarted&&receipt.fullBodyConsumed!==true});onReceipt({...receipt});
    throw error;
   }
