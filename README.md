@@ -1,6 +1,6 @@
 # 伴行 V8 · 文件交办、连续修改与真实交付
 
-> 2026-11-04收尾：开发机8884运行冻结候选 `f8fefc5`，开发分支 `codex/c-end-quality-20261104`。当前10个页面、14个历史推荐文件已重新访问下载并核对SHA；这不是十项全部业务签收。新增[同一公网27B的Harness／Codex对比](docs/evaluations/2026-11-04/README.md)，含离线HTML、原件及真实成果。Word取回已验证零模型调用并尊重选定历史版本；新Word修改仍被本机索引保存EPERM阻断，见[本轮完整状态](docs/c-end-8884-20261104/continuation.md)。保留原滚动与输入框修复。main未合并，独立Gold为0。
+> 2026-11-04收尾：开发机8884运行冻结候选 `f8fefc5`，开发分支 `codex/c-end-quality-20261104`。当前10个页面、14个历史推荐文件已重新访问下载并核对SHA；这不是十项全部业务签收。新增[同一公网27B的Harness／Codex对比](docs/evaluations/2026-11-04/README.md)，含离线HTML、原件及真实成果。Word取回已验证零模型调用并尊重选定历史版本；03新修改受本机索引保存EPERM阻断，06则完成模型调用但仍超出800字门限。两项原因分别记录，见[完整状态及更正](docs/c-end-8884-20261104/continuation.md)。保留原滚动与输入框修复。main未合并，独立Gold为0。
 
 
 **前一批2026-11-03 更新分支（本轮候选见上方）：`codex/delivery-quality-20261103`。** 本仓库保持私有，`main` 与旧 V7 Release 不是本轮交付。供 2026-11-05（周四）mentor 评估，请先看[部署与验收说明](docs/v8-mentor-current.md)。
