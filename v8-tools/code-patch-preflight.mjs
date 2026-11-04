@@ -1,6 +1,6 @@
 import fs from'node:fs';import path from'node:path';
 export async function codePatchPreflight({docs,harness,config,request,next,signal}){
- if(!config.documentComposition||config.meetingPolicy||docs.turnIntent.noNewFiles||docs.turnIntent.requiresExternalAction||!/补丁|patch/iu.test(request)||/不要.{0,8}(?:生成|保存|写出).{0,6}(?:补丁|副本)/u.test(request))return null;
+ if(!config.documentComposition||config.meetingPolicy||docs.turnIntent.noNewFiles||docs.turnIntent.requiresExternalAction||!/补丁|patch|修复|before|^修\s/iu.test(request)||/不要.{0,8}(?:生成|保存|写出).{0,6}(?:补丁|副本)/u.test(request))return null;
  const sources=[...docs.assets.values()].filter(a=>a.id===a.sourceId),code=sources.filter(a=>/\.(?:py|js|mjs|ts)$/i.test(a.name));
  if(!code.length||sources.some(a=>a.kind!=='text'))return null;
  if(code.length!==1)return{needsInput:true,message:'有多份源码，请明确需要修改哪一份；未运行或修改任何原件。'};

@@ -1,0 +1,3 @@
+import test from'node:test';import assert from'node:assert/strict';import{executionIntent,outputFormats}from'../v8-tools/execution-intent.mjs';
+test('customer handover and repeat-give phrases preserve requested Word instead of silently exporting Markdown',()=>{for(const text of ['请修订报告，不要猜日期，重新交付Word。','各版本逐项核对，重新给Word。','重新给我Word','交付Word'])assert.deepEqual(outputFormats(text),['docx'],text);assert.equal(executionIntent('只回答，不要交付Word').noNewFiles,true);});
+test('input Word and negative output mentions remain distinct from delivery',()=>{assert.deepEqual(outputFormats('读取Word作为来源，整理成PDF'),['pdf']);for(const text of ['不要生成Word，只回答','不要交付Word','无需重新给Word'])assert.deepEqual(outputFormats(text),[],text);});
