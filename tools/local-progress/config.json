@@ -1,0 +1,36 @@
+{
+  "port": 18764,
+  "timezone": "Asia/Shanghai",
+  "interval_ms": 1800000,
+  "stale_ms": 1800000,
+  "tasks": [
+    {"task_id":"T1","title":"Codex × 千问3.8 接入与框架对照","goal":"先核实实际客户端和兼容性，不假定可替换后台。固定材料、提示词与模型条件，对照 Codex 和现有 Harness，区分模型与框架问题。"},
+    {"task_id":"T2","title":"合同审核 / 报销：1.5B 与 27B","goal":"完成微调模型对比报告，重点验证大额数值错误；比较财务路由与单 Agent 加计算器，记录真实结果。"},
+    {"task_id":"T3","title":"DeepSeek V4.1 Flash：图转 CAD","goal":"型号按原文保留、尚未验证。先验证可用性和输出格式；输入包含图纸及功能模块说明，保留校验结果。"},
+    {"task_id":"T4","title":"Codex 重跑 Harness 失败案例","goal":"对照输入、工具、模型及输出，定位现有 Harness 跑不通的原因。"}
+  ],
+  "workers":[
+    {"worker_id":"worker-01"},
+    {"worker_id":"worker-02"},
+    {"worker_id":"worker-03"},
+    {"worker_id":"worker-04"},
+    {"worker_id":"worker-05"},
+    {"worker_id":"worker-06"},
+    {"worker_id":"worker-07"}
+  ],
+  "legacy_workers":[
+    {"worker_id":"t1-client","task_id":"T1"},
+    {"worker_id":"t1-compare","task_id":"T1"},
+    {"worker_id":"t2-model","task_id":"T2"},
+    {"worker_id":"t2-calc","task_id":"T2"},
+    {"worker_id":"t3-cad","task_id":"T3"},
+    {"worker_id":"t4-replay","task_id":"T4"},
+    {"worker_id":"t4-diagnose","task_id":"T4"}
+  ],
+  "milestones":[
+    "mentor 讨论四项：候选 2026-11-05（周四）上午，具体时间待确认，Asia/Shanghai",
+    "demo 尽快完整收尾：未设定确认日期",
+    "demo 后整理本月工作小结",
+    "月度 review：候选 2026-11-06（周五）或 2026-11-09（下周一），时间待确认"
+  ]
+}

@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
+const root=path.dirname(fileURLToPath(import.meta.url));
+fs.mkdirSync(path.join(root,'test-output'),{recursive:true});
+process.env.BOARD_DATA=fs.mkdtempSync(path.join(root,'test-output','control-'));
+const {data,write}=await import('./core.mjs');
+const {policy,assertDispatchAllowed}=await import('./control.mjs');
+const p=path.join(data,'run-control.json');
+write(p,{mode:'running',deadline:'2026-11-05T14:00:00+08:00'});
+assert.equal(policy(Date.parse('2026-11-05T13:59:59+08:00')).paused,false);
+assert.equal(policy(Date.parse('2026-11-05T14:00:00+08:00')).paused,true);
+assert.equal(policy(Date.parse('2026-11-05T06:00:00Z')).expired,true);
+write(p,{mode:'paused',reason:'用户要求暂停',deadline:'2099-11-05T14:00:00+08:00'});
+assert(policy().paused);assert.throws(assertDispatchAllowed,/用户要求暂停/);
+write(p,{mode:'running',deadline:'2000-11-05T14:00:00+08:00'});assert.throws(assertDispatchAllowed,/截止时间/);
+console.log('PASS 截止前允许、东八区14点立即停止派发、明确暂停优先、到期禁止新派发');
