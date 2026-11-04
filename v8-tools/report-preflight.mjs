@@ -1,15 +1,18 @@
 import fs from 'node:fs';import path from 'node:path';
 import {reportSourceView} from './report-source-view.mjs';
-// Bounded host orchestration for a requested Word report. The model writes prose;
+// Bounded host orchestration for a requested narrative report. The model writes prose;
 // the host reads authorized originals and persists/exports the actual draft.
 export async function reportPreflight({docs,harness,config,request,next,signal}){
  const intent=docs.turnIntent;
- if(!config.documentComposition||intent.noNewFiles||intent.requiresExternalAction||intent.wantsStatistics||!intent.formats.includes('docx')||docs.factProfile||/入库|知识库|检索|补丁|源码|代码修复/u.test(request))return null;
+ const activeClauses=String(request).split(/[，,。；;\n]/u).filter(c=>!/^\s*(?:不要|不得|禁止|无需|不用|不能|不重新|不重写|不再核|不核实|别)/u.test(c));
+ const narrativeRequest=activeClauses.some(c=>/(?:生成|撰写|写一份|整理成|制作).{0,30}(?:简报|周报|报告|纪要)/u.test(c));
+ const formats=intent.formats||[],supportedFormat=formats.length===1?['docx','md','txt'].includes(formats[0]):!formats.length&&narrativeRequest;
+ if(!(config.documentComposition||docs.executionRepair)||config.documentComposition===false||config.meetingPolicy||intent.noNewFiles||intent.requiresExternalAction||intent.wantsStatistics||!supportedFormat||docs.factProfile||/入库|知识库|检索|补丁|代码修复/u.test(activeClauses.join('；')))return null;
  const sources=[...docs.assets.values()].filter(a=>a.id===a.sourceId);
  const call=async(name,args)=>{const r=await harness.execute(name,args);if(r.status!=='ok')throw Object.assign(Error(r.error?.message||'报告工具失败'),{code:r.error?.code});return r.data;};
  const previous=config.previousWorkProduct||config.interactionContext;
  let body,modelCalls=0,kind='host_read_then_model_prose',receipts=[];
- if(!intent.requiresReprocessing&&!sources.some(a=>a.kind==='audio')&&intent.operation==='convert'&&['answered','completed'].includes(previous?.previousStatus)&&previous.previousAnswer?.trim()&&!/重新|重写|再核|核实|新增|补充|给领导/u.test(request)){
+ if(!intent.requiresReprocessing&&!sources.some(a=>a.kind==='audio')&&intent.operation==='convert'&&['answered','completed'].includes(previous?.previousStatus)&&previous.previousAnswer?.trim()&&!/重新|重写|再核|核实|新增|补充|给领导/u.test(activeClauses.join('；'))){
   body=previous.previousAnswer;kind='convert_authorized_previous_answer';
  }else{
   if(!sources.length||sources.some(a=>!['text','word','pdf'].includes(a.kind)||/\.(?:py|js|mjs|sh|ps1)$/i.test(a.name)))return null;
@@ -34,5 +37,8 @@ export async function reportPreflight({docs,harness,config,request,next,signal})
  const heading=body.match(/^#\s+(.+)\r?\n/u),title=heading?.[1]||'材料整理报告';const content=heading?body.slice(heading[0].length).trim():body;
  fs.writeFileSync(path.join(docs.directory,'report-composition.json'),JSON.stringify({kind,modelCalls,sourceReceipts:receipts,priorTurnId:previous?.previousTurnId||null,semanticVerified:false},null,2));
  const result=await call('save_draft',{title,content,source_ids:sources.map(a=>a.id)});
- return{completed:true,message:body+'\n\nWord已按实际保存的正文生成，可在下方下载。'+(kind==='convert_authorized_previous_answer'?'本轮仅转换刚才的回复，未重新核实事实。':'来源读取与文件回读已记录；不代表所有语义判断已独立核实。'),draftRef:result.draftRef};
+ const draftRef=result.draft_ref||result.draftRef;
+ if(result.renderFailure||!result.artifactId||!result.saveReadbackPassed)return{failed:true,reason:'report_export_failed',draftRef,message:'报告正文已保存，但文件导出或回读未完成。'+(result.renderFailure?.message||'缺少实际文件回执。')+' 可使用已保存的草稿继续导出，无需重读材料。'};
+ const format=formats.includes('docx')?'Word':formats[0]==='txt'?'TXT':'Markdown';
+ return{completed:true,message:body+'\n\n'+format+'已按实际保存的正文生成，可在下方下载。'+(kind==='convert_authorized_previous_answer'?'本轮仅转换刚才的回复，未重新核实事实。':'来源读取与文件回读已记录；不代表所有语义判断已独立核实。'),draftRef};
 }

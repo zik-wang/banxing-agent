@@ -17,6 +17,15 @@ export function outputFormats(request=''){
  }
  return [...formats];
 }
+export function externalActionRequested(request=''){
+ for(const clause of String(request).split(/[，,。；;\n]/u))for(const m of clause.matchAll(/发邮件|发给|发送|发布|预约|付款|支付|覆盖原|删除原|运行代码/gu)){
+  const prefix=clause.slice(0,m.index),cut=Math.max(prefix.lastIndexOf('但'),prefix.lastIndexOf('不过')),scope=cut>=0?prefix.slice(cut+1):prefix;
+  // Release metadata and already-published facts describe evidence, not a new action.
+  if(m[0]==='发布'&&(/^(?:记录|快照|日期|时间|版本|日志)/u.test(clause.slice(m.index+2))||/(?:已|已经)$/u.test(prefix)))continue;
+  if(/(?:不要(?!只|仅)|不得|禁止|无需|不用|不需(?:要)?|不执行|不进行|不许|别(?!只|仅)|不$)[\s\S]{0,25}$/u.test(scope))continue;
+  return true;
+ }return false;
+}
 export function executionIntent(request=''){
  request=String(request);const clauses=request.split(/[，,。；;\n]/).map(x=>x.trim()),active=clauses.filter(c=>!/^避免|^别只|^不要只|^不(?:要|应)仅/u.test(c));
  const formats=outputFormats(request),affirmativeExport=active.some(c=>!/^(?:不(?:要|用|需要)?|无需|别)/u.test(c)&&/(?:生成|导出|实际生成|整理成|写成|制作成|做成|存成|转成|给我).{0,18}(?:Word|Excel|PDF|文件|报告|文档)/iu.test(c));
@@ -35,5 +44,5 @@ export function executionIntent(request=''){
  const oneParagraph=/一(?:个自然)?段(?!.{0,2}时间)/u.test(request)&&/写|汇报|报告|整理|说明/u.test(request),limit=request.match(/(\d+)\s*字(?:以内|内|以下)/u);
  const create=['convert','create','modify','review'].includes(operation),kind=answerOnly?'answer_only':retrieve?'existing_file':create?'create_file':'answer';
  const statsTerm=/统计|合计|总额|总金额|多少(?:条|行)|非空|\b(?:sum|count|total)\b/i.test(request),pureFormatOnly=formats.length>0&&conversion&&!/给领导|带上.{0,12}统计|(?:生成|写|做).{0,12}统计(?:报告|说明)|总额|总金额|计算|算一下/u.test(request);
- return {requiresExternalAction:/(?:发邮件|发给|发送|发布|预约|付款|支付|覆盖原|删除原|运行代码)/u.test(request),wantsStatistics:statsTerm&&!pureFormatOnly,version:'host-intent-2',operation,kind,noNewFiles:answerOnly,formats:answerOnly?[]:formats,targetFormats:answerOnly?[]:formats,reviewAgain,requiresReprocessing:reviewAgain||modification,purpose:/给领导|领导(?:看|汇报)/u.test(request)?'leader':'unspecified',length:{paragraphs:oneParagraph?1:null,minChars:oneParagraph&&!limit?200:null,maxChars:limit?Number(limit[1]):oneParagraph?350:null},onlyOrdinal:only?ordinal(only[1]):null,excludedOrdinals:excludes,wantsSummary:summary,materialTask:/(?:合并|合.{0,3}(?:起来|一起)|对比|比较|转成|转换|读取|阅读|提取|整理|做成)/u.test(request)&&/(?:这个|这份|这两|这些|附件|文件|材料|报表|表格)/u.test(request)&&!/(?:知识库|日历|检索)/u.test(request)};
+ return {requiresExternalAction:externalActionRequested(request),wantsStatistics:statsTerm&&!pureFormatOnly,version:'host-intent-2',operation,kind,noNewFiles:answerOnly,formats:answerOnly?[]:formats,targetFormats:answerOnly?[]:formats,reviewAgain,requiresReprocessing:reviewAgain||modification,purpose:/给领导|领导(?:看|汇报)/u.test(request)?'leader':'unspecified',length:{paragraphs:oneParagraph?1:null,minChars:oneParagraph&&!limit?200:null,maxChars:limit?Number(limit[1]):oneParagraph?350:null},onlyOrdinal:only?ordinal(only[1]):null,excludedOrdinals:excludes,wantsSummary:summary,materialTask:/(?:合并|合.{0,3}(?:起来|一起)|对比|比较|转成|转换|读取|阅读|提取|整理|做成)/u.test(request)&&/(?:这个|这份|这两|这些|附件|文件|材料|报表|表格)/u.test(request)&&!/(?:知识库|日历|检索)/u.test(request)};
 }
