@@ -7,7 +7,7 @@ export async function reportPreflight({docs,harness,config,request,next,signal})
  const activeClauses=String(request).split(/[，,。；;\n]/u).filter(c=>!/^\s*(?:不要|不得|禁止|无需|不用|不能|不重新|不重写|不再核|不核实|别)/u.test(c));
  const narrativeRequest=activeClauses.some(c=>/(?:生成|撰写|写一份|整理成|制作).{0,30}(?:简报|周报|报告|纪要)/u.test(c));
  const formats=intent.formats||[],supportedFormat=formats.length===1?['docx','md','txt'].includes(formats[0]):!formats.length&&narrativeRequest;
- if(!(config.documentComposition||docs.executionRepair)||config.documentComposition===false||config.meetingPolicy||intent.noNewFiles||intent.requiresExternalAction||intent.wantsStatistics||!supportedFormat||docs.factProfile||/入库|知识库|检索|补丁|代码修复/u.test(activeClauses.join('；')))return null;
+ if(!(config.documentComposition||docs.executionRepair)||config.documentComposition===false||config.meetingPolicy||intent.kind==='existing_file'||intent.operation==='retrieve'||intent.noNewFiles||intent.requiresExternalAction||intent.wantsStatistics||!supportedFormat||docs.factProfile||/入库|知识库|检索|补丁|代码修复/u.test(activeClauses.join('；')))return null;
  const sources=[...docs.assets.values()].filter(a=>a.id===a.sourceId);
  const call=async(name,args)=>{const r=await harness.execute(name,args);if(r.status!=='ok')throw Object.assign(Error(r.error?.message||'报告工具失败'),{code:r.error?.code});return r.data;};
  const previous=config.previousWorkProduct||config.interactionContext;
