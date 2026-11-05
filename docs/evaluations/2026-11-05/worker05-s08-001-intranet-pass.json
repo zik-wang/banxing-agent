@@ -1,0 +1,74 @@
+{
+  "case_id": "S08-001",
+  "status": "PASS",
+  "scope": "Only this current8884 intranet synthetic end-to-end case. Not an 18-scenario, stability, or user acceptance claim",
+  "verified_by": "worker-05 independent expected/content/actual-download/provider-receipt and run binding",
+  "verified_at": "2026-11-05T04:15:58.103Z",
+  "entry": "http://127.0.0.1:8884/#f833b9d6-f74e-40b8-a97e-20a392ad2396",
+  "conversation_id": "f833b9d6-f74e-40b8-a97e-20a392ad2396",
+  "turn_id": "397b2a0b-91bc-4c0e-92d5-5ec862c88689",
+  "run_id": "68e615a3-e98f-4f98-8d97-267983c723a6",
+  "model": {
+    "mode": "intranet",
+    "revision": 13,
+    "provider": "intranet",
+    "model": "qwen3.8-27b-fp8"
+  },
+  "checks": {
+    "finalAnswerComplete": true,
+    "threeOldNewPairsCorrect": true,
+    "unchangedService12Months": true,
+    "addedMonthlyMaintenanceReport": true,
+    "docxPackageAndTableReadback": true,
+    "derived25000And14And20Valid": true,
+    "noUnsupportedClausesFound": true,
+    "sameRunTaskInputsAndReceipts": true,
+    "independentExpectedNotInModelMessages": true,
+    "oldCloudRunNotReused": true
+  },
+  "qa_new_inference_requests": 0,
+  "case_model_requests": 4,
+  "case_tool_calls": 4,
+  "outputs": [
+    {
+      "name": "晨星项目新旧版条款差异报告.md",
+      "sha256": "a260fba0c92462673a38852c5cca64415000138239d6f050f663da252280e65e",
+      "bytes": 1484,
+      "url": "http://127.0.0.1:8884/api/conversations/f833b9d6-f74e-40b8-a97e-20a392ad2396/turns/397b2a0b-91bc-4c0e-92d5-5ec862c88689/artifacts/db6cbe14-027e-471b-a184-b2dcd62a1816"
+    },
+    {
+      "name": "晨星项目新旧版条款差异报告.docx",
+      "sha256": "9d46735ba02ecc522db38bde438fbfa76a5b7f3a1fb0ed38cd8e3da38fc5041e",
+      "bytes": 10161,
+      "url": "http://127.0.0.1:8884/api/conversations/f833b9d6-f74e-40b8-a97e-20a392ad2396/turns/397b2a0b-91bc-4c0e-92d5-5ec862c88689/artifacts/11a83126-17ef-4b06-a7d1-88eb68c8f0c5"
+    }
+  ],
+  "version": {
+    "base_commit": "f8fefc597f336b0a51a51d6ee1159150a69f0529",
+    "parent_startup_fingerprint": "58e9dc909101213b66bcd356479e766af4888bc3f5dd2bdc4232cf1376f1f383",
+    "case_child_code_fingerprint": "9212ff7938b6d55e96ca2c2781fd393183ebebbb5db1110e27478ba1f73b1419",
+    "parent_code_changed": true,
+    "task_created_at": "2026-11-05T04:06:41.649Z",
+    "changes_predate_task": true,
+    "changed_files": [
+      {
+        "file": "v8-tools/operator-controls.mjs",
+        "sha256": "91c83af8e8facf82f1e82217a6a3ff493480840aa89a6c989c935a21ff3e9056",
+        "lastWriteUtc": "2026-11-05T04:06:10.490Z",
+        "createdUtc": "2026-11-05T04:06:39.150Z",
+        "changesPredateTask": true
+      },
+      {
+        "file": "v8-tools/run.mjs",
+        "sha256": "df56b53a548afe5b0cd7a11de2effaa168c9bad5c4eb9b731229f544c52f4369",
+        "lastWriteUtc": "2026-11-05T04:06:39.156Z",
+        "createdUtc": "2026-11-05T03:58:27.638Z",
+        "changesPredateTask": true
+      }
+    ],
+    "qualification": "Local file timestamps/hashes and child-loading path; parent codeChanged=true is preserved, not rewritten as false."
+  },
+  "old_cloud_or_interrupted_runs_preserved": true,
+  "user_accepted": false,
+  "material_bodies_uploaded": false
+}
