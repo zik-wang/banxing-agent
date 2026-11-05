@@ -1,0 +1,218 @@
+{
+  "files": [
+    {
+      "path": "cad-harness/.gitignore",
+      "sha256": "18d61e94f9d1b799934894f46dbd4bc9ee600c033b354875576930deef4ff6cc",
+      "bytes": 294
+    },
+    {
+      "path": "cad-harness/PROGRESS.md",
+      "sha256": "ce7e1ba8888dfd9eb3014eb6d64a447cd6d4cfdd26971eb1570887031a41719a",
+      "bytes": 4002
+    },
+    {
+      "path": "cad-harness/PUBLIC_CHECKOUT.md",
+      "sha256": "01938b20162fe77d77c03425d50bd6ee927f089ffd3aba467b48ed81e2ec754b",
+      "bytes": 5519
+    },
+    {
+      "path": "cad-harness/VECTOR_ROUTE.md",
+      "sha256": "4043a93cec437e812e967b7097818627df81845ab899b93afd8e635cdc8f6789",
+      "bytes": 3999
+    },
+    {
+      "path": "cad-harness/batch20.py",
+      "sha256": "44b18730333aee050e290e40ed10d3bb31943ac23289160e7c7b92375eb7c112",
+      "bytes": 3441
+    },
+    {
+      "path": "cad-harness/build_new10_page.py",
+      "sha256": "e83ec98955c180eab4d167ed558ca4a2a4f96fb1669f688f4f1c6d2d9bd98f13",
+      "bytes": 8502
+    },
+    {
+      "path": "cad-harness/build_review_page.py",
+      "sha256": "a79429d1a19875f0d9308459c06b16071dd216058ae339201cf88eb249fec75c",
+      "bytes": 12652
+    },
+    {
+      "path": "cad-harness/cad_harness/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "cad-harness/cad_harness/audit.py",
+      "sha256": "4f4bfb60d38aa16a0e95936ef20f242ed6140390fa01146a431ddd7c33e0ee9c",
+      "bytes": 15956
+    },
+    {
+      "path": "cad-harness/cad_harness/comparison.py",
+      "sha256": "21221ed2527fe50190488aa8877d14128e8dba3dadc331a1b847e154521ad2d0",
+      "bytes": 1462
+    },
+    {
+      "path": "cad-harness/cad_harness/diagnostics.py",
+      "sha256": "66f19efea3f26f299050ffd38909a0a4ff281d03baeb2d4d3699fdaf731d2aa7",
+      "bytes": 2596
+    },
+    {
+      "path": "cad-harness/cad_harness/engine.py",
+      "sha256": "17cb382d9421af9ac2aec7a3c051c9e6e2dcbff26e9b377dce32d9d4d65ad842",
+      "bytes": 9686
+    },
+    {
+      "path": "cad-harness/cad_harness/graph_audit.py",
+      "sha256": "56402bd825e6f2935353a70e9a00c3788f7fee0b3fe7b523d557dc3e9c57700c",
+      "bytes": 2915
+    },
+    {
+      "path": "cad-harness/cad_harness/module_audit.py",
+      "sha256": "0beeb55b3604632eb2fd26fc3d903b53a3efb03f02a797407615286fe05baf6f",
+      "bytes": 2706
+    },
+    {
+      "path": "cad-harness/cad_harness/pdf_anchors.py",
+      "sha256": "7e56c4fc3abec2623bfe76a7387b6cc40e1e23734153ec5f6f5048331b12f154",
+      "bytes": 3095
+    },
+    {
+      "path": "cad-harness/cad_harness/pdf_source_audit.py",
+      "sha256": "ba5d175a13593829bd64141001d2b2b3404d5c79f77f8242d33c7dbef656d00e",
+      "bytes": 3459
+    },
+    {
+      "path": "cad-harness/cad_harness/pdf_transcribe.py",
+      "sha256": "af867cd32b879ab9f47af0273f2cfd054b786697a3a6a9fed06cd785ccc71a7c",
+      "bytes": 19989
+    },
+    {
+      "path": "cad-harness/cad_harness/provider.py",
+      "sha256": "3524116402c32be1fa581f44cc3ae9bd98fbb75ecb0be370d7ddb02bb9959155",
+      "bytes": 10882
+    },
+    {
+      "path": "cad-harness/cad_harness/runner.py",
+      "sha256": "cf5d31c49a9d372485d6c2817cd3431bef1ac20a264c1a382b80ac3d6ee0dbd4",
+      "bytes": 8906
+    },
+    {
+      "path": "cad-harness/cad_harness/schema.py",
+      "sha256": "cab7f60e0e1ff28d0f95292d4badfa1fae3114f2da451e703856824a3c6686a4",
+      "bytes": 5730
+    },
+    {
+      "path": "cad-harness/cad_harness/single_pass_batch.py",
+      "sha256": "227ddc93fca2502240fe359a44ab3009a0fb03ce68375b6b39af586b43e5eae5",
+      "bytes": 13343
+    },
+    {
+      "path": "cad-harness/cad_harness/storage.py",
+      "sha256": "026512781186a4e6e7ba7af5bd89c1711b37e657458340787b43c7829b6dee0c",
+      "bytes": 901
+    },
+    {
+      "path": "cad-harness/cad_harness/synth20.py",
+      "sha256": "a44fc13851a64d952fbc5eebdd9df7014eed54d7e641592ae499cbcc0a7e6ea7",
+      "bytes": 12681
+    },
+    {
+      "path": "cad-harness/cad_harness/vector_batch.py",
+      "sha256": "b84ebd455be3ac779b68e448be4ea5f5c874ed87d79de49023a00e620c586616",
+      "bytes": 6285
+    },
+    {
+      "path": "cad-harness/cad_harness/vector_build.py",
+      "sha256": "0ea025d8b3b9cbe7179244c0dfa08960922d8f829b6542426fb307625b775112",
+      "bytes": 7435
+    },
+    {
+      "path": "cad-harness/cad_mcp.py",
+      "sha256": "91a04cfb023cc17ace2b1657a5bc8b49c196302f10df4fa09c2d4e8a4e175519",
+      "bytes": 4539
+    },
+    {
+      "path": "cad-harness/cad_mcp_client.py",
+      "sha256": "64069af211414d4c857d400001edba8a9f2751b265744f61aa30714cb1c492b0",
+      "bytes": 2083
+    },
+    {
+      "path": "cad-harness/requirements-tested.txt",
+      "sha256": "5b3eba551c1a5536727f3d55f2712cf09b9f254ae45799dac290518d013c8eea",
+      "bytes": 44
+    },
+    {
+      "path": "cad-harness/requirements.txt",
+      "sha256": "c128474594e2ae400c6be5214400f2401fc56a78b4a06c9fe43fbe4140e641ab",
+      "bytes": 48
+    },
+    {
+      "path": "cad-harness/run.py",
+      "sha256": "5208a2e604cf40520487b0da0bb48f63b296f95f3f8c80cb7650e73f824c1a1b",
+      "bytes": 1259
+    },
+    {
+      "path": "cad-harness/test.py",
+      "sha256": "3ec0825f8b9e747efaaf8b678fc3999070b37bc53dcdf79e32c111d0a8a565ec",
+      "bytes": 1077
+    },
+    {
+      "path": "cad-harness/tests/test_diagnostics.py",
+      "sha256": "5e505b3974d58fb1d7fbbf016e25355d30c38dc5dbc2999b52ec2b663aec099b",
+      "bytes": 690
+    },
+    {
+      "path": "cad-harness/tests/test_function_modules.py",
+      "sha256": "d6cac73209be726c6ac28c757699aff975293bf630197fcb94bfc9dee78d7bc9",
+      "bytes": 2491
+    },
+    {
+      "path": "cad-harness/tests/test_harness.py",
+      "sha256": "284d2bb5957f8e420511d1d89b7c524b007168ed1107d678a0dff5f0de1e2348",
+      "bytes": 7968
+    },
+    {
+      "path": "cad-harness/tests/test_pdf_anchors.py",
+      "sha256": "b642b6b545574721e64e1388c087f57f063ef3b98ce5f68a1db9e0f9b4d6de79",
+      "bytes": 1299
+    },
+    {
+      "path": "cad-harness/tests/test_pdf_source_audit.py",
+      "sha256": "810238ff042e33c92190db837f4c0f33b41a5c0c0734a77d7efcb1cb1651fff5",
+      "bytes": 1106
+    },
+    {
+      "path": "cad-harness/tests/test_pdf_transcribe.py",
+      "sha256": "7d1b7d9de973f89c07371ca5d74051099aeddfbb5b6892a6112bd349230b36d7",
+      "bytes": 10010
+    },
+    {
+      "path": "cad-harness/tests/test_provider.py",
+      "sha256": "6db5622f114e3f7e622fdcf88d10df109329454fa6662bdd7983cde4a247bbbd",
+      "bytes": 1780
+    },
+    {
+      "path": "cad-harness/tests/test_regression.py",
+      "sha256": "3364b02e98f41b3c31b6bad8fc0461421d69c9c0904638176c7d88c5de0d1702",
+      "bytes": 1043
+    },
+    {
+      "path": "cad-harness/tests/test_runner.py",
+      "sha256": "bcc5ff08d2e7c8c39b943955046163275b6225b38de43a5ef7dcf961caca5bd9",
+      "bytes": 5532
+    },
+    {
+      "path": "cad-harness/tests/test_single_pass_batch.py",
+      "sha256": "0c9858efe47f2594eae646de2dd17ebef21c8532104bc8fba067a5b569090876",
+      "bytes": 9136
+    },
+    {
+      "path": "cad-harness/tests/test_web_geometry.py",
+      "sha256": "2ec698426e3b262549d9661c344e0bdfc3136067dc8f17ad79603dbf2e572f8a",
+      "bytes": 8139
+    }
+  ],
+  "scope": "Explicit baseline tracked CAD source plus ten new vector-route files; no drawings, credentials, runtime or raw requests",
+  "other_untracked_parameter_gate_changes_excluded": true,
+  "source_commit": "d15b969157b87bfc1517b3d36588d52a61d051c9",
+  "distribution_note": "Frozen transferable generic source only; confidential/local drawings, outputs and raw model records excluded"
+}

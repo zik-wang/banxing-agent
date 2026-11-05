@@ -1,0 +1,25 @@
+.venv/
+__pycache__/
+*.pyc
+jobs/*/runs/
+.env
+.test-tmp/
+
+# Publish code through an explicit allowlist. Keep original material and local evidence private.
+/jobs/
+/benchmarks/
+/reports/
+/experiments/
+/VALIDATION.json
+/README.md
+*.zip
+*.dxf
+*.dwg
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.pdf
+.env.*
+*.pem
+*.key
