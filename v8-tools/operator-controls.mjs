@@ -15,8 +15,16 @@ function selected(config,file){return operatorControls(file).cases?.find(b=>b.co
 export function applyOperatorBounds(config,file=defaultFile){
  const b=selected(config,file);if(!b)return;
  if(createHash('sha256').update(config.request).digest('hex')!==b.requestSha256)fail('OPERATOR_REQUEST_CHANGED');
+ if(b.requirePreload&&!globalThis[Symbol.for('banxing.siliconflow.shared-slot-installed')])fail('OPERATOR_SHARED_PRELOAD_REQUIRED');
  config.executionPolicy={mode:'bounded'};config.maxRounds=b.maxRequests;config.maxCalls=60;config.maxNoProgress=5;config.maxDiscoveryCalls=8;config.maxDiscoveryStreak=6;config.timeoutMs=b.timeoutMs;
  config.chat={...config.chat,maxAttempts:1};config.continuity.maxCumulativeModelRequests=b.maxRequests;config.continuity.maxCumulativeToolAttempts=60;
+ if(b.requirePreload){
+  // The inherited preload already buffers global fetch under one shared slot.
+  // Native HTTPS streaming would bypass it; do not install a second queue.
+  config.chat.streaming=false;
+  fs.writeFileSync(file+'.proof-'+process.pid+'.json',JSON.stringify({pid:process.pid,entrypoint:process.argv[1],conversationId:b.conversationId,requestSha256:b.requestSha256,sharedPreloadInstalled:true,sharedWorker:process.env.BANXING_SF_WORKER||null,maxRequests:b.maxRequests,timeoutMs:b.timeoutMs,streaming:false,maxAttempts:1}));
+ }
+ if(!b.requirePreload)fs.writeFileSync(file+'.proof-'+process.pid+'.json',JSON.stringify({pid:process.pid,entrypoint:process.argv[1],conversationId:b.conversationId,requestSha256:b.requestSha256,provider:config.chat.provider,model:config.chat.model,hostBudgetApplied:true,maxRequests:b.maxRequests,timeoutMs:b.timeoutMs,maxAttempts:1}));
 }
 export function consumeOperatorRequest(config,file=defaultFile){
  const b=selected(config,file);if(!b)return;
