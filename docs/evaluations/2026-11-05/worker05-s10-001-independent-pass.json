@@ -1,0 +1,67 @@
+{
+  "case_id": "S10-001",
+  "status": "PASS",
+  "synthetic": true,
+  "verified_by": "worker-05",
+  "verified_at": "2026-11-05T04:52:41.631Z",
+  "scope": "One recorded intranet end-to-end case; independently downloaded and parsed CSV, full source rows, answer and run/provider evidence. Not 18 cases, reliability or user acceptance.",
+  "checks": {
+    "unique_rows": 5,
+    "sorted_ids": true,
+    "full_rows_match_frozen_expected": true,
+    "exact_duplicate_removed": 1,
+    "exact_amount_yuan": "1500.00",
+    "original_sources_unchanged": true,
+    "final_answer_matches_csv": true,
+    "same_run_task_sources_artifact_and_provider_receipts": true,
+    "expected_not_in_recorded_messages": true
+  },
+  "model": "qwen3.8-27b-fp8",
+  "provider": "intranet",
+  "configuration_revision": 13,
+  "case_model_requests": 4,
+  "case_retries": 0,
+  "case_tool_calls": 4,
+  "qa_new_model_requests": 0,
+  "output": {
+    "format": "csv",
+    "bytes": 135,
+    "sha256": "4287bcf8ea3c4384c762820f2dc615ad8e949ad8f95bc3897abe755c8164b2ac"
+  },
+  "developer_code_commit": "be4c4dc023c9c1bc01729b4251dc015793e8d5b7",
+  "code_binding": [
+    {
+      "file": "v8-tools/delivery-tools.mjs",
+      "sha256": "246dc1ceadb7179841a66aa1116ed19dd52fd08a94b3214377c74dfd1c3e0577",
+      "candidateMatchesIgnoringLineEndings": false
+    },
+    {
+      "file": "v8-tools/csv-delivery.mjs",
+      "sha256": "93d620e6398960633c82db2ac94c4529d06f9aa47cc60f9b6ca6bc42cfe8b55b",
+      "candidateMatchesIgnoringLineEndings": true
+    }
+  ],
+  "code_commit_boundary": "CSV helper matches the candidate. Full delivery-tools differs due to other runtime changes; this PASS applies to the frozen actual run and is not full candidate-commit validation.",
+  "runtime_boundary": {
+    "observed_parent_started_after_task": true,
+    "observed_parent_started_at": "2026-11-05T04:52:10.326Z",
+    "frozen_child_hashes_match_current_files": true,
+    "download_revalidated_after_later_parent_start": true,
+    "uninterrupted_service_unverified": true,
+    "initial_connection_failure_cause_not_established": true
+  },
+  "previous_attempt": {
+    "status": "FAIL",
+    "model_requests": 8,
+    "output_count": 0,
+    "reason": "CSV missing from export tool format enum; failure retained separately."
+  },
+  "unverified": [
+    "Other scenes and repeated-run stability",
+    "Independent browser interaction replay",
+    "User acceptance"
+  ],
+  "user_accepted": false,
+  "material_bodies_uploaded": false,
+  "raw_runtime_uploaded": false
+}
