@@ -10,14 +10,14 @@ export async function localAudioPreflight({docs,audio,harness,config,request}){
   const missing=['inspect_media','split_audio','transcribe_audio','export_document'].filter(name=>!harness.tools.has(name));
   if(missing.length)return {failed:true,reason:'local_audio_tools_unavailable',localOnly:true,cloudModelCalls:0,missingTools:missing,message:'本地录音处理功能未完整加载，尚未开始识别。原录音已保留，无需重新上传；请检查本地转写工具配置后重试。录音及识别正文没有发送公网模型。'};
  }
- const run=async(name,args)=>{const r=await harness.execute(name,args);if(r.status!=='ok')throw Object.assign(Error(r.error?.message||'本地识别工具失败'),{code:r.error?.code||'LOCAL_AUDIO_FAILED'});return r.data;};
+ const run=async(name,args)=>{const r=await harness.execute(name,args);if(r.status!=='ok'&&!(name==='transcribe_audio'&&r.status==='partial'&&r.data?.resultId))throw Object.assign(Error(r.error?.message||'本地识别工具失败'),{code:r.error?.code||'LOCAL_AUDIO_FAILED'});return r.data;};
  const resultIds=[];
  for(const original of originals){
   const inspected=await run('inspect_media',{asset_id:original.id});let ids=[original.id];
   if(inspected.needsSplit){await run('split_audio',{asset_id:original.id,segment_seconds:90});ids=[...docs.assets.values()].filter(a=>a.parentId===original.id&&a.kind==='audio').map(a=>a.id);}
   if(!ids.length)throw Error('本地切段未返回可读取片段');
   let last;
-  for(let i=0;i<ids.length;i+=12)last=await run('transcribe_audio',{asset_ids:ids.slice(i,i+12),language:'Chinese'});
+  for(let i=0;i<ids.length;i+=24)last=await run('transcribe_audio',{asset_ids:ids.slice(i,i+24),language:'Chinese'});
   if(last?.resultId)resultIds.push(last.resultId);
  }
  if(resultIds.length!==originals.length)throw Error('本地识别未返回可导出的逐文件结果');

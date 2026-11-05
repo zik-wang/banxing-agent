@@ -27,3 +27,10 @@ test('current external+local registration includes transcribe_audio; external+in
  const audio=new AudioTools({},{},{asr:{provider:'local'}});
  for(const provider of ['local','intranet']){const config={externalWorkspace:true,asr:{provider}},tools=registeredAudioTools(audio,config);assert.equal(tools.some(t=>t.name==='transcribe_audio'),provider==='local');}
 });
+test('ASR resume reuses only nonempty same-source same-hash completed records; no permission bypass',t=>{
+ const base=fs.realpathSync(os.tmpdir()),root=fs.mkdtempSync(path.join(base,'v8-audio-cache-'));t.after(()=>{assert.equal(path.dirname(root),base);fs.rmSync(root,{recursive:true,force:true});});
+ const assets=new Map([['a',{id:'a',kind:'audio',sourceId:'source',sha256:'hash'}],['b',{id:'b',kind:'audio',sourceId:'source',sha256:'real'}]]),docs={assets,directory:root,save(){},asset(id){if(!assets.has(id))throw Error('No authorized asset');return assets.get(id);}},audio=new AudioTools(docs,{},{});
+ fs.writeFileSync(path.join(root,'audio-state.json'),JSON.stringify({requestCount:3,records:[{assetId:'a',sourceId:'source',inputSha256:'hash',status:'text_returned',text:'Explicit synthetic cached recognition'},{assetId:'b',sourceId:'source',inputSha256:'changed',status:'text_returned',text:'Wrong bytes'},{assetId:'foreign',sourceId:'source',inputSha256:'hash',status:'text_returned',text:'Foreign'}]}));
+ audio.restore({previousDirectory:root,docs:{},mode:'resume'});assert.equal(audio.records.size,0);
+ audio.restore({previousDirectory:root,docs,mode:'resume'});assert.equal(audio.records.size,1);assert.equal(audio.records.get('a').restoredFromRun,true);assert.equal(audio.requestCount,3);
+});
