@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-05",
+  "case": "S05-001",
+  "scenario": "05 static email archive follow-up draft",
+  "status": "DEVELOPER_VERIFIED_PENDING_INDEPENDENT_QA",
+  "synthetic": true,
+  "productCodeChanged": false,
+  "preuploadFailure": {
+    "state": "Page readiness wait timed out before upload or model start",
+    "modelRequests": 0,
+    "preserved": true,
+    "laterDiagnostic": "No page errors, bot list and upload control ready; then files uploaded successfully",
+    "cause": "Not established; no unsupported product-fix claim"
+  },
+  "actualExecution": {
+    "provider": "intranet",
+    "model": "qwen3.8-27b-fp8",
+    "requests": 1,
+    "retries": 0,
+    "mode": "Host reads both authorized documents; model writes report; host saves Markdown and verifies bytes",
+    "toolSequence": [
+      "read_text_range",
+      "read_text_range",
+      "save_draft"
+    ],
+    "downloadBytes": 4498,
+    "artifactSha256": "9bb8da144c303efec83fe70e38dd9cabbf59508f5e9fe036f2768d6234803e30",
+    "modelElapsedMs": 91168,
+    "usage": {
+      "prompt_tokens": 1011,
+      "total_tokens": 2468,
+      "completion_tokens": 1457,
+      "prompt_tokens_details": null,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    }
+  },
+  "businessReadback": {
+    "repliedThread": "LOAN-11",
+    "pendingThread": "ROOM-22",
+    "oldQuotedReply": "ARCHIVE-77 not treated as current confirmation",
+    "confirmedDevices": 2,
+    "unconfirmedSpareDevices": 1,
+    "draftCount": 1,
+    "externalActions": 0,
+    "originalsUnchanged": true,
+    "assertionsPassed": 47,
+    "assertionsFailed": 0,
+    "assertionsAreOneCase": true,
+    "finalAnswerAndDownloadedReportAligned": true
+  },
+  "limitations": [
+    "Awaiting independent QA, not user acceptance",
+    "Does not establish connected mailbox access or ongoing automated follow-up",
+    "Single synthetic case, not general accuracy or full eighteen-scene acceptance",
+    "Reply evidence identifies source via filename, sender, timestamp and In-Reply-To; output does not explicitly repeat reply ID M102",
+    "Recommendation says send promptly but no send action occurred and draft says do not send"
+  ],
+  "evidenceIndex": "Local qa-output/worker-02-s05-001-intranet-20261105/qa-handoff.json",
+  "newCaseDispatchAfterPause": false
+}

@@ -1,7 +1,7 @@
 {
   "date": "2026-11-05",
   "case": "S10-001",
-  "status": "DEVELOPER_VERIFIED_PENDING_INDEPENDENT_QA",
+  "status": "INDEPENDENT_QA_PASS_USER_ACCEPTANCE_NOT_CLAIMED",
   "synthetic": true,
   "behaviorChange": "export_document now supports real UTF8 CSV with structure validation, exact-byte save and readback; TXT cannot substitute for requested CSV.",
   "firstFailure": {
@@ -57,11 +57,20 @@
     "unrenderedWordLayout": "Not part of content acceptance"
   },
   "limitations": [
-    "S10 awaits independent QA; user acceptance not claimed",
+    "S10 independent QA passed; user acceptance not claimed",
     "Single synthetic S10, not all eighteen scenarios or a reliability rate",
     "Model performs merge after real reads; CSV validator does not establish semantic correctness",
     "No restart, production directory replacement, or T2 candidate deployment"
   ],
   "evidenceIndex": "Local qa-output/worker-02-s10-001-intranet-r2-20261105/qa-handoff.json",
-  "privateRuntimeOrCredentialsIncluded": false
+  "privateRuntimeOrCredentialsIncluded": false,
+  "independentQa": {
+    "worker": "worker-05",
+    "status": "PASS",
+    "verifiedAt": "2026-11-05T04:52:41.631Z",
+    "requestsAddedByQa": 0,
+    "evidence": "Local qa-output/worker05-s10-001-independent-20261105/case-result-r2.json",
+    "sameRunTaskInputAndReceipts": true,
+    "finalAnswerMatchesDownloadedCsv": true
+  }
 }
