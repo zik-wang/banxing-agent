@@ -5,6 +5,8 @@ import path from 'node:path';
 import {randomUUID,createHash} from 'node:crypto';
 import {createChatApi} from './model-transport.mjs';
 import {modelFailure} from './model-failure.mjs';
+import {originalToolError,isToolNetworkFailure,safelyRetryableTool} from './tool-failure.mjs';
+import {setTimeout as retryDelay} from 'node:timers/promises';
 
 export class ToolError extends Error {
   constructor(code, message, details = {}) { super(message); this.code = code; this.details = details; }
@@ -38,6 +40,7 @@ export class ToolHarness {
   constructor({directory, tools, maxCalls = 24, maxVisibleTools = 12, preferredTools = [], maxNoProgress=5, maxRepeatedFailures=2,maxDiscoveryCalls=8,maxDiscoveryStreak=6, signal = new AbortController().signal}) {
     this.evidenceProgress=new EvidenceProgress();this.directory = directory; this.maxCalls = maxCalls ?? Infinity; this.signal = signal; this.calls = 0;
     this.tools = new Map(tools.map(t => [t.name, t])); this.queue = Promise.resolve();
+    this.networkFailures=new Map();this.maxNetworkAttempts=3;
     this.maxNoProgress=maxNoProgress??Infinity;this.maxRepeatedFailures=maxRepeatedFailures;this.noProgress=0;this.failedCalls=new Map();this.successfulCalls=new Set();this.history=[];this.usableResults=0;this.resourcePages=new Set();
     if (this.tools.size !== tools.length) throw new Error('Duplicate tool names');
     if (this.tools.has('discover_tools')) throw new Error('discover_tools is reserved');
@@ -80,23 +83,33 @@ export class ToolHarness {
       if (this.calls >= this.maxCalls) throw new ToolError('CALL_BUDGET_EXHAUSTED', 'Tool call budget exhausted; return remaining work');
       this.calls++;
       if(name==='discover_tools'){if(this.discoveryCalls>=this.maxDiscoveryCalls||this.discoveryStreak>=this.maxDiscoveryStreak)throw new ToolError('DISCOVERY_BOUNDARY','Use the already visible tools or explain missing capability/input');this.discoveryCalls++;this.discoveryStreak++;}else this.businessToolAttempts++;
-      if((this.failedCalls.get(signature)||0)>=(this.executionRepair?1:this.maxRepeatedFailures))throw new ToolError('REPEATED_FAILURE_LIMIT','Same failed tool arguments have reached the retry limit; choose a supported reader or report the blocker.',{tool:name,attempts:this.failedCalls.get(signature)});
+      const network=this.networkFailures.get(signature);
+      if(network&&network.attempts>=this.maxNetworkAttempts)throw new ToolError('TOOL_NETWORK_RETRY_EXHAUSTED','该读取步骤网络重试已达上限；请使用其他已有证据、继续其他步骤并说明未完成范围。',{tool:name,attempts:network.attempts,firstError:network.firstError,lastError:network.lastError});
+      if((this.failedCalls.get(signature)||0)>=(this.executionRepair?1:this.maxRepeatedFailures))throw new ToolError('REPEATED_FAILURE_LIMIT','相同参数已失败，请根据原始错误修正参数或改用其他步骤。',{tool:name,attempts:this.failedCalls.get(signature),originalError:this.lastToolFailures?.get(signature)});
       const tool = this.tools.get(name);
       if (!tool) throw new ToolError('UNKNOWN_TOOL', 'Select a registered tool');
       if(this.executionRepair)submittedDraft=await this.preserveSubmission?.(name,args);
       validate(tool.inputSchema, args);
+      if(network&&safelyRetryableTool(name))await retryDelay(network.attempts===1?200:600,undefined,{signal:this.signal});
       handlerInvoked=true;
       const data = await tool.execute(args, {callId, signal: this.signal});
       result = {callId, tool: name, status: data?.partial ? 'partial' : 'ok', data};
     } catch (error) {
       result = {callId, tool: name, status: 'error', error: {code: error.code || 'TOOL_FAILED', message: error.message, details: {...(error.details||{}),...(submittedDraft?{draft_ref:submittedDraft.resultId,draft_version:submittedDraft.version,draft_state:'saved_unverified'}:{})}}};
+      result.error.originalError=originalToolError(error);
+      if(handlerInvoked&&!this.signal.aborted&&isToolNetworkFailure(error)&&safelyRetryableTool(name)){
+        const original=result.error.originalError,old=this.networkFailures.get(signature),attempts=(old?.attempts||0)+1;this.networkFailures.set(signature,{attempts,firstError:old?.firstError||original,lastError:original});
+        result.error.message='该读取步骤网络请求失败（第'+attempts+'/'+this.maxNetworkAttempts+'次），原始错误已保留。';
+        result.error.code='TOOL_NETWORK_ERROR';result.error.category='network';result.error.recovery={retryable_without_change:attempts<this.maxNetworkAttempts,attempts,maxAttempts:this.maxNetworkAttempts,retriesRemaining:Math.max(0,this.maxNetworkAttempts-attempts),next_action:attempts<this.maxNetworkAttempts?'网络请求失败，可使用相同参数有限重试；也可换读取方式或继续其他步骤。':'此步骤网络尝试已用完；保留已有结果并继续可执行的其他步骤。'};
+      }else if(error.code==='TOOL_NETWORK_RETRY_EXHAUSTED'){result.error.category='network';result.error.recovery={retryable_without_change:false,next_action:'不要重复此调用。尝试其他证据或交付已有结果，并列出此步骤缺口。'};}
     }
     if(this.executionRepair&&result.status==='error'&&['DOCUMENT_CONTENT_REQUIRED','INVALID_ARGUMENT','ARTIFACT_CONVERSION_UNSUPPORTED','REPEATED_FAILURE_LIMIT'].includes(result.error.code))result.error.recovery={retryable_without_change:false,next_action:result.error.details?.next_action||'Change the invalid arguments or choose a supported conversion. Source IDs cannot replace content.'};
     const progress=this.evidenceProgress.observe(name,args,result);if(progress)result.evidenceProgress=progress;
     if(name==='discover_tools'&&result.status!=='error')for(const t of result.data.tools||[])this.discoveredTools.add(t.name);
     if(name!=='discover_tools'&&handlerInvoked){if(result.data?.recoveredReceipt)this.recoveredReceipts++;else this.actualExecutions++;}
     let useful=result.status!=='error'&&(name==='discover_tools'?this.discoveredTools.size>discoveredBefore:!this.successfulCalls.has(signature));if(name==='list_materials'&&result.status!=='error'&&Array.isArray(result.data?.resources)){const d=result.data,page=JSON.stringify({resources:d.resources.map(r=>[r.resourceId,r.revisionId]),assets:(d.assets||[]).map(a=>[a.id,a.sha256]),nextCursor:d.nextCursor});useful=(d.resources.length>0||(d.assets||[]).length>0)&&!this.resourcePages.has(page);this.resourcePages.add(page);}
-    if(result.status==='error')this.failedCalls.set(signature,(this.failedCalls.get(signature)||0)+1);
+    if(result.status==='error'&&!['TOOL_NETWORK_ERROR','TOOL_NETWORK_RETRY_EXHAUSTED'].includes(result.error.code)){this.failedCalls.set(signature,(this.failedCalls.get(signature)||0)+1);this.lastToolFailures??=new Map();if(result.error.code!=='REPEATED_FAILURE_LIMIT')this.lastToolFailures.set(signature,result.error.originalError);}
+    if(result.status!=='error')this.networkFailures.delete(signature);
     else this.successfulCalls.add(signature);
     this.noProgress=useful?0:this.noProgress+1;
     if(name!=='discover_tools'&&useful&&!result.data?.recoveredReceipt)this.discoveryStreak=0;
@@ -153,7 +166,8 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
       let args; try { args = JSON.parse(call.function.arguments); } catch { args = null; }
       const result = await harness.execute(call.function.name, args);
       messages.push({role: 'tool', tool_call_id: call.id, content: JSON.stringify(result)});
-      if(harness.executionRepair&&result.error?.recovery&&harness.history.slice(-2).every(h=>h.tool===result.tool&&h.status==='error')&&result.error.code==='REPEATED_FAILURE_LIMIT'){termination={reason:'deterministic_tool_error',error:result.error};break rounds;}
+      // A failed step is feedback for replanning, not a terminal task decision.
+      // Existing cancellation, total budgets and no-progress gates remain active.
       const decision=await onToolResult?.(result);if(decision){clarification=decision.clarification||null;answer=decision.message;status=decision.failed?'failed':decision.completed?'model_finished':'needs_input';if(decision.failed)termination={reason:decision.reason||'input_unreadable'};break rounds;}
       if(result.status==='ok'&&result.data?.hostUserDecision){clarification=result.data.hostUserDecision;answer=clarification.question;status='needs_input';break rounds;}
       if(call.function.name==='request_assistant_handoff'&&result.status==='ok'&&result.data?.hostHandoff){termination={reason:'assistant_handoff_requested'};answer='已请求转交给合适助理，宿主将按本次协作计划保留材料范围并执行。';status='handoff_pending';break rounds;}
