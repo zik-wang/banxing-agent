@@ -2,7 +2,7 @@
   "date": "2026-11-05",
   "case": "S05-001",
   "scenario": "05 static email archive follow-up draft",
-  "status": "DEVELOPER_VERIFIED_PENDING_INDEPENDENT_QA",
+  "status": "INDEPENDENT_QA_PASS_USER_ACCEPTANCE_NOT_CLAIMED",
   "synthetic": true,
   "productCodeChanged": false,
   "preuploadFailure": {
@@ -51,12 +51,41 @@
     "finalAnswerAndDownloadedReportAligned": true
   },
   "limitations": [
-    "Awaiting independent QA, not user acceptance",
+    "Independent QA passed for this static synthetic archive/draft case; user acceptance not claimed",
     "Does not establish connected mailbox access or ongoing automated follow-up",
     "Single synthetic case, not general accuracy or full eighteen-scene acceptance",
     "Reply evidence identifies source via filename, sender, timestamp and In-Reply-To; output does not explicitly repeat reply ID M102",
     "Recommendation says send promptly but no send action occurred and draft says do not send"
   ],
   "evidenceIndex": "Local qa-output/worker-02-s05-001-intranet-20261105/qa-handoff.json",
-  "newCaseDispatchAfterPause": false
+  "newCaseDispatchAfterPause": false,
+  "independentQa": {
+    "worker": "worker-05",
+    "status": "PASS",
+    "verifiedAt": "2026-11-05T05:10:48.796Z",
+    "newModelRequests": 0,
+    "source": "Local qa-output/worker05-s05-001-independent-20261105/case-result.json",
+    "sameRunTurnAndSources": true,
+    "sourceBytesUnchanged": true,
+    "downloadSaveAndModelBodyMatch": true
+  },
+  "independentQaObservations": [
+    {
+      "severity": "P3",
+      "issue": "Next-step recommendation says immediate sending, while task and draft prohibit sending.",
+      "interpretation": "No action occurred; draft-only boundary is explicit. Prefer wording: review draft and manually send only when authorized."
+    },
+    {
+      "severity": "info",
+      "issue": "M102 not printed explicitly.",
+      "interpretation": "Filename, unique reply sender/time and In-Reply-To M101 identify M102 in original; frozen requirement asks source evidence, not mandatory explicit ID."
+    }
+  ],
+  "additionalNotProven": [
+    "Autonomous model tool selection",
+    "Connected mailbox processing or ongoing monitoring",
+    "Raw prose request wire body capture",
+    "Other cases or stability",
+    "User acceptance"
+  ]
 }
