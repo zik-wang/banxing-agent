@@ -1,10 +1,15 @@
 // Local transcription is a host action. Private media and its transcript never
 // need to enter the cloud planner just to obtain the original transcript file.
+export function registeredAudioTools(audio,config){return audio.tools().filter(t=>!config.externalWorkspace||config.asr?.provider==='local'||t.name!=='transcribe_audio');}
 export async function localAudioPreflight({docs,audio,harness,config,request}){
  const originals=[...docs.assets.values()].filter(a=>a.id===a.sourceId);
  if(config.asr?.provider!=='local'||!originals.length||originals.some(a=>a.kind!=='audio'))return null;
  if(!/(?:转写|转录|语音转文字|transcrib|transcription)/iu.test(request))return null;
  docs.privateAudioMetadataOnly=true;audio.config.exposeTranscriptToPlanner=false;
+ if(harness.tools instanceof Map){
+  const missing=['inspect_media','split_audio','transcribe_audio','export_document'].filter(name=>!harness.tools.has(name));
+  if(missing.length)return {failed:true,reason:'local_audio_tools_unavailable',localOnly:true,cloudModelCalls:0,missingTools:missing,message:'本地录音处理功能未完整加载，尚未开始识别。原录音已保留，无需重新上传；请检查本地转写工具配置后重试。录音及识别正文没有发送公网模型。'};
+ }
  const run=async(name,args)=>{const r=await harness.execute(name,args);if(r.status!=='ok')throw Object.assign(Error(r.error?.message||'本地识别工具失败'),{code:r.error?.code||'LOCAL_AUDIO_FAILED'});return r.data;};
  const resultIds=[];
  for(const original of originals){
