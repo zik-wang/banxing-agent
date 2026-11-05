@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-05",
+  "case": "S19-001",
+  "status": "PARTIAL_STATIC_DELIVERY_VERIFIED_PENDING_INDEPENDENT_QA",
+  "synthetic": true,
+  "scope": "Static code copy and unified patch delivery only",
+  "provider": "intranet",
+  "model": "qwen3.8-27b-fp8",
+  "requests": 1,
+  "retries": 0,
+  "staticChecks": {
+    "passed": 10,
+    "failed": 0
+  },
+  "sourceUnchanged": true,
+  "sourceExecutedOrImported": false,
+  "prCreated": false,
+  "artifactHashes": [
+    {
+      "name": "修改副本-department_totals.py",
+      "sha256": "46743079ac3c41442c5f8f1611b542d52b0dde1f7da79c772188a6d41d9c1757",
+      "bytes": 349
+    },
+    {
+      "name": "department_totals.py.patch",
+      "sha256": "a58de79bc34226f3f0422dcbc341c67c68f9d558af230d9ea6d11e14341054b9",
+      "bytes": 328
+    }
+  ],
+  "fullUserGoalPassed": false,
+  "unresolved": [
+    {
+      "id": "S19-FINAL-EXPLANATION",
+      "severity": "P2",
+      "detail": "Request asks to explain the edit. Actual final reply only states SHA/unique-span copy and patch produced; it does not explain overwrite replaced with per-department accumulation. Downloaded code/patch are correct, but complete response requirement is not satisfied."
+    }
+  ],
+  "initialDriverFailuresPreserved": true,
+  "independentQa": false,
+  "userAcceptance": false,
+  "otherWorkersContacted": false,
+  "productCodeChanged": false,
+  "newPassedCasesThisCycle": 0,
+  "evidence": "Local qa-output/worker-02-s19-001-intranet-r3-20261105/result.json"
+}
