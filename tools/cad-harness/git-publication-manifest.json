@@ -1,0 +1,387 @@
+{
+  "scope": "Git publication identity for the 42-file generic code snapshot; no drawing artifacts",
+  "source_commit": "d15b969157b87bfc1517b3d36588d52a61d051c9",
+  "raw_identical_files": 39,
+  "CRLF_to_LF_only_files": 3,
+  "no_source_logic_changes": true,
+  "files": [
+    {
+      "path": ".gitignore",
+      "source_snapshot_sha256": "18d61e94f9d1b799934894f46dbd4bc9ee600c033b354875576930deef4ff6cc",
+      "published_git_sha256": "18d61e94f9d1b799934894f46dbd4bc9ee600c033b354875576930deef4ff6cc",
+      "source_bytes": 294,
+      "published_bytes": 294,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "PROGRESS.md",
+      "source_snapshot_sha256": "ce7e1ba8888dfd9eb3014eb6d64a447cd6d4cfdd26971eb1570887031a41719a",
+      "published_git_sha256": "ce7e1ba8888dfd9eb3014eb6d64a447cd6d4cfdd26971eb1570887031a41719a",
+      "source_bytes": 4002,
+      "published_bytes": 4002,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "PUBLIC_CHECKOUT.md",
+      "source_snapshot_sha256": "01938b20162fe77d77c03425d50bd6ee927f089ffd3aba467b48ed81e2ec754b",
+      "published_git_sha256": "01938b20162fe77d77c03425d50bd6ee927f089ffd3aba467b48ed81e2ec754b",
+      "source_bytes": 5519,
+      "published_bytes": 5519,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "VECTOR_ROUTE.md",
+      "source_snapshot_sha256": "4043a93cec437e812e967b7097818627df81845ab899b93afd8e635cdc8f6789",
+      "published_git_sha256": "4043a93cec437e812e967b7097818627df81845ab899b93afd8e635cdc8f6789",
+      "source_bytes": 3999,
+      "published_bytes": 3999,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "batch20.py",
+      "source_snapshot_sha256": "44b18730333aee050e290e40ed10d3bb31943ac23289160e7c7b92375eb7c112",
+      "published_git_sha256": "44b18730333aee050e290e40ed10d3bb31943ac23289160e7c7b92375eb7c112",
+      "source_bytes": 3441,
+      "published_bytes": 3441,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "build_new10_page.py",
+      "source_snapshot_sha256": "e83ec98955c180eab4d167ed558ca4a2a4f96fb1669f688f4f1c6d2d9bd98f13",
+      "published_git_sha256": "13aaefc5e34112e1fb03e276fb078e3347d616d36cd39095675e090a0b093968",
+      "source_bytes": 8502,
+      "published_bytes": 8472,
+      "line_endings_normalized": true,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "build_review_page.py",
+      "source_snapshot_sha256": "a79429d1a19875f0d9308459c06b16071dd216058ae339201cf88eb249fec75c",
+      "published_git_sha256": "a79429d1a19875f0d9308459c06b16071dd216058ae339201cf88eb249fec75c",
+      "source_bytes": 12652,
+      "published_bytes": 12652,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/__init__.py",
+      "source_snapshot_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_git_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_bytes": 0,
+      "published_bytes": 0,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/audit.py",
+      "source_snapshot_sha256": "4f4bfb60d38aa16a0e95936ef20f242ed6140390fa01146a431ddd7c33e0ee9c",
+      "published_git_sha256": "4f4bfb60d38aa16a0e95936ef20f242ed6140390fa01146a431ddd7c33e0ee9c",
+      "source_bytes": 15956,
+      "published_bytes": 15956,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/comparison.py",
+      "source_snapshot_sha256": "21221ed2527fe50190488aa8877d14128e8dba3dadc331a1b847e154521ad2d0",
+      "published_git_sha256": "21221ed2527fe50190488aa8877d14128e8dba3dadc331a1b847e154521ad2d0",
+      "source_bytes": 1462,
+      "published_bytes": 1462,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/diagnostics.py",
+      "source_snapshot_sha256": "66f19efea3f26f299050ffd38909a0a4ff281d03baeb2d4d3699fdaf731d2aa7",
+      "published_git_sha256": "66f19efea3f26f299050ffd38909a0a4ff281d03baeb2d4d3699fdaf731d2aa7",
+      "source_bytes": 2596,
+      "published_bytes": 2596,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/engine.py",
+      "source_snapshot_sha256": "17cb382d9421af9ac2aec7a3c051c9e6e2dcbff26e9b377dce32d9d4d65ad842",
+      "published_git_sha256": "f0ceb6d4e61328875b03256beac9d212fb92325d7efbd868184b980fe54a5206",
+      "source_bytes": 9686,
+      "published_bytes": 9540,
+      "line_endings_normalized": true,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/graph_audit.py",
+      "source_snapshot_sha256": "56402bd825e6f2935353a70e9a00c3788f7fee0b3fe7b523d557dc3e9c57700c",
+      "published_git_sha256": "56402bd825e6f2935353a70e9a00c3788f7fee0b3fe7b523d557dc3e9c57700c",
+      "source_bytes": 2915,
+      "published_bytes": 2915,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/module_audit.py",
+      "source_snapshot_sha256": "0beeb55b3604632eb2fd26fc3d903b53a3efb03f02a797407615286fe05baf6f",
+      "published_git_sha256": "0beeb55b3604632eb2fd26fc3d903b53a3efb03f02a797407615286fe05baf6f",
+      "source_bytes": 2706,
+      "published_bytes": 2706,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/pdf_anchors.py",
+      "source_snapshot_sha256": "7e56c4fc3abec2623bfe76a7387b6cc40e1e23734153ec5f6f5048331b12f154",
+      "published_git_sha256": "7e56c4fc3abec2623bfe76a7387b6cc40e1e23734153ec5f6f5048331b12f154",
+      "source_bytes": 3095,
+      "published_bytes": 3095,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/pdf_source_audit.py",
+      "source_snapshot_sha256": "ba5d175a13593829bd64141001d2b2b3404d5c79f77f8242d33c7dbef656d00e",
+      "published_git_sha256": "ba5d175a13593829bd64141001d2b2b3404d5c79f77f8242d33c7dbef656d00e",
+      "source_bytes": 3459,
+      "published_bytes": 3459,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/pdf_transcribe.py",
+      "source_snapshot_sha256": "af867cd32b879ab9f47af0273f2cfd054b786697a3a6a9fed06cd785ccc71a7c",
+      "published_git_sha256": "af867cd32b879ab9f47af0273f2cfd054b786697a3a6a9fed06cd785ccc71a7c",
+      "source_bytes": 19989,
+      "published_bytes": 19989,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/provider.py",
+      "source_snapshot_sha256": "3524116402c32be1fa581f44cc3ae9bd98fbb75ecb0be370d7ddb02bb9959155",
+      "published_git_sha256": "3524116402c32be1fa581f44cc3ae9bd98fbb75ecb0be370d7ddb02bb9959155",
+      "source_bytes": 10882,
+      "published_bytes": 10882,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/runner.py",
+      "source_snapshot_sha256": "cf5d31c49a9d372485d6c2817cd3431bef1ac20a264c1a382b80ac3d6ee0dbd4",
+      "published_git_sha256": "cf5d31c49a9d372485d6c2817cd3431bef1ac20a264c1a382b80ac3d6ee0dbd4",
+      "source_bytes": 8906,
+      "published_bytes": 8906,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/schema.py",
+      "source_snapshot_sha256": "cab7f60e0e1ff28d0f95292d4badfa1fae3114f2da451e703856824a3c6686a4",
+      "published_git_sha256": "cab7f60e0e1ff28d0f95292d4badfa1fae3114f2da451e703856824a3c6686a4",
+      "source_bytes": 5730,
+      "published_bytes": 5730,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/single_pass_batch.py",
+      "source_snapshot_sha256": "227ddc93fca2502240fe359a44ab3009a0fb03ce68375b6b39af586b43e5eae5",
+      "published_git_sha256": "227ddc93fca2502240fe359a44ab3009a0fb03ce68375b6b39af586b43e5eae5",
+      "source_bytes": 13343,
+      "published_bytes": 13343,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/storage.py",
+      "source_snapshot_sha256": "026512781186a4e6e7ba7af5bd89c1711b37e657458340787b43c7829b6dee0c",
+      "published_git_sha256": "026512781186a4e6e7ba7af5bd89c1711b37e657458340787b43c7829b6dee0c",
+      "source_bytes": 901,
+      "published_bytes": 901,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/synth20.py",
+      "source_snapshot_sha256": "a44fc13851a64d952fbc5eebdd9df7014eed54d7e641592ae499cbcc0a7e6ea7",
+      "published_git_sha256": "a44fc13851a64d952fbc5eebdd9df7014eed54d7e641592ae499cbcc0a7e6ea7",
+      "source_bytes": 12681,
+      "published_bytes": 12681,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/vector_batch.py",
+      "source_snapshot_sha256": "b84ebd455be3ac779b68e448be4ea5f5c874ed87d79de49023a00e620c586616",
+      "published_git_sha256": "b84ebd455be3ac779b68e448be4ea5f5c874ed87d79de49023a00e620c586616",
+      "source_bytes": 6285,
+      "published_bytes": 6285,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_harness/vector_build.py",
+      "source_snapshot_sha256": "0ea025d8b3b9cbe7179244c0dfa08960922d8f829b6542426fb307625b775112",
+      "published_git_sha256": "0ea025d8b3b9cbe7179244c0dfa08960922d8f829b6542426fb307625b775112",
+      "source_bytes": 7435,
+      "published_bytes": 7435,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_mcp.py",
+      "source_snapshot_sha256": "91a04cfb023cc17ace2b1657a5bc8b49c196302f10df4fa09c2d4e8a4e175519",
+      "published_git_sha256": "91a04cfb023cc17ace2b1657a5bc8b49c196302f10df4fa09c2d4e8a4e175519",
+      "source_bytes": 4539,
+      "published_bytes": 4539,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "cad_mcp_client.py",
+      "source_snapshot_sha256": "64069af211414d4c857d400001edba8a9f2751b265744f61aa30714cb1c492b0",
+      "published_git_sha256": "64069af211414d4c857d400001edba8a9f2751b265744f61aa30714cb1c492b0",
+      "source_bytes": 2083,
+      "published_bytes": 2083,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "requirements-tested.txt",
+      "source_snapshot_sha256": "5b3eba551c1a5536727f3d55f2712cf09b9f254ae45799dac290518d013c8eea",
+      "published_git_sha256": "5b3eba551c1a5536727f3d55f2712cf09b9f254ae45799dac290518d013c8eea",
+      "source_bytes": 44,
+      "published_bytes": 44,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "requirements.txt",
+      "source_snapshot_sha256": "c128474594e2ae400c6be5214400f2401fc56a78b4a06c9fe43fbe4140e641ab",
+      "published_git_sha256": "c128474594e2ae400c6be5214400f2401fc56a78b4a06c9fe43fbe4140e641ab",
+      "source_bytes": 48,
+      "published_bytes": 48,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "run.py",
+      "source_snapshot_sha256": "5208a2e604cf40520487b0da0bb48f63b296f95f3f8c80cb7650e73f824c1a1b",
+      "published_git_sha256": "5208a2e604cf40520487b0da0bb48f63b296f95f3f8c80cb7650e73f824c1a1b",
+      "source_bytes": 1259,
+      "published_bytes": 1259,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "test.py",
+      "source_snapshot_sha256": "3ec0825f8b9e747efaaf8b678fc3999070b37bc53dcdf79e32c111d0a8a565ec",
+      "published_git_sha256": "3ec0825f8b9e747efaaf8b678fc3999070b37bc53dcdf79e32c111d0a8a565ec",
+      "source_bytes": 1077,
+      "published_bytes": 1077,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_diagnostics.py",
+      "source_snapshot_sha256": "5e505b3974d58fb1d7fbbf016e25355d30c38dc5dbc2999b52ec2b663aec099b",
+      "published_git_sha256": "5e505b3974d58fb1d7fbbf016e25355d30c38dc5dbc2999b52ec2b663aec099b",
+      "source_bytes": 690,
+      "published_bytes": 690,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_function_modules.py",
+      "source_snapshot_sha256": "d6cac73209be726c6ac28c757699aff975293bf630197fcb94bfc9dee78d7bc9",
+      "published_git_sha256": "48e9ec69344387976a91f0fa2b4bbb656c6928b0a0aa8609a6c454e5ec0754e6",
+      "source_bytes": 2491,
+      "published_bytes": 2460,
+      "line_endings_normalized": true,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_harness.py",
+      "source_snapshot_sha256": "284d2bb5957f8e420511d1d89b7c524b007168ed1107d678a0dff5f0de1e2348",
+      "published_git_sha256": "284d2bb5957f8e420511d1d89b7c524b007168ed1107d678a0dff5f0de1e2348",
+      "source_bytes": 7968,
+      "published_bytes": 7968,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_pdf_anchors.py",
+      "source_snapshot_sha256": "b642b6b545574721e64e1388c087f57f063ef3b98ce5f68a1db9e0f9b4d6de79",
+      "published_git_sha256": "b642b6b545574721e64e1388c087f57f063ef3b98ce5f68a1db9e0f9b4d6de79",
+      "source_bytes": 1299,
+      "published_bytes": 1299,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_pdf_source_audit.py",
+      "source_snapshot_sha256": "810238ff042e33c92190db837f4c0f33b41a5c0c0734a77d7efcb1cb1651fff5",
+      "published_git_sha256": "810238ff042e33c92190db837f4c0f33b41a5c0c0734a77d7efcb1cb1651fff5",
+      "source_bytes": 1106,
+      "published_bytes": 1106,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_pdf_transcribe.py",
+      "source_snapshot_sha256": "7d1b7d9de973f89c07371ca5d74051099aeddfbb5b6892a6112bd349230b36d7",
+      "published_git_sha256": "7d1b7d9de973f89c07371ca5d74051099aeddfbb5b6892a6112bd349230b36d7",
+      "source_bytes": 10010,
+      "published_bytes": 10010,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_provider.py",
+      "source_snapshot_sha256": "6db5622f114e3f7e622fdcf88d10df109329454fa6662bdd7983cde4a247bbbd",
+      "published_git_sha256": "6db5622f114e3f7e622fdcf88d10df109329454fa6662bdd7983cde4a247bbbd",
+      "source_bytes": 1780,
+      "published_bytes": 1780,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_regression.py",
+      "source_snapshot_sha256": "3364b02e98f41b3c31b6bad8fc0461421d69c9c0904638176c7d88c5de0d1702",
+      "published_git_sha256": "3364b02e98f41b3c31b6bad8fc0461421d69c9c0904638176c7d88c5de0d1702",
+      "source_bytes": 1043,
+      "published_bytes": 1043,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_runner.py",
+      "source_snapshot_sha256": "bcc5ff08d2e7c8c39b943955046163275b6225b38de43a5ef7dcf961caca5bd9",
+      "published_git_sha256": "bcc5ff08d2e7c8c39b943955046163275b6225b38de43a5ef7dcf961caca5bd9",
+      "source_bytes": 5532,
+      "published_bytes": 5532,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_single_pass_batch.py",
+      "source_snapshot_sha256": "0c9858efe47f2594eae646de2dd17ebef21c8532104bc8fba067a5b569090876",
+      "published_git_sha256": "0c9858efe47f2594eae646de2dd17ebef21c8532104bc8fba067a5b569090876",
+      "source_bytes": 9136,
+      "published_bytes": 9136,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    },
+    {
+      "path": "tests/test_web_geometry.py",
+      "source_snapshot_sha256": "2ec698426e3b262549d9661c344e0bdfc3136067dc8f17ad79603dbf2e572f8a",
+      "published_git_sha256": "2ec698426e3b262549d9661c344e0bdfc3136067dc8f17ad79603dbf2e572f8a",
+      "source_bytes": 8139,
+      "published_bytes": 8139,
+      "line_endings_normalized": false,
+      "same_content_after_newline_normalization": true
+    }
+  ]
+}

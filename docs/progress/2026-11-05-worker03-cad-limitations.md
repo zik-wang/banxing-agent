@@ -28,7 +28,7 @@ Codex随后独立绘制了一个示范，并记录39项局部几何检查通过�
 
 ## 本次可分发代码与既有测试
 
-通用代码采用固定42文件白名单，源提交为 `d15b969157b87bfc1517b3d36588d52a61d051c9`。发布位置为 [tools/cad-harness](../../tools/cad-harness/)。其 [source-manifest.json](../../tools/cad-harness/source-manifest.json) 保留逐文件SHA256及大小；本轮核对内容与固定快照一致。
+通用代码采用固定42文件白名单，源提交为 `d15b969157b87bfc1517b3d36588d52a61d051c9`。发布位置为 [tools/cad-harness](../../tools/cad-harness/)。其 [source-manifest.json](../../tools/cad-harness/source-manifest.json) 保留原快照逐文件SHA256及大小。Git发布时39个文件字节不变，3个文件仅由CRLF统一为LF；归一化后源码内容一致，没有业务逻辑改动。[发布指纹清单](../../tools/cad-harness/git-publication-manifest.json) 同时记录原快照和Git文件SHA256，避免将换行变化误报为字节完全一致。
 
 既有验证时间均为北京时间：
 
