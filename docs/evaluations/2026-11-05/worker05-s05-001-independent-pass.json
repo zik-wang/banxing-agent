@@ -1,0 +1,57 @@
+{
+  "case_id": "S05-001",
+  "status": "PASS",
+  "synthetic": true,
+  "verified_at": "2026-11-05T05:10:48.796Z",
+  "verified_by": "worker-05",
+  "scope": "One static synthetic mail-archive analysis and draft delivery, not live mailbox or automatic followup.",
+  "checks": {
+    "loanReplied": true,
+    "confirmedDevices": 2,
+    "spareUnconfirmed": 1,
+    "roomAwaitingReply": true,
+    "historicalQuoteNotCurrentReply": true,
+    "allSpecifiedTimesAndLocationMatch": true,
+    "onlyRoomFollowupDraft": true,
+    "noSendOrSchedulingInCompleteRunToolLog": true,
+    "downloadSaveAndModelBodyMatch": true,
+    "sameRunTurnAndSources": true,
+    "sourceBytesUnchanged": true
+  },
+  "output": {
+    "format": "md",
+    "sha256": "9bb8da144c303efec83fe70e38dd9cabbf59508f5e9fe036f2768d6234803e30"
+  },
+  "case_model_requests": 1,
+  "case_retries": 0,
+  "host_directed_tool_executions": 3,
+  "model_selected_tools": false,
+  "execution_mode": "host_read_then_model_prose",
+  "provider": "intranet",
+  "model": "qwen3.8-27b-fp8",
+  "revision": 13,
+  "qa_new_model_requests": 0,
+  "observations": [
+    {
+      "severity": "P3",
+      "issue": "Next-step recommendation says immediate sending, while task and draft prohibit sending.",
+      "interpretation": "No action occurred; draft-only boundary is explicit. Prefer wording: review draft and manually send only when authorized."
+    },
+    {
+      "severity": "info",
+      "issue": "M102 not printed explicitly.",
+      "interpretation": "Filename, unique reply sender/time and In-Reply-To M101 identify M102 in original; frozen requirement asks source evidence, not mandatory explicit ID."
+    }
+  ],
+  "not_proven": [
+    "Autonomous model tool selection",
+    "Connected mailbox processing or ongoing monitoring",
+    "Raw prose request wire body capture",
+    "Other cases or stability",
+    "User acceptance"
+  ],
+  "preupload_failure_preserved": true,
+  "user_accepted": false,
+  "raw_runtime_uploaded": false,
+  "source_bodies_uploaded": false
+}

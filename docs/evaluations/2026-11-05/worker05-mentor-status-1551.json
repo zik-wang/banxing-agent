@@ -1,0 +1,67 @@
+{
+  "snapshot_at": "2026-11-05T07:54:13.959Z",
+  "worker": "worker-05",
+  "purpose": "Existing results for expected mentor discussion at 2026-11-05 16:00 Asia/Shanghai. Status synchronization only; no new experiment or model request.",
+  "T1": {
+    "status": "LIMITED_COMPATIBILITY_EVIDENCE",
+    "last_evidence": "2026-11-04 evening; not rerun this afternoon",
+    "completed": "Limited protocol adapter and DSH desktop document plugin with 31 tools and two model trials recorded.",
+    "unverified": "Official Codex backend replacement, arbitrary tools and all-scenario support.",
+    "evidence": "docs/evaluations/2026-11-04/worker05-harness-diagnostics.md"
+  },
+  "T2": {
+    "status": "ONE_RECORDED_SYNTHETIC_CASE_AUDITED",
+    "recorded_model_run": "2026-11-05 03:00 Asia/Shanghai",
+    "independent_qa_completed": "2026-11-05 03:36 Asia/Shanghai",
+    "completed": "One v2 finance receipt: three amounts and bindings independently checked, 46 consistency assertions. Earlier v1 failure retained.",
+    "unverified": "Complete 1.5B-vs-27B comparison, production A-B-A, explicit five-domain model explanation, user acceptance.",
+    "published_evidence_commit": "44ffc3dff8934b237e8595d412766d91eb6dfa91"
+  },
+  "T3": {
+    "status": "NOT_INDEPENDENTLY_VERIFIED_BY_THIS_WORKER",
+    "completed": "No CAD artifacts or code independently checked by worker-05 in this sync.",
+    "unverified": "Use worker-03 original evidence and safe code whitelist; no guessed remote or commit."
+  },
+  "T4": {
+    "status": "BOUNDED_DIAGNOSTICS_ONLY",
+    "last_real_model_requests": "2026-11-04 evening: three original Qwen requests; not rerun now",
+    "completed": "19 isolated candidate checks and 26 related checks in controlled temporary directory passed. Deadline mechanism candidate and source-role guard recorded.",
+    "remaining": "Original long timeout not reproduced. Source-role errors remain; paths/context differ so no unique framework attribution. Candidates not proven deployed.",
+    "evidence": "docs/evaluations/2026-11-04/worker05-harness-diagnostics.md"
+  },
+  "T5": {
+    "status": "THREE_SYNTHETIC_CASES_INDEPENDENT_PASS",
+    "cases": [
+      {
+        "case_id": "S08-001",
+        "status": "PASS",
+        "limits": "DOCX visual rendering unverified."
+      },
+      {
+        "case_id": "S10-001",
+        "status": "PASS",
+        "limits": "Earlier CSV export failure retained; actual runtime not identical to whole developer commit."
+      },
+      {
+        "case_id": "S05-001",
+        "status": "PASS",
+        "verified_at": "2026-11-05T05:10:48.796Z",
+        "limits": "One model response with host-directed tools; P3 sending-recommendation wording remains."
+      }
+    ],
+    "latest_qa": "2026-11-05 13:10 Asia/Shanghai; not repeated at status sync",
+    "not_claimed": "18 scenes, reliability, autonomous model tool selection, or user acceptance."
+  },
+  "git_before_sync": {
+    "repository": "https://github.com/zik-wang/banxing-agent",
+    "branch": "codex/execution-convergence-20261103",
+    "local_head": "69ee57d6fc99377a490dd60b5e121ae3d088e0ad",
+    "remote_head": "8ed253fab9c6792c0e92a670a96da6aaf77ba136",
+    "hashes_equal": false,
+    "working_tree_clean": true,
+    "uncommitted_ranges": [],
+    "local_unpublished_history_not_pushed": true
+  },
+  "model_requests_this_sync": 0,
+  "dispatch_remains_paused": true
+}
