@@ -196,3 +196,245 @@ document.addEventListener('submit',async e=>{const form=e.target.closest('[data-
 for(const event of ['input','change'])document.addEventListener(event,e=>{const form=e.target.closest('[data-decision-turn]');if(form)localStorage.setItem('v8-decision-'+current+'-'+form.dataset.decisionTurn,JSON.stringify({details:form.querySelector('textarea').value,choices:[...form.querySelectorAll('input[name=choice]:checked')].map(x=>x.value)}));});
 
 document.addEventListener('click',e=>{if(e.target.closest('[data-replace-material]')&&!busy&&!uploading)document.querySelector('#file-input').click();});
+
+/* T5_SCENARIO_GUIDE_START: display only, never submits a message */
+(()=>{
+const scenes=[
+ {
+  "id": "01",
+  "title": "每日重点事项简报",
+  "goal": "从已授权日程和待办提炼当天重点",
+  "input": "日程文件、待办及优先级；缺失日期留空",
+  "steps": "读取材料→识别日期与责任→列出重点和待确认项",
+  "output": "中文简报、来源和缺失信息",
+  "verify": "每项日期和责任可回原文，不按发布日期倒推",
+  "next": "上传当天材料，确认时间范围",
+  "state": "待材料与复验",
+  "history": "当前索引未核实到该场景的逐项真实运行证据"
+ },
+ {
+  "id": "03",
+  "title": "会前背景资料准备",
+  "goal": "把多份背景材料整理成会前要点",
+  "input": "会议主题、参会目的、相关文件",
+  "steps": "逐份读取→梳理背景与争议→列出提问",
+  "output": "会前资料包与来源清单",
+  "verify": "每份输入有处理范围；区分已知事实和提问",
+  "next": "选择本次会议相关文件",
+  "state": "待当前版复验",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "04",
+  "title": "会议纪要与待办",
+  "goal": "从文字稿或获准录音整理会议成果",
+  "input": "会议文字稿或录音；可选人员说明",
+  "steps": "解析或转写→提取决定→整理行动项",
+  "output": "纪要、待办及原文或时间位置",
+  "verify": "讨论不当决定；负责人和期限不猜填",
+  "next": "优先上传文字稿；录音先核对识别服务",
+  "state": "识别服务待核",
+  "history": "当前索引未核实到该场景的逐项真实运行证据"
+ },
+ {
+  "id": "05",
+  "title": "未回复邮件跟进",
+  "goal": "核对邮件线程是否已有回复并起草跟进",
+  "input": "完整邮件线程与目标，不需要提供密码",
+  "steps": "读取线程→识别来往关系→判断缺失回复",
+  "output": "线程判断、待确认项、催办草稿",
+  "verify": "发件人、收件人、时间与原文一致；草稿不等于已发送",
+  "next": "上传邮件线程；真实发送另行授权",
+  "state": "账号未接入",
+  "history": "当前索引未核实到该场景的逐项真实运行证据"
+ },
+ {
+  "id": "06",
+  "title": "最终文件与确认依据",
+  "goal": "依据确认记录识别最终版本候选",
+  "input": "候选版本及邮件或签字确认记录",
+  "steps": "读取各版本→对照确认依据→列出可选结论",
+  "output": "候选文件清单和确认依据",
+  "verify": "没有确认依据不能仅凭文件名或时间认定最终版",
+  "next": "同时提供文件和确认记录",
+  "state": "待当前版复验",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "07",
+  "title": "文件分类与统一命名",
+  "goal": "按明确规则整理文件副本并保留原件",
+  "input": "待整理文件、分类及命名规则",
+  "steps": "识别文件→提出映射→输出整理副本",
+  "output": "命名映射、分类清单及可用副本",
+  "verify": "原件不删除；同名冲突不覆盖；数量可对账",
+  "next": "先说明分类方式及要保留的名称",
+  "state": "待当前版复验",
+  "history": "当前索引未核实到该场景的逐项真实运行证据"
+ },
+ {
+  "id": "08",
+  "title": "合同或方案版本比较",
+  "goal": "找出新增、删除、修改及条件变化",
+  "input": "两份版本及先后关系；附件一起提供",
+  "steps": "读取结构→确定性差异→分类说明→检查证据",
+  "output": "差异表、来源和待核解释",
+  "verify": "数值、日期、删除和例外单列；移动不自动当修改",
+  "next": "明确旧版与新版，选定比较范围",
+  "state": "待当前版复验",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "09",
+  "title": "票据整理与报销包",
+  "goal": "提取票据字段并生成可核查清单",
+  "input": "原票据、报销字段和币种口径",
+  "steps": "读取或识别→字段核对→金额计算→导出",
+  "output": "Excel清单、异常项及票据引用",
+  "verify": "空白留空；日期不跨字段借用；含税与税前分清",
+  "next": "上传票据并说明需要哪些列",
+  "state": "待票据复验",
+  "history": "当前索引未核实到该场景的逐项真实运行证据"
+ },
+ {
+  "id": "10",
+  "title": "业务台账合并与追加",
+  "goal": "保留原数据、合并新增并处理重复",
+  "input": "现有台账、新数据及业务键或追加规则",
+  "steps": "读取类型→检查重复与冲突→合并→导出回读",
+  "output": "Excel、行数、去重和统计回执",
+  "verify": "金额保留数值类型；历史字段顺序不丢；来源数可复算",
+  "next": "选择两份表，说明保留重复还是按键去重",
+  "state": "待当前版复验",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "11",
+  "title": "有依据的个人周报",
+  "goal": "根据进展材料整理完成、进行中及阻塞",
+  "input": "本周进展、待办记录、报告受众",
+  "steps": "读取记录→按状态分组→形成业务总结",
+  "output": "可读周报、依据和下周事项",
+  "verify": "计划不当完成；面向受众解释，不只粘贴技术回执",
+  "next": "上传本周记录，给出周报时间范围",
+  "state": "待当前版复验",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "12",
+  "title": "项目发布与更新监控",
+  "goal": "比较已有发布快照并识别关注变化",
+  "input": "真实发布记录、版本及关注条件",
+  "steps": "读取快照→对照版本→识别正式发布与变化",
+  "output": "更新摘要、版本依据和监控缺口",
+  "verify": "空数组只能说明无输入，不能算发布分析通过",
+  "next": "先提供非空真实快照；持续监控需另外配置",
+  "state": "待非空材料",
+  "history": "当前索引未核实到该场景的逐项真实运行证据"
+ },
+ {
+  "id": "13",
+  "title": "技术选型与资料比较",
+  "goal": "比较资料中的能力、限制和证据",
+  "input": "候选方案文档、使用目标和比较维度",
+  "steps": "逐份读取→按维度对照→区分宣称与实测",
+  "output": "对照报告、来源及待验证项",
+  "verify": "不凭项目名猜许可证和版本；无测试不写性能结论",
+  "next": "提供同一目标下的候选资料",
+  "state": "待当前版复验",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "14",
+  "title": "知识沉淀与检索",
+  "goal": "保存授权内容并按原句检索",
+  "input": "允许入库的文件和检索问题",
+  "steps": "读取→持久保存→检索→核对原句位置",
+  "output": "知识条目、检索答案及来源",
+  "verify": "附件登记不等于入库；跨运行检索需要实际验证",
+  "next": "选定可入库材料并提出检索问题",
+  "state": "待持久检索复验",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "15",
+  "title": "订阅与合同到期管理",
+  "goal": "整理协议、供应商和明确到期日",
+  "input": "合同、订阅清单及提醒要求",
+  "steps": "读取原词→区分关系→保留日期精度→列出提醒",
+  "output": "到期台账、缺失和歧义清单",
+  "verify": "并列名称与日期不强配；不猜供应商、时区或缩写",
+  "next": "上传合同；提醒创建与实际日历接入分开确认",
+  "state": "待关系正确性复验",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "16",
+  "title": "出差订单与行程安排",
+  "goal": "依据实际订单整理行程并检查时间冲突",
+  "input": "获准订单、会议安排及地点",
+  "steps": "提取订单事实→统一时区→检查重叠",
+  "output": "行程单、冲突清单；日历写入另确认",
+  "verify": "不虚构车次、订单或地图耗时；写入后必须回读",
+  "next": "提供真实订单；目前尚无本轮可用原材料",
+  "state": "待真实材料",
+  "history": "当前索引未核实到该场景的逐项真实运行证据"
+ },
+ {
+  "id": "18",
+  "title": "音视频主题与片段",
+  "goal": "从获准音视频转写并定位主题",
+  "input": "音视频、目标主题及允许处理范围",
+  "steps": "识别时长→分段识别→保存偏移→主题定位",
+  "output": "转写文本、时间戳及可用片段",
+  "verify": "明确漏段与未核听；上传成功不等于转写完成",
+  "next": "先核对当前ASR及切段能力；私有录音不外传",
+  "state": "识别服务待核",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "19",
+  "title": "限定范围代码修复",
+  "goal": "读取源码和问题，输出可审查的补丁副本",
+  "input": "源码、错误说明及允许修改范围",
+  "steps": "读取原文→定位唯一before→写副本→回读diff",
+  "output": "补丁副本、差异和未验证说明",
+  "verify": "本范围禁止运行上传代码或创建PR；不猜原文",
+  "next": "提供源码与可复现说明；执行测试另需授权",
+  "state": "待副本补丁复验",
+  "history": "有2026-10-27旧版独立真实运行记录，不能代表当前版本通过"
+ },
+ {
+  "id": "20",
+  "title": "服务器与模型服务巡检",
+  "goal": "依据获准只读指标定位可见问题",
+  "input": "授权服务清单、只读状态或巡检快照",
+  "steps": "读取指标→检查时间和阈值→列出问题",
+  "output": "巡检摘要、依据及未覆盖服务",
+  "verify": "不扫描未授权网络；HTTP成功不代表业务健康",
+  "next": "提供只读快照或明确巡检授权，目前条件不足",
+  "state": "待巡检条件",
+  "history": "当前索引未核实到该场景的逐项真实运行证据"
+ }
+];
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function mount(){
+ if(document.getElementById('scenario-guide'))return;
+ const button=document.createElement('button');button.type='button';button.id='scenario-guide-open';button.className='workspace-entry';button.innerHTML='<span>办公场景</span><small>18项 · 使用要求与验证状态</small>';
+ const anchor=document.getElementById('workspace-open');if(!anchor)return;anchor.after(button);
+ const dialog=document.createElement('dialog');dialog.id='scenario-guide';dialog.setAttribute('aria-labelledby','scenario-guide-title');
+ dialog.innerHTML='<header class="sg-head"><div><p class="sg-eyebrow">伴行 · 工作指南</p><h2 id="scenario-guide-title">把任务交清楚，把成果拿到手</h2></div><button type="button" class="sg-close" aria-label="关闭办公场景">×</button></header><div class="sg-summary"><span><strong>18 / 18</strong> 使用说明已整理</span><span><strong>18 / 18</strong> 场景可导航</span><span><strong>未知</strong> 当前版本业务验证数</span></div><p class="sg-boundary">这是使用指南，不是通过率。最近明确范围为01–20除02、17；21–28暂停。已索引10项旧版真实运行记录，但未迁移为当前8884的验收成绩。合同专项与金额工具可辅助相关任务，不因此把18项标成全部通过。</p><div class="sg-layout"><aside class="sg-nav"><label for="sg-search">查找场景</label><input id="sg-search" type="search" placeholder="名称或编号" autocomplete="off"><nav aria-label="办公场景列表"></nav></aside><main class="sg-detail" aria-live="polite"></main></div>';
+ document.body.append(dialog);const nav=dialog.querySelector('nav'),detail=dialog.querySelector('.sg-detail'),search=dialog.querySelector('input');let selected=scenes[0].id;
+ function select(id){const s=scenes.find(s=>s.id===id)||scenes[0];selected=s.id;for(const b of nav.querySelectorAll('button'))b.setAttribute('aria-current',b.dataset.scene===s.id?'page':'false');
+ detail.innerHTML='<p class="sg-eyebrow">场景 '+s.id+' · 使用说明已整理</p><h3>'+esc(s.title)+'</h3><p class="sg-goal">'+esc(s.goal)+'</p><div class="sg-status">'+esc(s.state)+'<small>当前8884逐项业务复验：未验证</small></div>'+[['需要提供',s.input],['处理步骤',s.steps],['预期交付',s.output],['怎样核查',s.verify],['下一步',s.next]].map(([h,v])=>'<section><h4>'+h+'</h4><p>'+esc(v)+'</p></section>').join('')+'<details class="sg-history"><summary>证据范围与限制</summary><p>'+esc(s.history)+'</p><p>当前页不含原件正文、不生成演示成功记录。请用授权材料测试；待材料、服务或账号接入不等于已完成业务。</p></details><button type="button" class="sg-use">将任务要求填入输入框</button><p class="sg-helper">只填入草稿，不上传材料、不自动发送、不新建对话。</p>';
+ detail.querySelector('.sg-use').onclick=()=>{const input=document.getElementById('message');if(input){input.value=s.goal+'。请基于我选定的材料处理，'+s.verify+'。';input.dispatchEvent(new Event('input',{bubbles:true}));dialog.close();input.focus();}};
+ const u=new URL(location.href);u.searchParams.set('scenarios',s.id);history.replaceState(null,'',u);
+ }
+ function list(){const term=search.value.trim().toLowerCase(),shown=scenes.filter(s=>(s.id+' '+s.title).toLowerCase().includes(term));nav.innerHTML=shown.length?shown.map(s=>'<button type="button" data-scene="'+s.id+'" aria-current="'+(s.id===selected?'page':'false')+'"><span>'+s.id+'</span>'+esc(s.title)+'</button>').join(''):'<p>没有匹配的场景</p>';for(const b of nav.querySelectorAll('button'))b.onclick=()=>select(b.dataset.scene);}
+ function open(){list();select(new URL(location.href).searchParams.get('scenarios')||selected);if(!dialog.open)dialog.showModal();}
+ search.oninput=list;button.onclick=open;dialog.querySelector('.sg-close').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{const u=new URL(location.href);u.searchParams.delete('scenarios');history.replaceState(null,'',u);});
+ if(new URL(location.href).searchParams.has('scenarios'))open();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
+})();
+/* T5_SCENARIO_GUIDE_END */
