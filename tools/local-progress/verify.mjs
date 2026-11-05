@@ -4,7 +4,7 @@ import path from 'node:path';
 import net from 'node:net';
 import {spawn} from 'node:child_process';
 import {createRequire} from 'node:module';
-import {root} from './core.mjs';
+import {root,config} from './core.mjs';
 const output=path.join(root,'test-output',new Date().toISOString().replace(/[:.]/g,'-'));fs.mkdirSync(output,{recursive:true});
 const probe=net.createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
 const env={...process.env,BOARD_DATA:path.join(output,'data'),BOARD_PORT:String(port),BOARD_INTERVAL_MS:'400',BOARD_STALE_MS:'600',BOARD_SF_GAP_MS:'20'};
@@ -34,7 +34,7 @@ try{
  const held=await(await fetch(base+'/api/siliconflow')).json();check('异常子进程结束不冒充远端请求结束，保留槽位待核实',()=>{assert.equal(failedCode,2);assert.equal(held.active.worker_id,'demo-a');});
  const heldLease=JSON.parse(fs.readFileSync(path.join(env.BOARD_DATA,'siliconflow-queue.json'),'utf8')).active.lease_id;assert((await sf('release','demo-a',{lease_id:heldLease,outcome:'error'})).ok);
  const report=async(id,stage,extra={})=>fetch(base+'/api/report',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+creds.workers[id]},body:JSON.stringify({task_id:'DEMO',worker_id:id,status:'running',stage,next_step:'演示下一步',blocker:'',result_path:'DEMO/only',...extra})});
- let s=await get();check('四项任务均待办，七个真实 worker 未接入',()=>{assert.equal(s.tasks.length,4);assert(s.tasks.every(t=>t.status==='待办'&&t.workers.every(w=>!w.connected)));});
+ let s=await get();check('全部配置任务均待办，七个真实 worker 未接入',()=>{assert.equal(s.tasks.length,config.tasks.length);assert(s.tasks.some(t=>t.task_id==='T5'));assert(s.tasks.every(t=>t.status==='待办'&&t.workers.every(w=>!w.connected)));});
  const reports=await Promise.all(Array.from({length:30},(_,i)=>report(i%2?'demo-a':'demo-b','演示并发 '+i)));assert(reports.every(r=>r.ok));
  s=await get();check('30 次并发请求，两个 demo worker 独立保存，无真实任务污染',()=>{assert.equal(s.demo.filter(w=>w.connected).length,2);assert(s.demo.every(w=>w.stage.startsWith('演示并发')));assert(s.tasks.every(t=>t.workers.every(w=>!w.connected)));});
  const conflict=await report('demo-a','演示',{task_id:'T1'});check('模拟 worker 不能污染真实任务',()=>assert.equal(conflict.status,409));
@@ -69,8 +69,8 @@ try{
  const require=createRequire(import.meta.url);
  let playwright;try{playwright=require('playwright');}catch{playwright=require(process.env.BOARD_PLAYWRIGHT_MODULE||path.join(root,'..','code','computer_use','node_modules','playwright','index.js'));}
  const {chromium}=playwright;browser=await chromium.launch({headless:true,channel:'msedge'});const page=await browser.newPage({viewport:{width:1440,height:1100}});
- const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(base);await page.waitForFunction(()=>document.querySelectorAll('#tasks article').length===4);await page.locator('#demo summary').click();await page.screenshot({path:path.join(output,'desktop.png'),fullPage:true});
- check('浏览器实际渲染四任务、七个独立窗口及待归类，演示区明确隔离',()=>{assert.equal(errors.length,0);});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(base);await page.waitForFunction(n=>document.querySelectorAll('#tasks article').length===n,config.tasks.length);await page.locator('#demo summary').click();await page.screenshot({path:path.join(output,'desktop.png'),fullPage:true});
+ check('浏览器实际渲染全部任务、七个独立窗口及待归类，演示区明确隔离',()=>{assert.equal(errors.length,0);});
  assert.equal(await page.locator('#sessions .worker').count(),7);assert.equal(await page.locator('#unclassified .worker').count(),1);assert.equal(await page.locator('#demos .worker').count(),2);
  assert((await report('worker-01','仅T4刷新',{task_id:'T4'})).ok);s=await get();check('更新T4不会使同窗口旧T1进度假装新鲜',()=>{assert.equal(s.tasks[0].workers.find(w=>w.worker_id==='worker-01').freshness,'状态待核实');assert.equal(s.tasks[3].workers[0].freshness,'最近有上报');});
  await report('demo-b','浏览器自动刷新验证');await page.waitForFunction(()=>document.querySelector('#demos').textContent.includes('浏览器自动刷新验证'),{},{timeout:10000});results.push('浏览器 5 秒自动刷新显示新上报');

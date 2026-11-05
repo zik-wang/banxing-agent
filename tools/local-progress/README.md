@@ -1,4 +1,4 @@
-# 本机四任务进度看板
+# 本机多任务进度看板
 
 Windows / Node.js 24，基础看板仅 Node 内置模块，无 npm 安装或新增模型服务。可选审查复用既有 Codex 原聊天及其模型。默认 127.0.0.1:18764；不搬运材料，不直接读取私有会话目录或数据库。
 
@@ -16,7 +16,7 @@ PowerShell 执行 `& 'D:\pro222\pccr-eye-gaze\local-progress\manage.ps1' start`�
 
 `node 'D:\pro222\pccr-eye-gaze\local-progress\report.mjs' worker-01 T1,T4 running '对照框架失败原因' '分别复核模型和工具' '-' '-'`
 
-位置参数：worker_id、任务列表、status(todo/running/blocked/done)、stage、next_step、blocker、result_path；`-` 表示空字符串。每窗口使用 worker-01 至 worker-07 中不同的 ID，不绑定任务。任务参数允许 T1/T2/T3/T4、逗号分隔的多项，或 GENERAL（跨任务/待归类）。同一条进度同时涉及多项才多选；任务进度不同则分别上报。旧 t1-client 等 ID 与旧命令继续兼容，旧 ID 也可显式切换任务；有实际旧上报的窗口继续显示，未接入的旧预留项不重复展示。演示 ID 仍只允许 DEMO，不污染真实任务。
+位置参数：worker_id、任务列表、status(todo/running/blocked/done)、stage、next_step、blocker、result_path；`-` 表示空字符串。每窗口使用 worker-01 至 worker-07 中不同的 ID，不绑定任务。任务参数允许 T1/T2/T3/T4/T5、逗号分隔的多项，或 GENERAL（跨任务/待归类）。同一条进度同时涉及多项才多选；任务进度不同则分别上报。旧 t1-client 等 ID 与旧命令继续兼容，旧 ID 也可显式切换任务；有实际旧上报的窗口继续显示，未接入的旧预留项不重复展示。演示 ID 仍只允许 DEMO，不污染真实任务。
 
 本地接口 `POST /api/report`，Content-Type application/json，Authorization Bearer WORKER_TOKEN。JSON 字段 task_id、worker_id、status、stage、next_step、blocker、result_path 必填；多任务可追加 task_ids 数组，必须包含 task_id，所有任务同时校验后单次原子提交。服务端添加 updated_at（UTC ISO 时间）。凭证在 data/credentials.json，report.mjs 自动读取。各 worker 专属凭证、独立原子文件，文件内按任务保留最新上报。因此更新 T4 不覆盖同窗口 T1 进度，T1 的时效也不会被刷新。旧格式数据自动兼容。窗口视图显示最近一次汇报，任务视图分别显示各自记录，GENERAL 单独展示；AFK 同样覆盖未接入窗口与待归类内容。
 

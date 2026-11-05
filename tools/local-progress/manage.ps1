@@ -15,7 +15,8 @@ if($Action -eq 'enable-startup'){
 }
 if($Action -eq 'disable-startup'){if(Test-Path -LiteralPath $startupFile){Remove-Item -LiteralPath $startupFile};Write-Output '已移除当前用户登录启动';exit}
 if($Action -in @('accept','reopen')){
-  if($TaskId -notin @('T1','T2','T3','T4')){throw '请指定 -TaskId T1/T2/T3/T4；accept 仅供用户实际验收后执行'}
+  $taskConfig=Get-Content (Join-Path $boardRoot 'config.json') -Raw | ConvertFrom-Json
+  if($TaskId -notin @($taskConfig.tasks.task_id)){throw '请指定配置中的 -TaskId；accept 仅供用户实际验收后执行'}
   $creds=Get-Content (Join-Path $boardRoot 'data\credentials.json') -Raw | ConvertFrom-Json
   $cfg=Get-Content (Join-Path $boardRoot 'config.json') -Raw | ConvertFrom-Json
   Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$($cfg.port)/api/accept" -Headers @{Authorization="Bearer $($creds.admin)"} -ContentType 'application/json' -Body (@{task_id=$TaskId;accepted=($Action -eq 'accept')}|ConvertTo-Json)

@@ -40,7 +40,7 @@ const server=http.createServer(async(req,res)=>{
   }
   const ids=body.task_ids===undefined?[body.task_id]:body.task_ids;
   const allowed=w.worker_id.startsWith('demo-')?['DEMO']:[...config.tasks.map(t=>t.task_id),'GENERAL'];
-  if(!Array.isArray(ids)||!ids.length||ids.length>4||new Set(ids).size!==ids.length||!ids.includes(body.task_id)||ids.some(id=>!allowed.includes(id)))return send(res,409,{error:'invalid task_ids; real workers may report T1/T2/T3/T4 or GENERAL; demo stays isolated'});
+  if(!Array.isArray(ids)||!ids.length||ids.length>allowed.length||new Set(ids).size!==ids.length||!ids.includes(body.task_id)||ids.some(id=>!allowed.includes(id)))return send(res,409,{error:'invalid task_ids; use configured task IDs or GENERAL; demo stays isolated'});
   if(!['todo','running','blocked','done'].includes(body.status))return send(res,400,{error:'status: todo/running/blocked/done'});
   const fields=['stage','next_step','blocker','result_path'];
   if(fields.some(k=>typeof body[k]!=='string'||body[k].length>1000))return send(res,400,{error:'stage/next_step/blocker/result_path must be strings <=1000 characters'});
