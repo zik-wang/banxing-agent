@@ -5,6 +5,7 @@ qa-output/
 .env.*
 !.env.example
 .local-runtime/
+v8-tools/operator-controls.local.json*
 *.log
 *.tmp
 

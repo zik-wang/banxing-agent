@@ -1,4 +1,5 @@
 import {MoneyTools} from './money-tools.mjs';
+import {applyOperatorBounds,consumeOperatorRequest} from './operator-controls.mjs';
 import {statisticsPreflight} from './statistics-preflight.mjs';
 import {localAudioPreflight} from './local-audio-preflight.mjs';
 import {reportPreflight} from './report-preflight.mjs';
@@ -38,6 +39,7 @@ import {turnIntent,outputTools} from './turn-intent.mjs';
 const configPath = process.argv[2];
 if (!configPath) throw new Error('Usage: node v8-tools/run.mjs <operator-config.json>');
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8').replace(/^\uFEFF/, ''));
+applyOperatorBounds(config);
 if(config.chat?.apiKeyEnv&&config.continuity?.mode!=='rebuild_delivery'){if(!process.env[config.chat.apiKeyEnv])throw Error('Configured model credential environment variable is missing');config.chat.apiKey=process.env[config.chat.apiKeyEnv];}
 if(config.chat?.apiKeyFile)config.chat.apiKey=apiKeyFor(config.chat);if(config.vision?.apiKeyFile)config.vision.apiKey=apiKeyFor(config.vision);
 const isCloud=isCloudProvider(config.chat?.provider);
@@ -99,7 +101,7 @@ try {
   const settle=(answer,run)=>settleDelivery({docs:documents,extras,records},answer,run);
   if(deliveryOnly){const recovered=await continuity.recoverDelivery(settle);console.log(JSON.stringify(recovered,null,2));}
   else {
-  const api=chatApi({...config.chat,logDirectory:path.join(directory,'model-responses'),onAttempt:()=>continuity?.spend('model')});
+  const api=chatApi({...config.chat,logDirectory:path.join(directory,'model-responses'),onAttempt:()=>{consumeOperatorRequest(config);continuity?.spend('model');}});
   const missingInput=!config.meetingPolicy&&!connectedFolders.visible().length&&documents.turnIntent.materialTask&&!documents.assets.size&&!workbooks?.tables.size&&!extras.artifacts.size&&!documents.results.size&&!(continuity?.workspace?.list({limit:1,excluded:workspaceTools.excluded}).total);
   const materialPreflight=await localAudioPreflight({docs:documents,audio,harness,config,request:taskRequest})||await diagnostics.preflight();
   const approvedDecision=materialPreflight?null:await decisions.approved();
