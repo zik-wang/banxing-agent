@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-05",
+  "case": "S10-001",
+  "status": "DEVELOPER_VERIFIED_PENDING_INDEPENDENT_QA",
+  "synthetic": true,
+  "behaviorChange": "export_document now supports real UTF8 CSV with structure validation, exact-byte save and readback; TXT cannot substitute for requested CSV.",
+  "firstFailure": {
+    "status": "FAIL_CSV_EXPORT_CAPABILITY_MISSING",
+    "modelRequests": 8,
+    "artifacts": 0,
+    "preserved": true
+  },
+  "verification": {
+    "newCsvTests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "relatedDraftRecovery": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "actualPageRun": {
+      "provider": "intranet",
+      "model": "qwen3.8-27b-fp8",
+      "requests": 4,
+      "retries": 0,
+      "toolSequence": [
+        "read_text_range",
+        "read_text_range",
+        "export_document",
+        "read_artifact"
+      ],
+      "rows": 5,
+      "columns": [
+        "id",
+        "item",
+        "amount"
+      ],
+      "exactDuplicatesRemoved": 1,
+      "amountYuan": "1500.00",
+      "downloadBytes": 135,
+      "csvSha256": "4287bcf8ea3c4384c762820f2dc615ad8e949ad8f95bc3897abe755c8164b2ac"
+    },
+    "postRunIndependentParser": {
+      "method": "Python csv + Decimal",
+      "assertionsPassed": 28,
+      "failed": 0,
+      "scope": "Developer check assertions for one case, not separate business cases"
+    },
+    "originalInputHashesUnchanged": true,
+    "expectedNotSubmittedToProduct": true
+  },
+  "priorS08": {
+    "independentQa": "PASS reported by worker-05 and supervisor in latest user instruction",
+    "rerun": false,
+    "unrenderedWordLayout": "Not part of content acceptance"
+  },
+  "limitations": [
+    "S10 awaits independent QA; user acceptance not claimed",
+    "Single synthetic S10, not all eighteen scenarios or a reliability rate",
+    "Model performs merge after real reads; CSV validator does not establish semantic correctness",
+    "No restart, production directory replacement, or T2 candidate deployment"
+  ],
+  "evidenceIndex": "Local qa-output/worker-02-s10-001-intranet-r2-20261105/qa-handoff.json",
+  "privateRuntimeOrCredentialsIncluded": false
+}
