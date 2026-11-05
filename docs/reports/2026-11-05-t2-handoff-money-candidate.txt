@@ -1,0 +1,40 @@
+T2 金额回执透传候选（离线，不是生产验收）
+
+边界与根因
+MoneyTools 将 money_calculation 保存进 B 的 docs.results；Continuity.checkpoint
+保存这些结果，但 finish 的交付结果仅保留 final_work_product。原转交回执仅携带
+B 自然语言答复、文件 ID/哈希，不提供实际金额回执。原记录及总报告不改写。
+
+本候选
+assistant-routing 在 B 结算时从该 B run 的真实检查点选择金额记录，写入
+workerReceipt.moneyEvidence；A configure 时重新从受控资源空间验证，不盲信
+已保存的摘要。没有扩大 workerResult 的通用导出范围，也不复制整个检查点。
+handoff-money 校验 project/work/interaction/request、检查点 producer、选中来源
+祖先、同 run 已完成 calculate_money 操作、原工具参数与计划、文件哈希，并使用
+原计算器复算比较检查点和操作回执。传递必要取数引文、计划、结果、receiptId、
+操作及运行标识、来源引用和分域摘要；不传完整原件。A 的提示明确：算术/来源绑定
+不证明取数完整或业务口径正确。金额回执缺失或不匹配不会回退到 B 答复猜值。
+
+范围限制
+当前重新取证校验支持文本原件（复用 decodeSource 与 MoneyTools 的拼接方式）。
+Word、PDF或其他来源没有对应重建器时返回 MONEY_REVIEW_READER_UNSUPPORTED，
+不伪称已验证。不改权限、模型、算法、来源预载和生产进程。旧任务无 run ID、
+没有可归属当前 run 的工具记录、检查点异常时保留 unverified，仍可进行其他复核。
+这不是训练或五域模型理解验证；当前分域字段也不是把历史 v1/v2 提示改写为等价。
+
+验证
+node --test tests/handoff-money.test.mjs tests/v8-assistant-handoff.test.mjs tests/money-calculator.test.mjs
+本次最后执行：20 项通过，0 失败，0 跳过，纯本机合成，0 模型请求。
+新增 8 项使用实际 Continuity、MoneyTools.operation/checkpoint、路由结算/configure
+入口：正常透传及重复读取、无回执、异 run/task/work/project/turn 与排除、计划
+不匹配、检查点及已存回执篡改、异 producer、工具回执篡改、旧任务兼容。
+原有 12 项路由/金额保护通过。未运行全量回归或独立 QA。
+首轮夹具错误使用了不符合固定内网策略的 loopback 地址，已改为既有内网形式的
+不联网配置；沙箱临时文件 rename EPERM 后在批准的本机测试环境执行，无绕过
+生产权限策略。该失败不计为模型故障。
+
+尚未完成
+没有真实 A→B计算→B消费→A复核实验；没有 8884 调用、部署或切换。
+原附件流程至少 5 次请求的预检事实保留，不增加模型调用上限。
+独立 Gold、取数完整性、法律准确率、财务路由收益、用户验收均未证明。
+状态：READY_FOR_INDEPENDENT_QA（仅本次回执透传候选）。

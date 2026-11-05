@@ -3,6 +3,7 @@ import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {digest} from '../v8-tools/resource-space.mjs';
 import {applyAdaptivePolicy} from '../v8-tools/execution-policy.mjs';
+import {handoffMoney} from '../v8-tools/handoff-money.mjs';
 const read = p => JSON.parse(fs.readFileSync(p, 'utf8'));
 const success = t => ['answered', 'completed'].includes(t.status);
 const terminal = new Set(['completed', 'reviewed', 'review_incomplete', 'worker_failed', 'cancelled', 'blocked']);
@@ -39,7 +40,13 @@ export class AssistantRouting {
    profile.continuity.excludedInputs = [...(profile.continuity.excludedInputs || []).filter(ref => !allowed.has(ref.resourceId)), ...Object.entries(state.resources).filter(([id]) => !allowed.has(id)).flatMap(([resourceId,v]) => Object.keys(v.revisions).map(revisionId => ({resourceId,revisionId})))];
    delete profile.folderConnections; delete profile.scheduleDirectory;
    profile.knowledgeDirectory = path.join(profile.directory, 'empty-handoff-knowledge');
-   profile.interactionContext = {assistantHandoff:{phase:stage.phase,originalRequest:r.request,assignedTask:r.task||r.request,reason:r.reason,reviewFocus:r.reviewFocus,workerReceipt:stage.phase==='verify'?r.workerReceipt:null},instruction:stage.phase==='verify' ? '依据实际文件、统计和交付回执核对原任务。handoffReview是可用证据而非结论；不足时按需调用已授权工具补查，充分时答复。保留分歧，不能以两个助理一致证明正确。只核对，不生成或改写文件。' : '完成分配的任务，使用限定材料和实际工具交付。可直接处理，也可在业务写入前交给更合适且未在本链路主办的同事；按实际需要选择复核。'};
+   let workerReceipt=stage.phase==='verify'?r.workerReceipt:null;
+   if(workerReceipt){
+    const evidence=handoffMoney(this.w.space,{projectId:c.workspaceId,workItemId:c.workItemId,runId:workerReceipt.runId,turnId:workerReceipt.turnId,request:r.task||r.request,refs:r.refs});
+    const saved=workerReceipt.moneyEvidence;
+    workerReceipt={...workerReceipt,moneyEvidence:saved&&digest(saved)!==digest(evidence)?{version:1,state:'unverified',issues:['MONEY_EVIDENCE_CHANGED'],receipts:[]}:evidence};
+   }
+   profile.interactionContext = {assistantHandoff:{phase:stage.phase,originalRequest:r.request,assignedTask:r.task||r.request,reason:r.reason,reviewFocus:r.reviewFocus,workerReceipt},instruction:stage.phase==='verify' ? '依据实际文件、统计和交付回执核对原任务。moneyEvidence仅在source_and_arithmetic_bound时提供宿主绑定的金额回执；unverified不代表核对通过。其摘要域与编码各自标明，不混同比较；算术一致不证明取数完整或业务口径正确。handoffReview是可用证据而非结论；不足时按需调用已授权工具补查，充分时答复。保留分歧，不能以两个助理一致证明正确。只核对，不生成或改写文件。' : '完成分配的任务，使用限定材料和实际工具交付。可直接处理，也可在业务写入前交给更合适且未在本链路主办的同事；按实际需要选择复核。'};
    return;
   }
   if (this.w.config.assistantRouting?.enabled === false || c.kind === 'group' || c.proactiveKey || t.contractReview || profile.contractReview?.temporaryGrant || profile.continuity.mode) return;
@@ -88,7 +95,7 @@ export class AssistantRouting {
   if (route.reviewQueued || route.state === 'delegated') return;
   if (!['completed','answered','partial'].includes(t.status) || (!t.artifacts?.length && !t.answer)) {route.state='worker_failed';this.failParents(c,route,'worker_failed');this.w.save();return;}
   route.workerResult=t.resultRef||null;
-  route.workerReceipt={turnId:t.id,status:t.status,answer:t.answer.slice(0,8000),artifacts:(t.artifacts||[]).map(a=>({id:a.artifactId,sha256:a.sha256})),unmetRequirements:t.unmetRequirements||[]};
+  route.workerReceipt={turnId:t.id,runId:t.runId||null,status:t.status,answer:t.answer.slice(0,8000),artifacts:(t.artifacts||[]).map(a=>({id:a.artifactId,sha256:a.sha256})),unmetRequirements:t.unmetRequirements||[],moneyEvidence:handoffMoney(this.w.space,{projectId:c.workspaceId,workItemId:c.workItemId,runId:t.runId,turnId:t.id,request:route.task||route.request,refs:route.refs})};
   this.advance(c,route,t); this.w.save();
  }
  advance(c,r,t) {
