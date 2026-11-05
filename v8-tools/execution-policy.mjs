@@ -1,5 +1,12 @@
 // Host-owned policy. Tool arguments and document text cannot change execution limits.
 export const isAdaptive = config => config.executionPolicy?.mode === 'adaptive';
+export const isPerMessage = config => config.executionPolicy?.mode === 'per_message';
+export function applyMessagePolicy(profile){
+  if(!profile.continuity?.conversationId||profile.meetingPolicy||profile.assistantRouting?.phase)return profile;
+  profile.executionPolicy={mode:'per_message',maxModelRequests:70};profile.maxRounds=70;profile.maxCalls=null;
+  if(profile.continuity){profile.continuity.maxCumulativeModelRequests=null;profile.continuity.maxCumulativeToolAttempts=null;}
+  return profile;
+}
 
 export function applyAdaptivePolicy(profile) {
   profile.executionPolicy = {mode: 'adaptive'};
