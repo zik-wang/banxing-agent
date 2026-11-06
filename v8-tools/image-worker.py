@@ -72,7 +72,13 @@ elif job['operation'] == 'inspect_docx':
         txt = lambda e: ''.join(t.text or '' for t in e.findall('.//w:t',ns))
         paragraphs = [txt(p) for p in body.findall('w:p',ns)]
         tables = [[[txt(c) for c in r.findall('w:tc',ns)] for r in table.findall('w:tr',ns)] for table in body.findall('w:tbl',ns)]
-    result = {'paragraphs':paragraphs,'tables':tables,'packageValid':True,'contentVerified':False}
+    blocks = []
+    for child in body:
+        if child.tag == '{'+ns['w']+'}p':
+            blocks.append({'kind':'paragraph','text':txt(child)})
+        elif child.tag == '{'+ns['w']+'}tbl':
+            blocks.append({'kind':'table','rows':[[txt(c) for c in r.findall('w:tc',ns)] for r in child.findall('w:tr',ns)]})
+    result = {'paragraphs':paragraphs,'tables':tables,'blocks':blocks,'packageValid':True,'contentVerified':False}
 elif job['operation'] == 'render':
     with pdfium.PdfDocument(source) as doc:
         number = job['page']

@@ -95,7 +95,7 @@ export class DocumentExtras {
       return {artifactId:a.artifactId,path:a.path,sha256:a.sha256,exportIntegrityPassed:true,document,contentVerified:false,note:'PDF structure and saved bytes checked; source completeness and layout require separate review.'};
     }
     if(a.kind==='docx'){
-      const document=await this.docs.worker({operation:'inspect_docx',input:a.path},signal),exportIntegrityPassed=document.packageValid&&JSON.stringify(document.paragraphs)===JSON.stringify(a.expectedWord.paragraphs)&&JSON.stringify(document.tables)===JSON.stringify(a.expectedWord.tables);
+      const document=await this.docs.worker({operation:'inspect_docx',input:a.path},signal),exportIntegrityPassed=document.packageValid&&JSON.stringify(document.paragraphs)===JSON.stringify(a.expectedWord.paragraphs)&&JSON.stringify(document.tables)===JSON.stringify(a.expectedWord.tables)&&(!a.expectedWord.blocks||JSON.stringify(document.blocks)===JSON.stringify(a.expectedWord.blocks));
       const result={artifactId:a.artifactId,path:a.path,sha256:a.sha256,exportIntegrityPassed,document,contentVerified:false};a.saveReadbackPassed=exportIntegrityPassed;this.save();fs.writeFileSync(path.join(path.dirname(a.path),'readback.json'),JSON.stringify(result,null,2));return result;
     }
     if(a.kind==='text'){
