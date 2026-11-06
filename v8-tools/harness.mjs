@@ -150,7 +150,7 @@ export async function runToolAgent({harness, next, request, context = {}, maxRou
     const remaining=roundLimit-physicalRequests();
     if(remaining<=0){termination={reason:'model_round_budget_exhausted'};break;}
     const finalOnly=reserveFinalRound&&remaining===1;if(finalOnly)messages.push({role:'user',content:'宿主：这是预留的最终答复轮次。只依据现有回执给出核对结论、分歧和未完成项；不要再调用工具，不得声称未执行的核对已经完成。'});
-    if(harness.executionRepair)compactHistory(messages,harness.directory,{seenThrough});
+    if(harness.executionRepair)compactHistory(messages,harness.directory,{seenThrough,evidenceBudgetChars:120000});
     const submittedThrough=messages.length;
     let reply;try{modelRoundsUsed++;reply=await next(messages, finalOnly?[]:harness.listTools(), harness.signal,{maxAttempts:remaining});seenThrough=submittedThrough;}catch(e){termination={reason:harness.signal.aborted?abortReason():'model_error',error:{code:e.code||'MODEL_REQUEST_FAILED',message:e.message,...(e.details?{details:e.details}:{}),...(modelFailure(e)?{failure:modelFailure(e)}:{})}};break;}
     if (!reply || reply.role !== 'assistant') throw new Error('Invalid model message');
