@@ -1,0 +1,2 @@
+# Preserve exact prior download/plot bytes; SHA256 remains comparable to evidence.
+* -text -whitespace

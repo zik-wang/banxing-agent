@@ -1,0 +1,50 @@
+{
+  "checked_at": "2026-11-06T09:36:32.180403+00:00",
+  "copy_only": true,
+  "model_calls_added": 0,
+  "business_tests_added": 0,
+  "files": [
+    {
+      "file": "s08-comparison.md",
+      "sha256": "a260fba0c92462673a38852c5cca64415000138239d6f050f663da252280e65e",
+      "bytes": 1484,
+      "scope": "S08-001 synthetic comparison: actual prior page download, not a new run or real company contract",
+      "original_bytes_preserved": true
+    },
+    {
+      "file": "s08-comparison.docx",
+      "sha256": "9d46735ba02ecc522db38bde438fbfa76a5b7f3a1fb0ed38cd8e3da38fc5041e",
+      "bytes": 10161,
+      "scope": "S08-001 synthetic comparison: actual prior page download, not a new run or real company contract",
+      "original_bytes_preserved": true
+    },
+    {
+      "file": "s10-merged.csv",
+      "sha256": "4287bcf8ea3c4384c762820f2dc615ad8e949ad8f95bc3897abe755c8164b2ac",
+      "bytes": 135,
+      "scope": "Prior synthetic page-case downloaded artifact; no connected mailbox or real business material",
+      "original_bytes_preserved": true
+    },
+    {
+      "file": "s05-follow-up.md",
+      "sha256": "9bb8da144c303efec83fe70e38dd9cabbf59508f5e9fe036f2768d6234803e30",
+      "bytes": 4498,
+      "scope": "Prior synthetic page-case downloaded artifact; no connected mailbox or real business material",
+      "original_bytes_preserved": true
+    },
+    {
+      "file": "sft-r3-loss.png",
+      "sha256": "84d9589eeebf8fd007edeb515e606d910a8991456687a14c813e52498f1bb696",
+      "bytes": 308265,
+      "scope": "Existing aggregate train/dev curves only. Historical R3 study, not R4 or legal reliability.",
+      "original_bytes_preserved": true
+    },
+    {
+      "file": "sft-r3-loss.svg",
+      "sha256": "c56428613c567df9968c61d6d0191f585b52c05c6df9fa0ff1a202d4c43215da",
+      "bytes": 87230,
+      "scope": "Existing aggregate train/dev curves only. Historical R3 study, not R4 or legal reliability.",
+      "original_bytes_preserved": true
+    }
+  ]
+}
