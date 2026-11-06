@@ -16,6 +16,7 @@ from evaluation import evaluate,paired_interval
 from gate import require_preflight
 from stream_weights import load_into
 from causal import causal_mask
+from supervised import supervised_forward
 from resources import memory_status,require_capacity
 torch.set_num_threads(1);torch.set_num_interop_threads(1)
 def now():return datetime.now(timezone.utc).isoformat()
@@ -32,14 +33,15 @@ def append(p,x):
 class Study:
  def __init__(self,root,base):
   self.root=root;self.base=base;self.protocol=read(root/'protocol.json');self.started=time.monotonic();self.last_check=self.started;self.model_loads=0
+  if self.protocol.get('cuda_allocator')=='disabled-cache' and os.environ.get('PYTORCH_NO_CUDA_MEMORY_CACHING')!='1':raise RuntimeError('ALLOCATOR_PROTOCOL_NOT_APPLIED_BEFORE_TORCH')
   self.tokenizer=AutoTokenizer.from_pretrained(str(base),local_files_only=True,trust_remote_code=False);self.tokenizer.pad_token=self.tokenizer.eos_token
  def check(self):
   t=time.monotonic();gap=t-self.last_check;self.last_check=t
   if gap>180:raise RuntimeError('UNEXPLAINED_EXECUTION_GAP_SECONDS:'+str(gap))
-  if t-self.started>14400:raise RuntimeError('TOTAL_4H_BUDGET')
+  if t-self.started>self.protocol['limits']['total_seconds']:raise RuntimeError('TOTAL_STUDY_BUDGET')
   if (self.root/'STOP').exists():raise RuntimeError('USER_STOP_FILE')
   capacity=memory_status()
-  if capacity.get('windows') and capacity['available_commit']<1024**3:raise RuntimeError('SYSTEM_COMMIT_MEMORY_PRESSURE:'+str(capacity))
+  if capacity.get('windows') and capacity['available_commit']<1536*1024**2:raise RuntimeError('SYSTEM_COMMIT_MEMORY_PRESSURE:'+str(capacity))
   control=Path('D:/pro222/pccr-eye-gaze/local-progress/data/run-control.json')
   if control.exists():
    c=read(control)
@@ -54,6 +56,13 @@ class Study:
   with torch.device('meta'):m=AutoModelForCausalLM.from_config(config,torch_dtype=torch.bfloat16,attn_implementation='eager',trust_remote_code=False)
   m.to_empty(device='cuda');m.tie_weights();state=m.state_dict()
   loaded=load_into(self.base/'model.safetensors',state,{'lm_head.weight'} if config.tie_word_embeddings else set(),lambda done,total:self.status('streaming_weight_load',seed=seed,completed=done,total=total))
+  del state;torch.cuda.empty_cache()
+  if self.protocol.get('base_storage')=='NF4':
+   from quantization import quantize_nf4
+   loaded['quantization']=quantize_nf4(m)
+   digest=hashlib.sha256(json.dumps(loaded['quantization'],sort_keys=True,separators=(',',':')).encode()).hexdigest()
+   if hasattr(self,'quantized_base_sha256') and self.quantized_base_sha256!=digest:raise RuntimeError('QUANTIZED_BASE_CHANGED_BETWEEN_ARMS')
+   self.quantized_base_sha256=digest;loaded['quantized_base_manifest_sha256']=digest
   m.model.rotary_emb=m.model.rotary_emb.__class__(config=config,device=torch.device('cuda'))
   for p in m.parameters():p.requires_grad_(False)
   m.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False});m.enable_input_require_grads()
@@ -74,9 +83,20 @@ class Study:
   save(path,{'at':now(),'training_row_id':r['id'],'reference_loss':values[0][0],'explicit_mask_loss':values[1][0],'last_token_logits_identical':torch.equal(values[0][1],values[1][1]),'passed':matched,'scope':'One actual base-model training-row forward probe; tiny-config unit tests compare full logits and gradients. Not a semantic task evaluation.'})
   if not matched:raise RuntimeError('FULL_MODEL_MASK_PROBE_MISMATCH')
  @torch.inference_mode()
+ def objective_probe(self,m,r,path):
+  m.eval();self.check();x,pt,tt=self.encode(r)
+  ref=m(**x,use_cache=False);reference_loss=float(ref.loss);reference=ref.logits[:,pt-1:-1].cpu().clone();del ref;gc.collect();torch.cuda.empty_cache()
+  out=supervised_forward(m,x);actual_loss=float(out.loss);actual=out.logits.cpu();maximum=float((reference.float()-actual.float()).abs().max())
+  # BF16 vocabulary projection can use a different GEMM shape. Validate all
+  # supervised positions with an explicit numerical (not semantic) tolerance.
+  logits_close=torch.allclose(reference,actual,rtol=.01,atol=.015625);loss_close=abs(reference_loss-actual_loss)<=1e-4
+  save(path,{'at':now(),'training_row_id':r['id'],'full_tokens':pt+tt,'supervised_tokens':tt,'reference_loss':reference_loss,'selective_loss':actual_loss,'loss_abs_difference':abs(reference_loss-actual_loss),'target_logits_max_abs_difference':maximum,'logits_rtol':.01,'logits_atol':.015625,'loss_atol':1e-4,'passed':logits_close and loss_close,'scope':'One real base training example; all supervised logits and loss compared. Tiny-config tests separately compare LoRA gradients. No evaluation/test predictions.'})
+  del x,out,reference,actual;gc.collect();torch.cuda.empty_cache()
+  if not logits_close or not loss_close:raise RuntimeError('SUPERVISED_OBJECTIVE_PROBE_MISMATCH')
+ @torch.inference_mode()
  def loss(self,m,data):
   m.eval();values=[]
-  for r in data:self.check();x,_,_=self.encode(r);values.append(float(m(**x,use_cache=False).loss));del x
+  for r in data:self.check();x,_,_=self.encode(r);values.append(float(supervised_forward(m,x).loss));del x;torch.cuda.empty_cache()
   return sum(values)/len(values)
  @torch.inference_mode()
  def generate(self,m,data,path,label):
@@ -96,17 +116,17 @@ class Study:
  def adapter(self,m,directory):
   directory.mkdir(exist_ok=False);weights={k:v.detach().cpu().contiguous() for k,v in get_peft_model_state_dict(m).items()};save_file(weights,str(directory/'adapter_model.safetensors'),metadata={'format':'pt'});m.peft_config['default'].save_pretrained(directory);return sha(directory/'adapter_model.safetensors')
  def arm(self,seed,train,dev):
-  start=time.monotonic();target=self.root/('seed-'+str(seed));target.mkdir();self.status('training_arm_start',seed=seed);m=self.model(seed);initial=self.adapter(m,target/'initial');self.probe(m,train[0],target/'mask-equivalence-probe.json')
+  start=time.monotonic();target=self.root/('seed-'+str(seed));target.mkdir();self.status('training_arm_start',seed=seed);m=self.model(seed);initial=self.adapter(m,target/'initial');self.probe(m,train[0],target/'mask-equivalence-probe.json');self.objective_probe(m,train[0],target/'objective-equivalence-probe.json')
   opt=torch.optim.AdamW([p for p in m.parameters() if p.requires_grad],lr=1e-4,betas=(.9,.999),eps=1e-8,weight_decay=.01);rng=random.Random(seed);queue=list(range(len(train)));rng.shuffle(queue);seen=collections.Counter();history=[]
   for step in range(1,301):
    self.check()
-   if time.monotonic()-start>3600:raise RuntimeError('ARM_BUDGET_INCOMPLETE:'+str(seed))
+   if time.monotonic()-start>self.protocol['limits']['arm_wall_seconds']:raise RuntimeError('ARM_BUDGET_INCOMPLETE:'+str(seed))
    m.train();m.config.use_cache=False;opt.zero_grad(set_to_none=True);trace=[]
    for _ in range(4):
-    self.check();r=train[queue.pop()];x,pt,tt=self.encode(r);loss=m(**x,use_cache=False).loss
+    self.check();r=train[queue.pop()];x,pt,tt=self.encode(r);loss=supervised_forward(m,x).loss
     if not torch.isfinite(loss):raise RuntimeError('NONFINITE_LOSS')
-    (loss/4).backward();trace.append({'id':r['id'],'loss':float(loss.detach()),'prompt_tokens':pt,'target_tokens':tt});seen[r['id']]+=1;del x,loss
-   norm=float(torch.nn.utils.clip_grad_norm_(m.parameters(),1));opt.step();opt.zero_grad(set_to_none=True);torch.cuda.empty_cache();item={'at':now(),'seed':seed,'step':step,'loss':sum(x['loss'] for x in trace)/4,'gradient_norm':norm,'lr':1e-4,'trace':trace,'unique_seen':len(seen),'elapsed_seconds':time.monotonic()-start,'memory':memory_status(),'cuda_allocated':torch.cuda.memory_allocated(),'cuda_reserved':torch.cuda.memory_reserved()};append(target/'training-log.jsonl',item)
+    (loss/4).backward();trace.append({'id':r['id'],'loss':float(loss.detach()),'prompt_tokens':pt,'target_tokens':tt});seen[r['id']]+=1;del x,loss;torch.cuda.empty_cache()
+   norm=float(torch.nn.utils.clip_grad_norm_(m.parameters(),1));opt.step();opt.zero_grad(set_to_none=True);torch.cuda.empty_cache();free,total=torch.cuda.mem_get_info();item={'at':now(),'seed':seed,'step':step,'loss':sum(x['loss'] for x in trace)/4,'gradient_norm':norm,'lr':1e-4,'trace':trace,'unique_seen':len(seen),'elapsed_seconds':time.monotonic()-start,'memory':memory_status(),'cuda_allocated':torch.cuda.memory_allocated(),'cuda_reserved':torch.cuda.memory_reserved(),'allocator_stats_valid':os.environ.get('PYTORCH_NO_CUDA_MEMORY_CACHING')!='1','driver_global_used_bytes':total-free};append(target/'training-log.jsonl',item)
    if step==1 or step%25==0:self.status('training',seed=seed,step=step,steps=300,loss=item['loss'],unique_seen=len(seen))
    if step%100==0:
     val=self.loss(m,dev);p=self.generate(m,dev,target/f'dev-step{step}.jsonl','dev_'+str(seed));metrics=evaluate(dev,p);weight_sha=self.adapter(m,target/f'checkpoint-{step}')
@@ -119,7 +139,7 @@ class Study:
    if sha(self.root/name)!=h:raise RuntimeError('FROZEN_FILE_CHANGED:'+name)
   for name,h in f['code'].items():
    if sha(self.root/'executed-code'/name)!=h:raise RuntimeError('FROZEN_CODE_CHANGED:'+name)
-  capacity=memory_status();save(self.root/'resource-preflight.json',capacity);require_capacity(capacity)
+  capacity=memory_status();save(self.root/'resource-preflight.json',capacity);require_capacity(capacity,self.protocol.get('base_storage')=='NF4')
   if not torch.cuda.is_available() or torch.cuda.mem_get_info()[0]<4500*1024**2:raise RuntimeError('LOCAL_GPU_UNAVAILABLE_OR_OCCUPIED')
   expected=read(self.root/'base-manifest.json');actual={name:sha(self.base/name) for name in expected}
   if actual!=expected:raise RuntimeError('BASE_MODEL_HASH_MISMATCH')

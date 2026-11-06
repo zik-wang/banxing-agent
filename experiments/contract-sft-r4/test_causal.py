@@ -22,4 +22,8 @@ class MaskEquivalence(unittest.TestCase):
  def test_resource_gate_is_readonly_and_blocks_low_capacity(self):
   from resources import require_capacity
   with self.assertRaisesRegex(RuntimeError,'PREFLIGHT_BLOCKED'):require_capacity({'windows':True,'available_commit':1,'available_physical':1})
+  require_capacity({'windows':True,'available_commit':7*1024**3,'available_physical':1024**3})
+  with self.assertRaisesRegex(RuntimeError,'PREFLIGHT_BLOCKED'):require_capacity({'windows':True,'available_commit':7*1024**3-1,'available_physical':1024**3})
+  require_capacity({'windows':True,'available_commit':5*1024**3,'available_physical':1024**3},quantized=True)
+  with self.assertRaisesRegex(RuntimeError,'PREFLIGHT_BLOCKED'):require_capacity({'windows':True,'available_commit':5*1024**3,'available_physical':1024**3},quantized=True,pre_torch=True)
 if __name__=='__main__':unittest.main(verbosity=2)

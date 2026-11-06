@@ -1,7 +1,14 @@
 # R4: public human-reference validation repair
 
-**Status: code/data repairs delivered; training deferred by the user. No completed
-three-seed result, no new reliability claim, no production change.**
+**Status: user resumed training on Nov6. BF16 selective and NF4/no-cache resource
+probes each completed5 updates/20 microbatches. Formal training has not started:
+system headroom fell again at launch. No three-seed reliability claim or
+production change. A bounded admission watcher can wait30 minutes, launch at
+most once after two ready samples, or preserve a blocked result.**
+
+The earlier user deferral and failed runs remain historical records. This code
+does not require closing other applications, alter pagefiles or kill processes.
+`STOP` and the shared user-pause control still stop new training work.
 
 This study measures **English contract-excerpt evidence extraction**, not Chinese
 contract risk adjudication, arithmetic, legal advice, or full-contract recall.
@@ -52,13 +59,47 @@ project reviewers are presented as human Gold.
   prepares the equivalent mask only for a single unpadded, unpacked, uncached
   training/dev example. Tiny Qwen tests compare **all logits, loss and parameter
   gradients**, exactly, for F32/BF16 at two lengths. This is not a proof that the
-  real-model OOM is fixed; a real1.5B training-row forward equivalence probe is
-  mandatory before each future arm and has **not yet run** on this candidate.
-- Trim unused CUDA cache between updates/examples; record system commit and CUDA
-  allocation/reservation. Conservative preflight requires available system commit
-  >=12GiB and physical >=4GiB, plus free GPU >=4.5GiB. These are experiment guard
-  values, not universal measured hardware minima. No OS pagefile changes, process
-  termination, lower-precision model substitution or automatic retry is performed.
+  real-model OOM is fixed. A real1.5B training-row forward probe passed during
+  resource calibration; each formal arm must repeat the probe before updates.
+- `supervised.py` projects vocabulary logits only at supervised next-token
+  positions, preserving all context, labels, EOS and the objective. Tiny F32/BF16
+  tests check loss and LoRA gradients; changed GEMM shapes may differ by numeric
+  roundoff. The actual BF16715-token training-row control had identical loss and
+  all supervised logits. The BF16 selective path completed5 stress updates/20
+  microbatches, but varying system headroom still prevents claiming a full run.
+- Trim unused CUDA cache after each microbatch/dev example and record commit/
+  CUDA memory. The old12GiB commit/4GiB physical guard was conservative, not a
+  universal minimum. Current candidate admission is7GiB commit for BF16 or6GiB
+  for NF4 before Torch import (5GiB after import), with1GiB physical and4.5GiB
+  GPU free; runtime commit reserve1.5GiB is
+  above the original1GiB runtime floor. Guards can still stop a run when other
+  applications allocate memory. No OS/pagefile changes or automatic retry.
+- An explicitly separate **NF4 QLoRA** protocol is available via `--nf4` resource
+  calibration. It uses bitsandbytes0.48.1 NF4 double quantization with block64,
+  uint8 storage/BF16 compute; tied embeddings/head and norms stay BF16, LoRA is
+  FP32. Original base tensors are verified before conversion; packed weights and
+  quantization-scale hashes must agree across every arm and the baseline reload.
+  This is **not BF16-equivalent**: compare NF4 baseline to NF4+LoRA only, never
+  pool it with historical BF16 scores. Data and quality gates do not change.
+  NF4/no-cache calibration completed5 updates/20 microbatches. Allocator counters
+  are disabled in this mode and report0: **not zero GPU usage**. Driver-global
+  usage is separately logged, includes other applications, and is not an isolated
+  process peak. In NF4 load receipts, parameter `numel` counts packed stored
+  elements, not the original model's logical architectural parameter count.
+  The real NF4 control had zero loss difference but maximum logit difference
+  .0625 within the pre-recorded BF16 roundoff tolerance; not bit identity.
+  Before any formal NF4 arm, wall limits were frozen at2h/arm and8h total to
+  account for allocator overhead. Steps, data and scoring thresholds are fixed.
+- `calibrate.py` runs at most5 stress updates/20 microbatches within6 minutes on
+  training rows only. These are not seed results or held-out predictions. The
+  full-vocabulary equivalence control may use a short original training row;
+  optimized training itself is stressed with longest sequences/targets. `amend.py`
+  creates a fresh frozen directory instead of rewriting previous experiments.
+- `wait_capacity.py` is a stdlib-only, separate admission wrapper. It waits at
+  most30 minutes, requires two samples15s apart above6.5GiB commit plus the
+  physical floor, and makes at most one protected launcher attempt. It respects
+  shared pause/deadline and `STOP`, journals wait time separately from execution,
+  preserves prior startup logs, and cannot mark overall T2/user acceptance done.
 - `launch.py` is lightweight and defaults to **check only**. It checks capacity
   before importing Torch in a child, logs directly to a file rather than a
   PowerShell Tee pipeline, and requires explicit `--start-training` to execute.
@@ -109,7 +150,7 @@ Readiness only, no training:
 
 Only after the user explicitly resumes training: preserve a resume receipt and
 remove the candidate's user-created `STOP` marker, then append `--start-training`
-to that command. Do not run it during the current deferral. The child checks all
+to that command. Do not run it during a user pause. The child checks all
 hashes again. If a started execution fails, preserve it and diagnose the exact
 cause; never reuse its directory or sample repeatedly until a good score appears.
 
