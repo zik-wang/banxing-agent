@@ -1,0 +1,61 @@
+# worker-01 固定交付页
+
+更新时间：2026-11-06，北京时间。维护者：worker-01。本页后续原位更新。
+
+[统一成果总入口](https://github.com/zik-wang/banxing-agent/blob/codex/afk-progress-board-20261104/docs/progress/README.md) · [本页提交历史](https://github.com/zik-wang/banxing-agent/commits/codex/c-end-quality-20261104/docs/progress/worker-01-latest.md) · [当前源码](https://github.com/zik-wang/banxing-agent/tree/codex/c-end-quality-20261104)
+
+复用分支 `codex/c-end-quality-20261104`，不新建发布分支。本页负责本窗口的交付；旧 `docs/v8-mentor-current.md` 指向历史分支，不能用它判断当前运行版本。
+
+## 先看这里
+
+**10项与18项整体验收尚未完成。** 已推送、已部署、执行端自测、独立QA、用户验收是不同状态，本页不互相替代。
+
+- 已发布代码及脱敏报告基线：[`536d050b10b115b251371559c275861b8a399968`](https://github.com/zik-wang/banxing-agent/commit/536d050b10b115b251371559c275861b8a399968)。本次仅整理入口，没有新增模型调用或业务实验。
+- 固定页本身的实际发布提交见页面顶部Git记录或上方“本页提交历史”；推送后核对的完整SHA另存本机发布回执，供总入口维护者读取。避免把整理前的代码SHA冒充本页发布SHA。
+- 开发机演示地址为 `http://127.0.0.1:8884/`，**只对开发者电脑有效**；本仓库没有因此发布公网网站。Mentor需获得仓库权限，下载代码并配置自己的依赖和模型，或在开发机现场查看。
+- 当前运行副本基线标识为 `f8fefc597f336b0a51a51d6ee1159150a69f0529`，叠加了多轮局部补丁，**不是当前源码HEAD的完整检出**。2026-11-06只读核对的运行指纹为 `1f7765ebe52b808ad705f052bca772a23a0d6e7296147de3b0493bcd2cfc49cf`；这是当时文件指纹，不保证后续不变。本机完整路径、取证时间和补丁应用记录见发布回执。
+
+## T5 当前产品交付与真实场景
+
+目标：先03/06/08/10/11/13/14/15/18/19十项，再覆盖01–20除02、17的18项。21–28不纳入。演示输入只采用真实网络材料；合成内容仅用于明确标注的代码回归。
+
+已实施并有执行端证据的改动：
+
+- **页面卡顿**：详情索引按一次请求共享，轮询不重叠；三个既有对话实测从1.6–3.3秒降至0.2–0.33秒。[固定报告](https://github.com/zik-wang/banxing-agent/blob/8ad55e2f4fa6177cca22a9b454d94d61d80b7f16/docs/evaluations/2026-11-05-view-performance.md)
+- **调用预算**：普通消息最多200次物理模型请求，含重试；对话没有累计调用上限。真实运行记账已核对，相关9项测试通过。独立会议等流程仍有各自显式预算。[固定报告及范围](https://github.com/zik-wang/banxing-agent/blob/9a5080d47059c09fc1061aeab25c0c896cbf87f3/docs/evaluations/2026-11-06-real-acceptance-progress.md)
+- **多来源读取收敛**：保留预算内不同来源、版本及范围的原文，去除重复字段，完整回执仍在磁盘；真实README比较从重复读取终止变为3次请求得到比较正文。[固定报告](https://github.com/zik-wang/banxing-agent/blob/9352af7368f5def92e9942ebf031bf8fd9ddc7bf/docs/evaluations/2026-11-06-evidence-retention.md)
+- **Word交付**：按原文顺序生成段落和表格、转换行内格式、回读时校验交替顺序；真实网页下载并逐页渲染，紧凑版为2页。配置后的相关17项检查全通过。[固定报告](https://github.com/zik-wang/banxing-agent/blob/d23acc9503a2b2316bc41b539531331da6a7b9fc/docs/evaluations/2026-11-06-word-delivery.md)
+- **音频交付**：兼容合法的数组字符串参数并保留原始参数；增加按授权时间范围生成WAV、字节回读和下载。音频恢复相关19项检查通过。[固定报告](https://github.com/zik-wang/banxing-agent/blob/536d050b10b115b251371559c275861b8a399968/docs/evaluations/2026-11-06-audio-delivery-recovery.md)
+
+真实场景当前边界：
+
+- 19源码修复：真实页面上传官方源码和issue、发送原请求、交付副本及补丁、原生下载及逐字比对通过开发检查；未执行上传代码、未创建PR，不声称运行测试通过。
+- 13README比较：正文及Word格式链已检查；部分额外评测解释仍待核对，未签收整项。
+- 11发布简报：新下载的官方Release快照已产生Markdown；内容和验证声明归属仍待审查。
+- 18音频：NASA录音的TXT、SRT、WAV页面下载哈希一致，但8段仅5段有识别文字，且旧TXT不等同于已保存ASR逐字输出，因此整项不通过。新中文政府公开发布会任务已运行；本次只读核对为partial，未追加测试或改判。
+- 其他场景仍须逐项补齐当前产品执行、内容审核和真实交付证据。不能把历史挑选成品、文件存在或HTTP成功直接换算成当前自主通过。
+
+以上是开发端自测。当前这批补丁与10/18整项没有独立QA签收，也没有用户验收。
+
+## T1 和 T4 归档 同模型框架对照
+
+此部分是2026-11-04已执行的归档，本次未重跑。使用同一公开Qwen 27B和同一批公开原件，对照本项目Harness与Codex CLI协议适配执行。框架、提示及工具条件不同，不作单个组件的严格因果结论，也不报告总体准确率。
+
+- [可读结论与实验边界](../evaluations/2026-11-04/README.md)
+- [机器可读结果](../evaluations/2026-11-04/results.json)
+- [离线对照HTML](../evaluations/2026-11-04/index.html)：从GitHub下载后在本机打开；GitHub文件预览本身不是正在运行的演示网站。
+- [固定代码快照中的报告目录](https://github.com/zik-wang/banxing-agent/tree/536d050b10b115b251371559c275861b8a399968/docs/evaluations/2026-11-04)
+
+原始请求、失败回执、运行配置和完整取证只留本机；归档结果不能替代11月6日新产品验收。
+
+## 源码和启动入口
+
+- [网页服务源码](../../v8-web/server.mjs)；[执行器源码](../../v8-tools/run.mjs)；[工具目录](../../v8-tools/catalog.json)。不要把目录中尚未登记的能力说成已可用。
+- V8网页入口是 `node v8-web/server.mjs <自己的本机配置.json>`。需要实际模型、数据目录、Python及所用Office/媒体依赖；仓库不携带开发者账号或私有配置。
+- 旧V7的 `start-product.mjs` 和旧便携包不代表当前V8网页版本。本次没有生成或替换新的便携程序包。
+
+## 未发布和未验收内容
+
+本机录音、合同、业务材料、模型原始回执、运行态和凭证不随此页上传；受限产物仅在本机回执记录路径。本次没有改main、部署网站、删除旧分支或联系其他工作窗口。
+
+工作树另有未提交的CAD相关文件与入口差异，不属于本窗口本次发布；未暂存、未覆盖。CAD按用户安排由DSH独立推进。
