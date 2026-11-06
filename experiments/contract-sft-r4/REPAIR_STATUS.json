@@ -1,0 +1,70 @@
+{
+  "status": "OFFLINE_REPAIRS_DELIVERED_TRAINING_DEFERRED",
+  "scope": "English bounded contract evidence extraction only; no Chinese law/risk validation",
+  "source": [
+    {
+      "url": "https://www.atticusprojectai.org/cuad/",
+      "license": "CC BY4.0",
+      "source_sha256": "ed0b77d85bdf4014d7495800e8e4a70565b48ee6f8a2e5dca9cf8655dbf10eae"
+    }
+  ],
+  "counts": {
+    "test": {
+      "rows": 108,
+      "documents": 54,
+      "nonempty": 54,
+      "full_tokens": 29539,
+      "answer_tokens": 1395
+    },
+    "dev": {
+      "rows": 64,
+      "documents": 29,
+      "nonempty": 32,
+      "full_tokens": 17335,
+      "answer_tokens": 933
+    },
+    "train": {
+      "rows": 1200,
+      "documents": 329,
+      "nonempty": 568,
+      "full_tokens": 325281,
+      "answer_tokens": 17405
+    }
+  },
+  "seeds": [
+    61106,
+    61107,
+    61108
+  ],
+  "fixed_steps": 300,
+  "offline_tests_passed": 15,
+  "data_checks_passed": 37,
+  "decision_reason_counts": {
+    "answer_length_or_count": 203,
+    "prior_model_test_document_excluded": 48,
+    "cross_boundary": 69,
+    "exact_normalized_input_duplicate": 747,
+    "bounded_budget_not_selected": 237807,
+    "included": 1372
+  },
+  "frozen_input_hashes": {
+    "train.jsonl": "c4dceb10c4d1a5e69be7767de2e78a301d640faf93921b0396e91c9435f6c66b",
+    "dev.jsonl": "638de2bfe647b7987098bed87a0bb49fa446b460b87292a0561c384af15b46a0",
+    "test.jsonl": "ec48be792442498ca4d379f5d0a99fcd5d6bd7bee672baa84c10bc658d3a009b",
+    "protocol.json": "2b9a10634f670d559b97c6e78d7506f68387af746df7a20f3152c577b83179d9",
+    "data-decisions.jsonl": "3c74423039bdeecf52562eb77733c393a6d44069a7145455b8a29d6042150ca7",
+    "base-manifest.json": "b16091b202551215395bc59f89bc8d48d6976bb457926adb5c9778fc2eba452b",
+    "execution-amendment.json": "059aa410fbf12ce7d518f0e3ff8ea9dbefacc83b70126a929756570193b7a3f3"
+  },
+  "new_training_started": false,
+  "stop_marker_exists": true,
+  "earlier_attempt_completed_updates": 50,
+  "earlier_attempt_last_step": 50,
+  "real_streamed_base_tensor_verifications": 338,
+  "real_full_model_mask_probe_verified": false,
+  "full_three_seed_comparison_completed": false,
+  "test_model_outputs": 0,
+  "production_changed": false,
+  "weights_pushed": false,
+  "independent_qa_accepted": false
+}
