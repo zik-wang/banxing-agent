@@ -1,3 +1,4 @@
+import {normalizeToolArguments} from './tool-arguments.mjs';
 import {compactHistory} from './draft-delivery.mjs';
 import {EvidenceProgress} from './evidence-progress.mjs';
 import fs from 'node:fs';
@@ -45,7 +46,7 @@ export class ToolHarness {
     if (this.tools.size !== tools.length) throw new Error('Duplicate tool names');
     if (this.tools.has('discover_tools')) throw new Error('discover_tools is reserved');
     this.maxVisibleTools = Math.max(2, maxVisibleTools);
-    this.visible = tools.length < this.maxVisibleTools ? tools.map(t => t.name) : [...new Set(preferredTools)].filter(n=>this.tools.has(n)).slice(0,this.maxVisibleTools-1);
+    this.visible = tools.length < this.maxVisibleTools ? tools.map(t => t.name) : [...new Set([...tools.filter(t=>t.initiallyVisible).map(t=>t.name),...preferredTools])].filter(n=>this.tools.has(n)).slice(0,this.maxVisibleTools-1);
     this.discoveredTools=new Set(this.visible);
     this.discoveryCalls=0;this.businessToolAttempts=0;this.actualExecutions=0;this.recoveredReceipts=0;this.discoveryStreak=0;this.maxDiscoveryCalls=maxDiscoveryCalls??Infinity;this.maxDiscoveryStreak=maxDiscoveryStreak??Infinity;
     this.registryFingerprint=createHash('sha256').update(JSON.stringify(tools.map(t=>({name:t.name,schema:t.inputSchema})))).digest('hex');
@@ -75,6 +76,7 @@ export class ToolHarness {
   }
   async executeOne(name, args) {
     const callId = randomUUID(), startedAt = new Date().toISOString(); let result,handlerInvoked=false,submittedDraft;
+    const submittedArguments=args,normalization=normalizeToolArguments(this.tools.get(name)?.inputSchema,args);args=normalization.arguments;
     const stable=x=>x&&typeof x==='object'?Array.isArray(x)?x.map(stable):Object.fromEntries(Object.keys(x).sort().map(k=>[k,stable(x[k])])):x;
     const signature=name+'|'+JSON.stringify(stable(args))+(this.executionRepair?'|'+(this.executionRevision?.()||''): '');
     const discoveredBefore=this.discoveredTools.size;
@@ -115,7 +117,7 @@ export class ToolHarness {
     if(name!=='discover_tools'&&useful&&!result.data?.recoveredReceipt)this.discoveryStreak=0;
     if(result.status!=='error'&&!['list_materials','inspect_material','processing_status','discover_tools'].includes(name))this.usableResults++;
     this.history.push({callId,tool:name,status:result.status,code:result.error?.code,noProgress:this.noProgress});
-    fs.appendFileSync(path.join(this.directory, 'tool-calls.jsonl'), JSON.stringify({startedAt, finishedAt: new Date().toISOString(), arguments: args, ...result}) + '\n');
+    fs.appendFileSync(path.join(this.directory, 'tool-calls.jsonl'), JSON.stringify({startedAt, finishedAt: new Date().toISOString(), arguments: submittedArguments, ...(normalization.changes.length?{normalizedArguments:args,argumentNormalizations:normalization.changes}:{}), ...result}) + '\n');
     return result;
   }
   // Protocol adapter only: an MCP transport may register these same handlers.

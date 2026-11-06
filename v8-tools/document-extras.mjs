@@ -98,7 +98,7 @@ export class DocumentExtras {
       const document=await this.docs.worker({operation:'inspect_docx',input:a.path},signal),exportIntegrityPassed=document.packageValid&&JSON.stringify(document.paragraphs)===JSON.stringify(a.expectedWord.paragraphs)&&JSON.stringify(document.tables)===JSON.stringify(a.expectedWord.tables)&&(!a.expectedWord.blocks||JSON.stringify(document.blocks)===JSON.stringify(a.expectedWord.blocks));
       const result={artifactId:a.artifactId,path:a.path,sha256:a.sha256,exportIntegrityPassed,document,contentVerified:false};a.saveReadbackPassed=exportIntegrityPassed;this.save();fs.writeFileSync(path.join(path.dirname(a.path),'readback.json'),JSON.stringify(result,null,2));return result;
     }
-    if(a.kind==='text'){
+    if(a.kind==='text'||a.kind==='audio'){
       const bytes=fs.readFileSync(a.path),exportIntegrityPassed=digest(bytes)===a.expectedBytesSha256;
       const result={artifactId:a.artifactId,path:a.path,sha256:a.sha256,exportIntegrityPassed,bytes:bytes.length,contentVerified:false,note:'Actual text/patch bytes reopened; save integrity does not prove factual or code correctness.'};
       a.saveReadbackPassed=exportIntegrityPassed;this.save();fs.writeFileSync(path.join(path.dirname(a.path),'readback.json'),JSON.stringify(result,null,2));return result;
