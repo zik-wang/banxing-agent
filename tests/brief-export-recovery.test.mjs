@@ -68,7 +68,10 @@ test('do not re-analyze converts the authorized saved brief without a model requ
 });
 
 test('failed rendering retains the draft but cannot become a completed report',async t=>{
- const x=setup(t,'根据这份材料生成Word报告。');const result=await reportPreflight(x);
+ const x=setup(t,'根据这份材料生成Word报告。');
+ // Explicit fault injection, independent of whether the host has DOCX installed.
+ x.extras.docxModule=path.join(x.docs.directory,'deliberately-missing-docx-module.mjs');
+ const result=await reportPreflight(x);
  assert.equal(result.failed,true);assert.equal(result.completed,undefined);assert.equal(result.reason,'report_export_failed');
  assert.ok(result.draftRef);assert.equal(x.extras.artifacts.size,0);assert.equal([...x.docs.results.values()].filter(r=>r.method==='submitted_draft').length,1);
 });
@@ -76,5 +79,13 @@ test('failed rendering retains the draft but cannot become a completed report',a
 test('answer-only, meetings, explicit disable and unsupported formats keep their own routes',async t=>{
  for(const change of [x=>{x.docs.turnIntent.noNewFiles=true;},x=>{x.config.meetingPolicy={};},x=>{x.config.documentComposition=false;},x=>{x.docs.turnIntent.formats=['xlsx'];}]){
   const x=setup(t);change(x);assert.equal(await reportPreflight(x),null);assert.equal(x.harness.calls,0);
+ }
+});
+
+test('explicit revision without source rereading stays on the artifact editing route',async t=>{
+ for(const task of ['请修订已有报告，交付Markdown，不重读全文。','修改刚才的TXT，无需重新读取原件。']){
+  const x=setup(t,task);x.next=()=>{throw Error('Preflight must not start a model request');};
+  assert.equal(await reportPreflight(x),null);assert.equal(x.harness.calls,0);
+  assert.equal(x.extras.artifacts.size,0);
  }
 });

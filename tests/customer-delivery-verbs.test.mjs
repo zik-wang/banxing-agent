@@ -8,3 +8,9 @@ test('negative statements about source format do not require a new output artifa
  assert.deepEqual(outputFormats('不要只交付PDF'),['pdf']);
  assert.deepEqual(outputFormats('交付Word和PDF'),['docx','pdf']);
 });
+
+test('negated format lists and following affirmative actions have separate scope',()=>{
+ for(const text of ['本轮不需要生成Word/PDF，交付Markdown','不需导出Excel和PDF，提供TXT','无需生成Word/PDF'])assert.deepEqual(outputFormats(text),text.includes('Markdown')?['md']:text.includes('TXT')?['txt']:[],text);
+ assert.deepEqual(outputFormats('无需生成Word并提供PDF'),['pdf']);
+ assert.deepEqual(outputFormats('不要生成Word但提供PDF'),['pdf']);
+});
