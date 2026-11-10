@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {randomUUID,createHash} from 'node:crypto';
+import {isDeepStrictEqual} from 'node:util';
 import {ToolError} from './harness.mjs';
 
 const str=(maxLength=200,minLength=1)=>({type:'string',minLength,maxLength});
@@ -109,18 +110,30 @@ export class DocumentExtras {
       const expected=a.expected[i],actual=readback.sheets[i];
       if(!actual||actual.name!==expected.name||actual.rows.length!==expected.raw.length) discrepancies.push({sheet:expected.name,issue:'shape mismatch'});
       if(actual?.formulas.length) discrepancies.push({sheet:expected.name,issue:'unexpected formulas',cells:actual.formulas});
-      expected.raw.forEach((row,r)=>row.forEach((value,c)=>{if((actual?.rows[r]?.[c]??'')!==(value??'')) discrepancies.push({sheet:expected.name,row:r+1,column:c+1,expected:value,actual:actual?.rows[r]?.[c]??null});}));
+      expected.raw.forEach((row,r)=>row.forEach((value,c)=>{if(!isDeepStrictEqual(actual?.rows[r]?.[c]??'',value??'')) discrepancies.push({sheet:expected.name,row:r+1,column:c+1,expected:value,actual:actual?.rows[r]?.[c]??null});}));
     }
     const resultId=randomUUID(),answer=JSON.stringify({sheets:readback.sheets},null,2);
     this.docs.results.set(resultId,{resultId,answer,method:'artifact_readback',status:'returned_unverified',artifactId:a.artifactId});this.docs.save();
     const result={artifactId:a.artifactId,path:a.path,exportIntegrityPassed:discrepancies.length===0,discrepancies,resultId,text:answer.slice(0,5000),totalChars:answer.length,nextOffset:answer.length>5000?5000:null,contentVerified:false,note:'Checks saved cells against export arguments only. This is not independent source verification.'};
     a.saveReadbackPassed=result.exportIntegrityPassed;this.save();fs.writeFileSync(path.join(path.dirname(a.path),'readback.json'),JSON.stringify({...result,sheets:readback.sheets},null,2));return result;
   }
+  async validateDelivery({artifact_id},context) {
+    const result=await this.inspect({artifact_id},context);
+    const artifact=this.artifacts.get(artifact_id);
+    const table=this.docs.workbookTools?.tables.get(artifact?.tableId);
+    if(table?.mode!=='append_new'||!result.exportIntegrityPassed)return result;
+    return {
+      artifactId:artifact_id,sha256:artifact.sha256,exportIntegrityPassed:true,contentVerified:false,
+      checkedSheets:artifact.expected.map(({name,raw})=>({name,dataRows:raw.length-1,columns:raw[0].length})),
+      deliveryFacts:artifact.deliveryFacts,
+      note:'The saved workbook was reopened and all cells in both the main and any review worksheets were checked. Use this receipt to report the delivery. Full readback is retained by the host; pagination is unnecessary for this validation.',
+    };
+  }
   tools() {
     return [
       definition('extract_pdf_text','Extract one physical PDF page text layer without a model. Useful for exact original spelling. Does not prove visual layout or row pairing. For empty scans use render_pdf_page and vision_extract. Drain nextOffset with read_result.',obj({asset_id:str(),page:int(1,10000)}),(a,c)=>this.text(a,c)),
       definition('export_xlsx','Export supplied tables to a real downloadable Excel workbook. All cells are literal strings, no formulas or automatic date conversion. Chinese column labels and original source values can coexist. Include unresolved issues; tool does not invent rows or verify source meaning.',obj({title:str(100),sheets:arr(obj({name:str(31),headers:arr(str(120),1,30),rows:arr(arr(str(2048,0),1,30),1,500)}),1,8),source_refs:arr(obj({asset_id:str(),page:int(1,10000)}),1,100)}),(a,c)=>this.export(a,c)),
-      definition('validate_artifact','Reopen an exported XLSX or DOCX and compare every saved cell/paragraph to export arguments; returns actual document data. Export integrity is NOT factual correctness or full source coverage.',obj({artifact_id:str()}),(a,c)=>this.inspect(a,c))
+      definition('validate_artifact','Reopen an exported XLSX or DOCX and compare every saved cell/paragraph to export arguments. Append-new ledgers return a complete integrity receipt with both sheet counts; do not repaginate to verify the save. Export integrity is NOT factual correctness or full source coverage.',obj({artifact_id:str()}),(a,c)=>this.validateDelivery(a,c))
     ];
   }
 }

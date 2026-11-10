@@ -1,13 +1,17 @@
 import {pathToFileURL} from 'node:url';
 import {inlineRuns,plainInline,wordBlocks} from './word-markdown.mjs';
 const reportHeadings=new Set(['阅读要点','审核立场范围和材料限制','最重要的候选风险','待补材料和待确认事项','原有批注的核实结果','必审项执行台账','未获支持的候选（保留审计记录）','以下为原始候选审计明细（不代表独立风险数）','27B与本地微调的前后复核','反馈与受控改进']);
-const cellText=v=>v===null||v===undefined?'':String(v);
+const cellText=v=>v?.kind==='excel_temporal'?v.display:String(v??'');
 export async function buildWord({title,text,tables=[],modulePath}){
  const d=await import(modulePath?pathToFileURL(modulePath).href:'docx');
  const {Document,Packer,Paragraph,TextRun,HeadingLevel,Table,TableRow,TableCell,WidthType,TableLayoutType,PageOrientation}=d;
  const blocks=wordBlocks(text);
  if(blocks[0]?.kind==='paragraph'&&plainInline(blocks[0].text).trim()===title.trim())blocks.shift();
- blocks.push(...tables.map(t=>({kind:'table',name:t.sheet||'',literal:true,rows:[t.headers,...t.rows].map(r=>r.map(cellText))})));
+ for(const table of tables){
+  blocks.push({kind:'table',name:table.sheet||'',literal:true,rows:[table.headers,...table.rows].map(r=>r.map(cellText))});
+  if(table.reviewRows?.length)
+   blocks.push({kind:'table',name:'待核',literal:true,rows:[table.headers,...table.reviewRows].map(r=>r.map(cellText))});
+ }
  const all=blocks.filter(b=>b.kind==='table'),columns=Math.max(0,...all.map(t=>t.rows[0]?.length||0)),wide=columns>6,pageWidth=columns>8?23811:wide?16838:11906,pageHeight=columns>8?16838:wide?11906:16838,usable=pageWidth-1800;
  const expected={paragraphs:[],tables:[],blocks:[]},children=[];let readingOverview=false;
  function runs(value,{literal=false,...defaults}={}){return (literal?[{text:value}]:inlineRuns(value)).map(r=>new TextRun({...defaults,...r}));}

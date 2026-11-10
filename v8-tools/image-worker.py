@@ -46,18 +46,41 @@ elif job['operation'] == 'pdf_text':
         result = {'text': textpage.get_text_range(), 'page': number, 'totalPages': len(doc)}
         textpage.close(); page.close()
 elif job['operation'] in ['inspect_xlsx','read_workbook']:
+    from datetime import date, time, timedelta
     from openpyxl import load_workbook
+    from openpyxl.utils.datetime import WINDOWS_EPOCH, to_excel
+
+    def workbook_value(cell):
+        value = cell.value
+        if isinstance(value, (date, time, timedelta)):
+            return {
+                'kind': 'excel_temporal',
+                'serial': to_excel(value, WINDOWS_EPOCH),
+                'numberFormat': cell.number_format,
+                'display': str(value) if isinstance(value, timedelta) else value.isoformat(),
+            }
+        return value
+
     book = load_workbook(source, read_only=True, data_only=False)
     sheets = []
-    for sheet in book.worksheets:
-        if sheet.max_row is None or sheet.max_column is None:
-            sheet.calculate_dimension(force=True)
-        if sheet.max_row > 600 or sheet.max_column > 40:
-            raise ValueError('READBACK_SIZE_LIMIT')
-        rows = [[cell.value for cell in row] for row in sheet.iter_rows()]
-        formulas = [cell.coordinate for row in sheet.iter_rows() for cell in row if cell.data_type == 'f']
-        sheets.append({'name':sheet.title,'rows':rows,'formulas':formulas})
-    book.close()
+    selected_sheet = job.get('sheet') if job['operation'] == 'read_workbook' else None
+    try:
+        total_cells = 0
+        for sheet in book.worksheets:
+            if selected_sheet is not None and sheet.title != selected_sheet:
+                continue
+            if sheet.max_row is None or sheet.max_column is None:
+                sheet.calculate_dimension(force=True)
+            total_cells += sheet.max_row * sheet.max_column
+            if sheet.max_row > 2000 or sheet.max_column > 40 or total_cells > 80000:
+                raise ValueError(f'READBACK_SIZE_LIMIT: {sheet.title} has {sheet.max_row} rows, {sheet.max_column} columns; limits are 2000 rows and 40 columns per sheet, 80000 cells per read')
+            rows, formulas = [], []
+            for row in sheet.iter_rows():
+                rows.append([workbook_value(cell) for cell in row])
+                formulas.extend(cell.coordinate for cell in row if cell.data_type == 'f')
+            sheets.append({'name':sheet.title,'rows':rows,'formulas':formulas})
+    finally:
+        book.close()
     result = {'sheets':sheets, 'contentVerified':False}
 elif job['operation'] == 'inspect_docx':
     from zipfile import ZipFile

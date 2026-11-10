@@ -6,6 +6,7 @@ import os from 'node:os';
 import {combineDatasets,WorkbookTools} from '../v8-tools/workbook-tools.mjs';
 import {DocumentTools} from '../v8-tools/document-tools.mjs';
 import {DocumentExtras} from '../v8-tools/document-extras.mjs';
+import {ResultTools} from '../v8-tools/result-tools.mjs';
 import {ToolHarness,runToolAgent} from '../v8-tools/harness.mjs';
 
 test('column alignment, append, chosen-key dedup and conflicting values have distinct behavior',()=>{
@@ -16,6 +17,67 @@ test('column alignment, append, chosen-key dedup and conflicting values have dis
  const conflict=combineDatasets([a,{...b,rows:[[9,'x','different']]}],{mode:'deduplicate',key_columns:['id']});assert.equal(conflict.rows.length,3);assert.equal(conflict.conflicts.length,1);
  assert.throws(()=>combineDatasets([a,b],{mode:'deduplicate',key_columns:['note']}),e=>e.code==='INVALID_KEY');
 });
+test('append_new preserves base rows, aligns explicit aliases, and separates changes and missing keys',t=>{
+ const folder=fs.mkdtempSync(path.join(os.tmpdir(),'v8-append-new-'));t.after(()=>fs.rmSync(folder,{recursive:true,force:true}));
+ const docs={directory:folder,results:new Map(),save(){}};
+ const books=new WorkbookTools(docs,{});
+ const date={kind:'excel_temporal',serial:45000,numberFormat:'yyyy-mm-dd',display:'2023-03-15T00:00:00'};
+ const base={id:'base',sourceId:'a',sheet:'A',headerRow:1,headers:['id','supplier','date'],rows:[['a','old',date],['a','second',null]]};
+ const incoming={id:'incoming',sourceId:'b',sheet:'B',headerRow:3,headers:['vendor name','date',' id '],rows:[
+  ['old',{...date,numberFormat:'mm/dd/yyyy'},'a'],['changed',null,'a'],
+  ['new1',date,'b'],['new2',null,'b'],['new1',date,'b'],['unassigned',null,null]
+ ]};
+ books.tables.set(base.id,base);books.tables.set(incoming.id,incoming);
+ const args={table_ids:[base.id,incoming.id],mode:'append_new',key_columns:['id']};
+ assert.throws(()=>books.merge(args),e=>e.code==='APPEND_NEW_SCHEMA');
+ const result=books.merge({...args,column_aliases:[{incoming_column:'vendor\u00a0name',base_column:'supplier'}]});
+ const merged=books.tables.get(result.tableId);
+ assert.deepEqual(merged.rows,[...base.rows,['b','new1',date],['b','new2',null]]);
+ assert.deepEqual(merged.reviewRows,[['a','changed',null],[null,'unassigned',null]]);
+ assert.deepEqual(merged.conflicts.map(r=>r.incoming[0].row),[5,9]);
+ assert.equal(result.removedRows,2);
+ assert.equal(result.reviewRows,2);
+ assert.equal(base.rows.length,2);
+ const edited=new ResultTools(docs,{},books).revise({table_id:result.tableId,operations:[
+  {kind:'add_column',column:'reviewed',value:{kind:'boolean',boolean:false}}
+ ]});
+ assert.deepEqual(books.tables.get(edited.tableId).reviewRows,[['a','changed',null,false],[null,'unassigned',null,false]]);
+ assert.equal(merged.reviewRows[0].length,3);
+});
+
+test('worksheet reader trims empty outside columns but refuses to drop unnamed data',async t=>{
+ const folder=fs.mkdtempSync(path.join(os.tmpdir(),'v8-worksheet-layout-'));t.after(()=>fs.rmSync(folder,{recursive:true,force:true}));
+ const rows=[['title'],[null,'ID','Amount',null],[null,'x',12.5,null],[null,null,null,null],[null,'y',2,null]];
+ const docs={directory:folder,results:new Map(),save(){},asset:()=>({id:'a',kind:'workbook',path:'workbook.xlsx'}),async inspect(){},
+  async worker(job){assert.equal(job.sheet,'Data');return {sheets:[{name:'Data',rows,formulas:[]}]};}};
+ const books=new WorkbookTools(docs,{});
+ const args={asset_id:'a',sheet:'Data',header_row:2};
+ const read=await books.read(args,{});
+ const table=books.tables.get(read.tableId);
+ assert.deepEqual(table.headers,['ID','Amount']);
+ assert.deepEqual(table.rows,[['x',12.5],['y',2]]);
+ assert.deepEqual(table.provenance.map(p=>p[0].row),[3,5]);
+ rows[4][3]='unlabelled';
+ await assert.rejects(books.read(args,{}),e=>e.code==='INVALID_HEADERS');
+});
+
+test('append-new validation returns full sheet counts without exposing a pagination loop',async()=>{
+ const docs={workbookTools:{tables:new Map([['t',{mode:'append_new'}]])}};
+ const extras=Object.create(DocumentExtras.prototype);
+ extras.docs=docs;
+ extras.artifacts=new Map([['a',{tableId:'t',sha256:'hash',expected:[
+  {name:'合并报表',raw:[['ID'],['a'],['b']]},{name:'待核',raw:[['ID'],['c']]}
+ ]}]]);
+ const full={exportIntegrityPassed:true,resultId:'full-readback',nextOffset:5000};
+ extras.inspect=async()=>full;
+ const receipt=await extras.validateDelivery({artifact_id:'a'},{});
+ assert.deepEqual(receipt.checkedSheets,[{name:'合并报表',dataRows:2,columns:1},{name:'待核',dataRows:1,columns:1}]);
+ assert.equal(receipt.exportIntegrityPassed,true);
+ assert.equal(receipt.resultId,undefined);
+ full.exportIntegrityPassed=false;
+ assert.equal(await extras.validateDelivery({artifact_id:'a'},{}),full);
+});
+
 test('follow-up preserves the prior user message verbatim and the same tool state',async t=>{
  const folder=fs.mkdtempSync(path.join(os.tmpdir(),'v8-followup-'));t.after(()=>fs.rmSync(folder,{recursive:true,force:true}));
  const h=new ToolHarness({directory:folder,tools:[]});const first=await runToolAgent({harness:h,request:'合并这个报表',initialMessages:[{role:'system',content:'test host metadata'}],next:async()=>({role:'assistant',content:'first'})});
