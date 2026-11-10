@@ -7,6 +7,8 @@ export function outputFormats(request=''){
   const hits=formatPatterns.flatMap(([format,re])=>[...clause.matchAll(re)].map(m=>({format,at:m.index,word:m[0]}))).sort((a,b)=>a.at-b.at);
   let previousOutput=null;
   for(const hit of hits){const before=clause.slice(0,hit.at),after=clause.slice(hit.at+hit.word.length);
+   const scopedBefore=before.split(/但是|不过|而是|但/u).at(-1);
+   if(/(?:不能|不可|不得|不要(?!只|仅)|不应|禁止|无需|不用|不必|别(?!只|仅))(?:再|重新)?(?:写成|说成|改成|转换成|转换为|转成|转为|生成|导出|交付|输出|提供).{0,18}$/u.test(scopedBefore))continue;
    if(/(?:不要|不用|无需|不需要|别)(?:修订|修改|更新|生成|导出|交付|重新|再|给|提供|给我|输出|新的|任何|一个|一份|版|格式|\s){0,8}$/u.test(before))continue;
    const afterRequest=/^\s*(?:版|版本|文件|文档)?(?:也|再)?(?:请)?(?:给我|发我|交付|下载)/u.test(after);
    const sourceMention=/(?:原|原始|输入|源|对照|参考|依据|读取|阅读|这份|这个|附件)\s*$/u.test(before)||/^\s*(?:页面|原件|作为来源|作为输入|转成|转为)/u.test(after);
