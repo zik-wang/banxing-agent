@@ -1,10 +1,10 @@
 // Formatting only. Never evaluates embedded HTML, code or links.
 export function inlineRuns(value){
  const text=String(value??''),out=[];
- const pattern=/\\([\\`*_[\]{}()#+.!|~-])|(`+)([\s\S]*?)\2|\*\*([^*\n]+)\*\*|__([^_\n]+)__|~~([^~\n]+)~~|\[([^\]\n]+)\]\(([^\s)]+)\)/g;
+ const pattern=/\\([\\`*_[\]{}()#+.!|~-])|(`+)([\s\S]*?)\2|\*\*([^*\n]+)\*\*|__([^_\n]+)__|~~([^~\n]+)~~|\[([^\]\n]+)\]\(([^\s)]+)\)|(<br\s*\/?\s*>)/gi;
  let cursor=0;for(const m of text.matchAll(pattern)){if(m.index>cursor)out.push({text:text.slice(cursor,m.index)});
-  if(m[1])out.push({text:m[1]});else if(m[2])out.push({text:m[3],font:'Consolas'});else if(m[4]||m[5])out.push({text:m[4]||m[5],bold:true});else if(m[6])out.push({text:m[6],strike:true});else out.push({text:m[7]+' ('+m[8]+')'});cursor=m.index+m[0].length;
- }if(cursor<text.length)out.push({text:text.slice(cursor)});return out.length?out:[{text:''}];
+  if(m[1])out.push({text:m[1]});else if(m[2])out.push({text:m[3],font:'Consolas'});else if(m[4]||m[5])out.push({text:m[4]||m[5],bold:true});else if(m[6])out.push({text:m[6],strike:true});else if(m[9])out.push({text:'\n'});else out.push({text:m[7]+' ('+m[8]+')'});cursor=m.index+m[0].length;
+ }if(cursor<text.length)out.push({text:text.slice(cursor)});return out.length?out.map(r=>r.font==='Consolas'?r:{...r,text:r.text.replace(/<br\s*\/?\s*>/gi,'\n')}):[{text:''}];
 }
 export const plainInline=value=>inlineRuns(value).map(r=>r.text).join('');
 export function tableCells(line){

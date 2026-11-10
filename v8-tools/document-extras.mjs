@@ -4,6 +4,7 @@ import {pathToFileURL} from 'node:url';
 import {randomUUID,createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
 import {ToolError} from './harness.mjs';
+import {renderWorkbookPreview} from './workbook-preview.mjs';
 
 const str=(maxLength=200,minLength=1)=>({type:'string',minLength,maxLength});
 const int=(minimum,maximum)=>({type:'integer',minimum,maximum});
@@ -11,6 +12,18 @@ const arr=(items,minItems,maxItems)=>({type:'array',items,minItems,maxItems});
 const obj=(properties,required=Object.keys(properties))=>({type:'object',properties,required,additionalProperties:false});
 const definition=(name,description,inputSchema,execute)=>({name,description,inputSchema,execute});
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
+
+export function checkSpreadsheetSourceMode(docs,sourceRefs,mode='verbatim') {
+  const kinds=sourceRefs.map(r=>docs.asset(r.asset_id).kind);
+  if(kinds.includes('workbook'))throw new ToolError('TYPED_TABLE_REQUIRED','Read/merge registered workbook table IDs and use export_table; do not retype numeric cells through text-only Excel.');
+  if(!kinds.includes('pdf'))return;
+  if(mode!=='interpreted'||docs.factProfile==='expiry')throw new ToolError('SOURCE_RECORDS_REQUIRED','For printed key/value lists use read_source_records/export_source_records. For mixed-layout documents that do not fit those records, read the source pages and use export_xlsx with source_mode="interpreted"; retain unresolved fields and source_refs. Interpreted values are not source-verified. Expiry facts must use the registered fact ledger.');
+  for(const ref of sourceRefs){
+    if(docs.asset(ref.asset_id).kind!=='pdf')continue;
+    const read=[...docs.results.values()].some(r=>r.sourceId===ref.asset_id&&r.page===ref.page&&['pdf_text','vision','vision_extract','ocr'].includes(r.method)&&typeof r.answer==='string'&&r.answer.trim());
+    if(!read)throw new ToolError('SOURCE_PAGE_NOT_READ','Read every cited PDF page before exporting interpreted values; reading is not semantic verification.');
+  }
+}
 
 // No scenario names, expected answers or fixed processing pipelines belong here.
 export class DocumentExtras {
@@ -28,9 +41,9 @@ export class DocumentExtras {
     d.results.set(resultId,record);d.save();
     return {resultId,sourceId:a.sourceId,page,totalPages:a.pages,method:'pdf_text',partial:!result.text.trim(),text:result.text.slice(0,5000),totalChars:result.text.length,nextOffset:result.text.length>5000?5000:null,contentVerified:false,note:'Text layer can have incorrect order, invisible text or missing scanned content. Compare visible layout for ambiguous fields. Read adjacent pages for continued entries.'};
   }
-  async export({title,sheets,source_refs},{signal,sourceProjectionAuthorized=false}) {
+  async export({title,sheets,source_refs,source_mode='verbatim'},{signal,sourceProjectionAuthorized=false}) {
     if(this.docs.privateAudioMetadataOnly)throw new ToolError('SAVED_TRANSCRIPT_REQUIRED','Private audio can only be exported from its actual saved result_ids using export_document; do not fabricate a text-only spreadsheet.');
-    if(this.sourceConstraints&&!sourceProjectionAuthorized){const kinds=source_refs.map(r=>this.docs.asset(r.asset_id).kind);if(kinds.includes('workbook'))throw new ToolError('TYPED_TABLE_REQUIRED','Read/merge registered workbook table IDs and use export_table; do not retype numeric cells through text-only Excel.');if(kinds.includes('pdf'))throw new ToolError('SOURCE_RECORDS_REQUIRED','For source-field extraction, use read_source_records and export_source_records to preserve full names, original field roles and unresolved source notes. For prose reports use export_document with explicit sources.');}
+    if(this.sourceConstraints&&!sourceProjectionAuthorized)checkSpreadsheetSourceMode(this.docs,source_refs,source_mode);
     if(!this.artifactModule) throw new ToolError('EXPORT_NOT_CONFIGURED','Host must configure the artifact-tool module');
     const d=this.docs;
     for(const ref of source_refs) {
@@ -73,16 +86,16 @@ export class DocumentExtras {
     fs.writeFileSync(path.join(folder,'authoring-check.json'),JSON.stringify(checks,null,2));
     const output=path.join(folder,'清单.xlsx');await (await SpreadsheetFile.exportXlsx(book)).save(output);
     const previews=[],previewErrors=[];
-    for(let i=0;i<sheets.length;i++) {
-      try {
-        const blob=await book.render({sheetName:sheets[i].name,range:`A1:${columnLabel(sheets[i].headers.length)}${Math.min(sheets[i].rows.length+3,13)}`,scale:1,format:'png'});
-        const preview=path.join(folder,`preview-${i+1}.png`);fs.writeFileSync(preview,new Uint8Array(await blob.arrayBuffer()));previews.push(preview);
-      } catch(e) {previewErrors.push({sheet:sheets[i].name,error:e.message});}
-    }
     if(serializationTransformations.length)fs.writeFileSync(path.join(folder,'source-character-transformations.json'),JSON.stringify(serializationTransformations,null,2));
-    const record={artifactId:id,path:output,title,sha256:digest(fs.readFileSync(output)),source_refs,expected,previews,previewErrors,serializationTransformations,contentVerified:false,...(this.docs.executionRepair?{operationKey:this.docs.activeOperationKey||null}:{}),...(this.docs.activeFactProjection?{factProjection:this.docs.activeFactProjection}:{})};
+    const record={artifactId:id,path:output,title,sha256:digest(fs.readFileSync(output)),source_refs,sourceMode:sourceProjectionAuthorized?'registered_source_projection':source_mode,expected,previews,previewErrors,serializationTransformations,contentVerified:false,...(this.docs.executionRepair?{operationKey:this.docs.activeOperationKey||null}:{}),...(this.docs.activeFactProjection?{factProjection:this.docs.activeFactProjection}:{})};
     this.artifacts.set(id,record);this.save();
     if(this.docs.executionRepair)this.docs.onArtifactWritten?.(record);
+    for(let i=0;i<sheets.length;i++) {
+      const result=await renderWorkbookPreview({artifactModule:this.artifactModule,input:output,output:path.join(folder,`preview-${i+1}.png`),sheetName:sheets[i].name,range:`A1:${columnLabel(sheets[i].headers.length)}${Math.min(sheets[i].rows.length+3,13)}`},{signal});
+      if(result.ok)previews.push(result.path);else previewErrors.push({sheet:sheets[i].name,...result.error});
+      if(signal?.aborted)break;
+    }
+    this.save();
     return {artifactId:id,path:output,sha256:record.sha256,sheets:sheets.map(s=>({name:s.name,dataRows:s.rows.length,columns:s.headers.length})),previews,previewErrors,contentVerified:false,note:'Export preserves model-supplied values; it does not certify them against the sources. Use validate_artifact for saved-file readback.'};
   }
   async inspect({artifact_id},{signal}) {
@@ -132,7 +145,7 @@ export class DocumentExtras {
   tools() {
     return [
       definition('extract_pdf_text','Extract one physical PDF page text layer without a model. Useful for exact original spelling. Does not prove visual layout or row pairing. For empty scans use render_pdf_page and vision_extract. Drain nextOffset with read_result.',obj({asset_id:str(),page:int(1,10000)}),(a,c)=>this.text(a,c)),
-      definition('export_xlsx','Export supplied tables to a real downloadable Excel workbook. All cells are literal strings, no formulas or automatic date conversion. Chinese column labels and original source values can coexist. Include unresolved issues; tool does not invent rows or verify source meaning.',obj({title:str(100),sheets:arr(obj({name:str(31),headers:arr(str(120),1,30),rows:arr(arr(str(2048,0),1,30),1,500)}),1,8),source_refs:arr(obj({asset_id:str(),page:int(1,10000)}),1,100)}),(a,c)=>this.export(a,c)),
+      definition('export_xlsx','Export supplied tables to a real downloadable Excel workbook. All cells are literal strings, no formulas or automatic date conversion. For mixed-layout PDF extraction, first read cited pages, then explicitly set source_mode=interpreted; values remain semantically unverified. Preserve original values and ambiguous fields as unresolved. Printed key/value or expiry lists should use export_source_records. Workbook inputs require export_table. source_refs belongs at the top level, not inside sheets.',obj({title:str(100),sheets:arr(obj({name:str(31),headers:arr(str(120),1,30),rows:arr(arr(str(2048,0),1,30),1,500)}),1,8),source_refs:arr(obj({asset_id:str(),page:int(1,10000)}),1,100),source_mode:{type:'string',enum:['verbatim','interpreted']}},['title','sheets','source_refs']),(a,c)=>this.export(a,c)),
       definition('validate_artifact','Reopen an exported XLSX or DOCX and compare every saved cell/paragraph to export arguments. Append-new ledgers return a complete integrity receipt with both sheet counts; do not repaginate to verify the save. Export integrity is NOT factual correctness or full source coverage.',obj({artifact_id:str()}),(a,c)=>this.validateDelivery(a,c))
     ];
   }

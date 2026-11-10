@@ -14,7 +14,7 @@ export async function buildWord({title,text,tables=[],modulePath}){
  }
  const all=blocks.filter(b=>b.kind==='table'),columns=Math.max(0,...all.map(t=>t.rows[0]?.length||0)),wide=columns>6,pageWidth=columns>8?23811:wide?16838:11906,pageHeight=columns>8?16838:wide?11906:16838,usable=pageWidth-1800;
  const expected={paragraphs:[],tables:[],blocks:[]},children=[];let readingOverview=false;
- function runs(value,{literal=false,...defaults}={}){return (literal?[{text:value}]:inlineRuns(value)).map(r=>new TextRun({...defaults,...r}));}
+ function runs(value,{literal=false,...defaults}={}){return (literal?[{text:value}]:inlineRuns(value)).flatMap(r=>r.text.split('\n').map((text,i)=>new TextRun({...defaults,...r,text,...(i?{break:1}:{})})));}
  function paragraph(value,heading,{bullet=false,code=false}={}){
   const visible=code?value:plainInline(value);if(visible==='阅读要点')readingOverview=true;if(/^附录[：:]/u.test(visible))readingOverview=false;
   expected.paragraphs.push(visible);expected.blocks.push({kind:'paragraph',text:visible});

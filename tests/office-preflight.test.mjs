@@ -1,4 +1,14 @@
-import test from'node:test';import assert from'node:assert/strict';import{resolveMergeKeys,officePreflight}from'../v8-tools/office-preflight.mjs';
+import test from'node:test';import assert from'node:assert/strict';import{resolveMergeKeys,officePreflight,uniqueKnowledgeSpans}from'../v8-tools/office-preflight.mjs';
+test('knowledge span dedup keeps distinct locations and sources, without rewriting quotes',()=>{
+ const a={documentId:'a',sourceSha256:'hash',start:3,end:12,quote:'原文'},b={...a,start:20,end:29},c={...a,documentId:'b'},seen=new Set();
+ assert.deepEqual(uniqueKnowledgeSpans([a,a,b,c],seen),[a,b,c]);assert.deepEqual(uniqueKnowledgeSpans([b,c],seen),[]);
+});
+test('translated and original-language search is not short-circuited by literal-only preflight',async()=>{
+ for(const request of ['请入库并检索「招聘」，英文材料用英文原词检索。','请入库并搜索「采购」，同时检索同义词。']){
+  let calls=0;const result=await officePreflight({docs:{assets:new Map([['a',{id:'a',sourceId:'a',kind:'text'}]]),turnIntent:{}},config:{documentComposition:true},request,harness:{execute(){calls++;}}});
+  assert.equal(result,null);assert.equal(calls,0);
+ }
+});
 test('explicit natural business keys map to unique original headers, not fixed table values',()=>{assert.deepEqual(resolveMergeKeys('去重键建议：供应商+报价+项目名称（保留字段）',['中标人','中标金额_元','项目名称']).keys,['中标人','中标金额_元','项目名称']);assert.equal(resolveMergeKeys('按部门汇总',['金额']),null);});
 test('a named amount key maps through its units without inventing a new key',()=>{assert.deepEqual(resolveMergeKeys('去重键建议：供应商 + 中标金额 + 项目名称',['中标人','中标金额_元','项目名称']).keys,['中标人','中标金额_元','项目名称']);});
 test('ambiguous tax basis and unrelated identifiers cannot silently choose a key',()=>{assert.equal(resolveMergeKeys('去重键：报价',['金额(不含税)','价税合计']).ambiguous,true);assert.equal(resolveMergeKeys('主键：采购编号',['子项编号','父项目编号']).ambiguous,true);});

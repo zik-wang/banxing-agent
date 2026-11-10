@@ -35,3 +35,8 @@ body.product-ui .local-file-status:empty{display:none}body.product-ui .local-fil
 @media(max-width:640px){.user-decision{padding:16px}.decision-footer{align-items:flex-start;flex-direction:column;gap:10px}.decision-footer button{align-self:flex-end}.decision-choice{padding:10px}body.product-ui .local-file-row{padding:10px}body.product-ui .local-file-heading{grid-template-columns:28px minmax(0,1fr) auto;gap:8px}.local-file-folder{display:none}.local-file-actions{gap:0}body.product-ui .local-file-download{min-width:44px;padding:0 9px}body.product-ui .local-file-download span{display:none}.local-file-heading .file-symbol{width:27px;height:35px}body.product-ui .local-file-main .local-file-link{font-size:13px}}
 
 .user-decision{max-width:680px}.user-decision fieldset{max-height:300px;overflow:auto;padding-right:4px}@media(max-width:640px){.user-decision fieldset{max-height:260px}}
+.decision-suggestions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.decision-suggestions button{min-height:44px;padding:10px 12px;border:1px solid var(--decision-line);border-radius:9px;background:#fff;color:var(--decision-ink);font:inherit;font-size:13px;line-height:1.5;text-align:left;overflow-wrap:anywhere;cursor:pointer}
+.decision-suggestions button:hover{background:#eaf3fc;border-color:var(--decision-ink)}
+.decision-suggestions button:focus-visible,.user-decision textarea:focus-visible{outline:2px solid var(--decision-ink);outline-offset:3px}
+@media(max-width:640px){.decision-suggestions{grid-template-columns:1fr}.decision-suggestions button{padding:10px 12px}}

@@ -2,6 +2,9 @@ import {randomUUID} from 'node:crypto';
 // Only explicit, unambiguous user operations are compiled here. Originals do not
 // supply instructions or permissions; ambiguous columns/keywords ask the user.
 const normal=x=>String(x).replace(/[\s_（）()]/g,'').toLowerCase();
+export function uniqueKnowledgeSpans(matches,seen=new Set()){
+ return matches.filter(m=>{const key=JSON.stringify([m.documentId||m.sourceName,m.sourceSha256,m.start,m.end,m.quote]);if(seen.has(key))return false;seen.add(key);return true;});
+}
 export function resolveMergeKeys(request,headers){
  const m=request.match(/(?:去重键|主键)(?:建议)?\s*[：:]\s*([^\n。；（(]+)/u);if(!m)return null;
  const requested=m[1].split(/[+＋、,，]/u).map(x=>x.trim()).filter(Boolean);if(!requested.length||requested.length>10)return{ambiguous:true};
@@ -20,10 +23,13 @@ export async function officePreflight({docs,records,harness,config,request}){
   return{completed:true,message:records.summary()+'\n\n本轮由程序按原文事实台账导出，没有调用云模型；这不是完整语义召回或当前续约情况的证明。'};
  }
  if(/入库/u.test(request)&&!/不要.{0,8}入库|无需.{0,8}入库|别.{0,8}入库/u.test(request)&&inputs.every(a=>a.kind==='text')){
+  // A fixed literal query compiler cannot select translated/synonymous terms.
+  // Keep those requests on the ordinary source-reading + knowledge tool path.
+  if(/(?:英文|原文语言|跨语言|同义词|翻译).{0,25}(?:原词|检索|搜索)|(?:检索|搜索).{0,25}(?:英文|跨语言|同义词)/u.test(request))return null;
   const match=request.match(/(?:检索|搜索)[\s\S]{0,35}[「“"]([^」”"]{1,150})[」”"]/u);if(!match)return null;
   const queries=match[1].split(/[\/、，,]/u).map(s=>s.trim()).filter(Boolean);if(!queries.length||queries.length>10)return null;
   const stored=[];for(const a of inputs)stored.push(await call('store_knowledge',{asset_id:a.id,title:a.name}));
-  const sections=[],fullSections=[];for(const query of queries){const r=await call('search_knowledge',{query,limit:100});fullSections.push('## '+query+'：'+r.totalMatches+'处字面匹配'+(r.nextOffset!==null?'（本文件仅含已取得的一页；仍有未取回范围）':'')+'\n'+r.matches.map(m=>m.sourceName+' 第'+m.line+'行 ['+m.start+'..'+m.end+'] SHA256 '+m.sourceSha256+'\n'+m.quote).join('\n\n'));sections.push('### '+query+'\n字面匹配 '+r.totalMatches+' 处。'+(r.nextOffset!==null?'原句仍有未取回范围。':'')+'聊天仅摘录最多4处，完整已取得命中见下载文件。\n'+r.matches.slice(0,4).map(m=>'- '+m.sourceName+' 第'+m.line+'行：'+m.quote.trim()).join('\n'));}
+  const sections=[],fullSections=[],seen=new Set();for(const query of queries){const r=await call('search_knowledge',{query,limit:100}),unique=uniqueKnowledgeSpans(r.matches,seen);fullSections.push('## '+query+'：'+r.totalMatches+'处关键词字面匹配；本节新增'+unique.length+'段不同来源位置的原句（跨查询相同位置去重）'+(r.nextOffset!==null?'（本文件仅含已取得的一页；仍有未取回范围）':'')+'\n'+unique.map(m=>m.sourceName+' 第'+m.line+'行 ['+m.start+'..'+m.end+'] SHA256 '+m.sourceSha256+'\n'+m.quote).join('\n\n'));sections.push('### '+query+'\n字面匹配 '+r.totalMatches+' 处；本节新增'+unique.length+'段不同来源位置的原句。'+(r.nextOffset!==null?'原句仍有未取回范围。':'')+'聊天仅摘录最多4处，完整已取得命中见下载文件。\n'+unique.slice(0,4).map(m=>'- '+m.sourceName+' 第'+m.line+'行：'+m.quote.trim()).join('\n'));}
   const allowed=['docx','txt','md'],formats=docs.turnIntent.formats.length?docs.turnIntent.formats.filter(f=>allowed.includes(f)):['txt'];if(!formats.length)return{needsInput:true,message:'条目和检索结果已保存；请指定Word或TXT等可用的原句交付格式，未擅自替换所需格式。'};const resultId=randomUUID();docs.results.set(resultId,{resultId,method:'knowledge_search_report',answer:'# 知识原句检索结果\n\n这是字面检索，不是语义完整性或个人事项办结证明。\n\n'+fullSections.join('\n\n'),sourceIds:inputs.map(a=>a.id)});docs.save();for(const format of formats)await call('export_document',{title:'知识原句检索结果',format,result_ids:[resultId]});
   return{completed:true,message:'# 知识入库与原句检索\n\n已持久保存以下全文条目，附件登记不代替入库：\n'+stored.map(x=>'- '+x.title+' · 文档ID '+x.documentId+' · SHA256 '+x.sourceSha256).join('\n')+'\n\n'+sections.join('\n\n')+'\n\n这是字面检索，不保证语义召回；没有个人办理回执，不能据此认定个人事项已办结。'};
  }
