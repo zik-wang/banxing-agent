@@ -14,6 +14,29 @@ test('mixed currency amounts are shown by currency and never summed into one bus
 test('ordinary table-to-Word conversion preserves table semantics instead of turning it into a statistics report',()=>{assert.equal(executionIntent('把统计表转成Word').wantsStatistics,false);assert.equal(executionIntent('给领导做个Word，带上刚才的统计').wantsStatistics,true);assert.equal(executionIntent('领导那个Word再给个PDF').operation,'convert');});
 test('unchanged evidence is detected despite new result IDs and varying query words',()=>{const p=new EvidenceProgress();for(let i=0;i<4;i++)p.observe('read_text_range',{asset_id:'A',query:String(i)},{status:'ok',data:{sourceSha256:'hash',start:0,end:10,text:'原文',resultId:String(i)}});assert(p.blocked);assert.equal(p.last.consecutiveUnchanged,3);});
 test('normal pagination, different region and newly returned evidence reset no-progress',()=>{const p=new EvidenceProgress();for(let i=0;i<12;i++){p.observe('read_text_range',{asset_id:'A',offset:i*10},{status:'ok',data:{sourceSha256:'hash',start:i*10,end:i*10+10,text:'重复页眉'}});assert(!p.blocked);}p.observe('vision_extract',{asset_id:'A',box:[1,2,3,4]},{status:'ok',data:{answer:'100'}});p.observe('vision_extract',{asset_id:'A',box:[1,2,4,5]},{status:'ok',data:{answer:'100'}});assert(!p.blocked);});
+test('repeated successful draft and export cannot hide a loop over the same two pages', () => {
+  const progress = new EvidenceProgress();
+  const artifact = {artifactId: 'report', sha256: 'version-one'};
+  const write = (tool, data = artifact) => progress.observe(tool, {}, {status: 'ok', data});
+  const read = offset => progress.observe('read_artifact', {artifact_id: 'report', offset}, {
+    status: 'ok', data: {...artifact, text: offset ? 'tail' : 'first page'}
+  });
+
+  write('save_draft');
+  write('export_document');
+  read(0);
+  read(5000);
+  assert.equal(progress.blocked, false);
+
+  write('save_draft', {...artifact, recoveredReceipt: true});
+  write('export_document');
+  read(0);
+  assert.equal(progress.blocked, true);
+
+  write('save_draft', {...artifact, sha256: 'version-two'});
+  assert.equal(progress.blocked, false);
+  assert.equal(progress.last.unchanged, false);
+});
 test('adaptive agent stops repeated successful reads without reintroducing a global request cap',async t=>{let calls=0;const h=new ToolHarness({directory:tmp(t),maxCalls:null,maxNoProgress:null,tools:[{name:'read_text_range',description:'Read',inputSchema:{type:'object',properties:{asset_id:{type:'string'},query:{type:'string'}}},execute:async()=>({sourceSha256:'same',start:0,end:4,text:'same',resultId:String(calls)})}]});const r=await runToolAgent({harness:h,maxRounds:null,request:'read',next:async()=>({role:'assistant',tool_calls:[{id:String(++calls),function:{name:'read_text_range',arguments:JSON.stringify({asset_id:'A',query:'different'+calls})}}]})});assert.equal(calls,4);assert.equal(r.termination.reason,'no_evidence_progress');assert(!r.answer.includes('预算已耗尽'));});
 test('explicit second material excludes the first and third at host intake, independent of model wording',()=>{const files=['A','B','C'].map(id=>({id,name:id,ref:{resourceId:id,revisionId:'v'}})),w={available:()=>true,space:{check:()=>({createdAt:'now'})}};const s=taskScope(w,{id:'c',files},'第一份不用了，只用第二份写一段给领导的汇报',{});assert.deepEqual(s.body.fileIds,['B']);assert.deepEqual(s.resolution.excludedFileIds,['A','C']);assert.equal(s.body.useConversationFiles,false);});
 test('unknown ordinal yields a concrete pending choice rather than guessing or using current output',()=>{const s=taskScope({available:()=>true,space:{check:()=>({})}},{id:'c',files:[{id:'A',ref:{resourceId:'A',revisionId:'v'}}]},'只用第二份写汇报',{});assert.equal(s.question.state,'pending');assert.deepEqual(s.body.fileIds,[]);});
