@@ -21,17 +21,33 @@ export async function enforceContentContract({answer,docs,texts,intent,next,sign
 export async function exportTextProduct({docs,harness,intent}){
  if(intent.requiresExternalAction||intent.operation!=='convert'||intent.requiresReprocessing||intent.wantsStatistics||intent.formats.length!==1)return null;
  if(!docs.continuity)return null;
- const format=intent.formats[0],existing=[...docs.continuity.extras.artifacts.values()].filter(a=>path.extname(a.path).toLowerCase()==='.'+format);
- if(existing.length===1){docs.turnIntent={...docs.turnIntent,kind:'existing_file'};return {completed:true,message:'已取回当前选中版本的原文件，没有重新生成。'};}
+ const selectedIds=docs.continuity.config?.revisionArtifactIds;
+ const all=[...docs.continuity.extras.artifacts.values()];
+ // Restored history may contain older Markdown and several Word revisions.
+ // The host's selected-turn artifact IDs define the conversion source.
+ // A selected answer may have no file yet; let normal draft composition run.
+ if(Array.isArray(selectedIds)&&!selectedIds.length)return null;
+ if(Array.isArray(selectedIds)&&selectedIds.some(id=>!all.some(a=>a.artifactId===id)))return {needsInput:true,message:'选中成果尚未完整恢复，原文件保留；请重新选择要转换的版本，未改用历史文件。'};
+ const selected=Array.isArray(selectedIds)?all.filter(a=>selectedIds.includes(a.artifactId)):all;
+ const format=intent.formats[0],existing=selected.filter(a=>path.extname(a.path).toLowerCase()==='.'+format);
+ const reformat=format==='docx'&&String(docs.request||intent.request||'').split(/[，,。；;\n]/u).some(clause=>!/^\s*(?:请)?(?:不要|不必|无需|不用|禁止|别)/u.test(clause)&&/(?:重新排版|重排版|重新生成|新排版)/u.test(clause));
+ if(existing.length===1&&!reformat){docs.turnIntent={...docs.turnIntent,kind:'existing_file'};return {completed:true,message:'已取回当前选中版本的原文件，没有重新生成。'};}
+ if(existing.length===1&&reformat){
+  const a=existing[0];if(a.kind!=='docx'||!a.wordSource)return null;
+  const r=await harness.execute('export_document',{title:a.title||'文档',format:'docx',artifact_ids:[a.artifactId]});
+  if(r.status==='error')return {failed:true,reason:'format_conversion_failed',message:'选中Word原件已保留，重新排版未完成：'+r.error.message};
+  return {completed:true,message:'已从选中Word的完整保存内容重新排版，正文未重新推理或改写；新文件可直接下载，旧版本保留。'};
+ }
  if(format==='pdf'){
-  const words=[...docs.continuity.extras.artifacts.values()].filter(a=>a.kind==='docx');
+  const words=selected.filter(a=>a.kind==='docx');
   if(words.length!==1)return null;
   const r=await harness.execute('convert_to_pdf',{artifact_id:words[0].artifactId});if(r.status==='error')return {failed:true,reason:'format_conversion_failed',message:'Word原件已保留，PDF转换未完成：'+r.error.message};
   return {completed:true,message:'已将对应Word原稿转换为PDF，可直接下载；原Word保留。'};
  }
  if(format!=='docx')return null;
  if(docs.executionRepair&&docs.factProfile==='expiry'){const ledgers=[...docs.results.values()].filter(r=>r.method==='task_fact_ledger');if(ledgers.length===1&&ledgers[0].bundle?.facts?.length){const ledger=ledgers[0],r=await harness.execute('export_source_records',{record_ids:ledger.bundle.facts.map(f=>f.id),title:'到期事实清单',formats:['docx']});if(r.status==='error')return{failed:true,reason:'fact_format_conversion_failed',message:'已保存的清单和来源保留，Word转换未完成：'+r.error.message};fs.writeFileSync(path.join(docs.directory,'text-product-export.json'),JSON.stringify({resultId:ledger.resultId,factVersion:ledger.bundle.version,artifacts:r.data.artifacts,zeroModelConversion:true},null,2));return{completed:true,message:'已从当前保存的同一事实台账生成Word，未重新推理或改写原字段。'};}}
- if(!docs.privateAudioMetadataOnly){const texts=[...docs.continuity.extras.artifacts.values()].filter(a=>/\.(?:txt|md)$/i.test(a.path));if(texts.length===1){const r=await harness.execute('export_document',{title:texts[0].title||'文档',format:'docx',artifact_ids:[texts[0].artifactId]});if(r.status==='ok')return{completed:true,message:'已从当前选中成果的完整原文转换为Word，未重新推理或手抄，可直接下载。'};}}
+ if(!docs.privateAudioMetadataOnly){const texts=selected.filter(a=>/\.(?:txt|md)$/i.test(a.path));if(texts.length===1){const r=await harness.execute('export_document',{title:texts[0].title||'文档',format:'docx',artifact_ids:[texts[0].artifactId]});if(r.status==='ok')return{completed:true,message:'已从当前选中成果的完整原文转换为Word，未重新推理或手抄，可直接下载。'};}}
+ if(Array.isArray(selectedIds))return null;
  const products=[...docs.results.values()].filter(r=>r.method==='final_work_product');if(products.length!==1)return null;
  const p=products[0],r=await harness.execute('export_document',{title:p.title||'工作汇报',format:'docx',result_ids:[p.resultId]});
  if(r.status==='error')return null;

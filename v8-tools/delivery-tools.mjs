@@ -2,7 +2,7 @@ import fs from 'node:fs';import path from 'node:path';import {createHash,randomU
 import {businessStatistics} from './statistics-report.mjs';
 import {TableStatistics,statisticsIntent,statisticsText} from './table-statistics.mjs';
 import {documentInput,saveDraft,getDraft} from './draft-delivery.mjs';
-import {buildWord} from './word-document.mjs';
+import {buildWord,WORD_RENDER_VERSION} from './word-document.mjs';
 function srtTime(seconds){const ms=Math.round(seconds*1000);return[Math.floor(ms/3600000),Math.floor(ms/60000)%60,Math.floor(ms/1000)%60].map(x=>String(x).padStart(2,'0')).join(':')+','+String(ms%1000).padStart(3,'0');}
 const sha=b=>createHash('sha256').update(b).digest('hex'),str=(max=200,min=1)=>({type:'string',minLength:min,maxLength:max}),obj=(p,r=Object.keys(p))=>({type:'object',properties:p,required:r,additionalProperties:false});
 export function uniqueChangeDiff(name,before,after){
@@ -57,7 +57,7 @@ export class DeliveryTools{
   if(artifact_ids.length){for(const id of artifact_ids){const a=this.extras.artifacts.get(id);if(!a)throw new ToolError('UNKNOWN_ARTIFACT','Use an actual registered artifactId');const check=await this.extras.inspect({artifact_id:id},{signal:AbortSignal.timeout(30000)});if(!check.exportIntegrityPassed)throw new ToolError('ARTIFACT_READBACK_FAILED','Source delivery failed readback');if(a.kind==='text')text=(text?text+'\n\n':'')+fs.readFileSync(a.path,'utf8');else if(a.kind==='docx'&&a.wordSource){text=(text?text+'\n\n':'')+(a.wordSource.text||'');tables.push(...a.wordSource.tables);}else if(a.tableId){const table=this.docs.workbookTools?.tables.get(a.tableId);if(!table)throw new ToolError('UNKNOWN_TABLE','Original table not available');tables.push(structuredClone(table));}else throw new ToolError('ARTIFACT_CONVERSION_UNSUPPORTED','This artifact has no supported reusable content');}}
   if(format==='docx'){if(!tables.length&&!(typeof text==='string'&&text.trim()))throw new ToolError('EMPTY_DELIVERY','Word requires real content or saved tables');const presentation=text&&this.docs.sourceRecords?.guardPresentation(text);if(presentation)text=presentation.text;const wordSource={text:text||'',tables};
    const sourceVersions=source_ids.map(id=>({id,sha256:this.docs.asset(id).sha256}));
-   const documentKey=sha(JSON.stringify({version:3,title,format,wordSource,sourceVersions,table_ids,artifact_ids,statistics_ids}));
+   const documentKey=sha(JSON.stringify({version:3,renderer:WORD_RENDER_VERSION,title,format,wordSource,sourceVersions,table_ids,artifact_ids,statistics_ids}));
    const existing=this.docs.executionRepair&&[...this.extras.artifacts.values()].find(a=>a.documentKey===documentKey);
    if(existing){
     this.checkWordLength(existing.expectedWord);

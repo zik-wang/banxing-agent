@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
 import {DocumentTools} from '../v8-tools/document-tools.mjs';
 import {DocumentExtras} from '../v8-tools/document-extras.mjs';
 import {TextTools} from '../v8-tools/text-tools.mjs';
@@ -27,6 +28,15 @@ test('repeated Word export returns the same real file even after package timesta
  assert.equal(second.artifactId,first.artifactId);assert.equal(second.path,first.path);
  assert.equal(second.recoveredReceipt,true);assert.equal(second.exportIntegrityPassed,true);
  assert.equal(x.extras.artifacts.size,1);
+});
+
+test('legacy renderer cache does not suppress a current format export; old file remains unchanged',{skip:!configured},async t=>{
+ const x=setup(t),args={title:'样式升级',format:'docx',content:'*强调*与普通正文。'};
+ const first=await x.delivery.export(args),record=x.extras.artifacts.get(first.artifactId);
+ record.documentKey=createHash('sha256').update(JSON.stringify({version:3,title:args.title,format:'docx',wordSource:record.wordSource,sourceVersions:[],table_ids:[],artifact_ids:[],statistics_ids:[]})).digest('hex');
+ const before=fs.readFileSync(first.path);const current=await x.delivery.export(args);
+ assert.notEqual(current.artifactId,first.artifactId);assert.deepEqual(fs.readFileSync(first.path),before);assert.equal(current.exportIntegrityPassed,true);
+ const repeated=await x.delivery.export(args);assert.equal(repeated.artifactId,current.artifactId);
 });
 
 test('changed content or different authorized sources retain independent Word versions',{skip:!configured},async t=>{

@@ -1,9 +1,9 @@
 // Formatting only. Never evaluates embedded HTML, code or links.
 export function inlineRuns(value){
  const text=String(value??''),out=[];
- const pattern=/\\([\\`*_[\]{}()#+.!|~-])|(`+)([\s\S]*?)\2|\*\*([^*\n]+)\*\*|__([^_\n]+)__|~~([^~\n]+)~~|\[([^\]\n]+)\]\(([^\s)]+)\)|(<br\s*\/?\s*>)/gi;
+ const pattern=/\\([\\`*_[\]{}()#+.!|~-])|(`+)([\s\S]*?)\2|\*\*([^*\n]+)\*\*|__([^_\n]+)__|~~([^~\n]+)~~|\[([^\]\n]+)\]\(([^\s)]+)\)|(<br\s*\/?\s*>)|(?<![\w*])\*([^*\s](?:[^*\n]*?[^*\s])?)\*(?![\w*])/gi;
  let cursor=0;for(const m of text.matchAll(pattern)){if(m.index>cursor)out.push({text:text.slice(cursor,m.index)});
-  if(m[1])out.push({text:m[1]});else if(m[2])out.push({text:m[3],font:'Consolas'});else if(m[4]||m[5])out.push({text:m[4]||m[5],bold:true});else if(m[6])out.push({text:m[6],strike:true});else if(m[9])out.push({text:'\n'});else out.push({text:m[7]+' ('+m[8]+')'});cursor=m.index+m[0].length;
+  if(m[1])out.push({text:m[1]});else if(m[2])out.push({text:m[3],font:'Consolas'});else if(m[4]||m[5])out.push({text:m[4]||m[5],bold:true});else if(m[6])out.push({text:m[6],strike:true});else if(m[9])out.push({text:'\n'});else if(m[10])out.push({text:m[10],italics:true});else out.push({text:m[7]+' ('+m[8]+')'});cursor=m.index+m[0].length;
  }if(cursor<text.length)out.push({text:text.slice(cursor)});return out.length?out.map(r=>r.font==='Consolas'?r:{...r,text:r.text.replace(/<br\s*\/?\s*>/gi,'\n')}):[{text:''}];
 }
 export const plainInline=value=>inlineRuns(value).map(r=>r.text).join('');
@@ -23,6 +23,6 @@ export function wordBlocks(text){
   if(mark){fence=mark[1];continue;}if(!line.trim()||/^\s{0,3}(?:-{3,}|\*{3,}|_{3,})\s*$/.test(line))continue;
   const headers=tableCells(line),separator=i+1<lines.length?tableCells(lines[i+1]):[];
   if(headers.length>1&&separator.length===headers.length&&separator.every(c=>/^:?-{3,}:?$/.test(c))){const rows=[headers];i++;while(i+1<lines.length&&lines[i+1].includes('|')&&lines[i+1].trim()){const row=tableCells(lines[i+1]);if(row.length!==headers.length)throw Error('Word table must have rectangular rows');rows.push(row);i++;}blocks.push({kind:'table',rows});continue;}
-  const heading=line.match(/^(#{1,6})\s+(.*?)\s*#*$/),bullet=line.match(/^\s*[-+*]\s+(.*)$/);blocks.push({kind:'paragraph',text:heading?heading[2]:bullet?bullet[1]:line,heading:heading?.[1].length,bullet:!!bullet});
+  const heading=line.match(/^(#{1,6})\s+(.*?)\s*#*$/),bullet=line.match(/^(\s*)[-+*]\s+(.*)$/);blocks.push({kind:'paragraph',text:heading?heading[2]:bullet?bullet[2]:line,heading:heading?.[1].length,bullet:!!bullet,...(bullet?{bulletLevel:Math.min(8,Math.floor(bullet[1].replace(/\t/g,'    ').length/2))}:{})});
  }return blocks;
 }
