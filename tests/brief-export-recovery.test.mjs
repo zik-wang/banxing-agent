@@ -83,7 +83,7 @@ test('answer-only, meetings, explicit disable and unsupported formats keep their
 });
 
 test('explicit revision without source rereading stays on the artifact editing route',async t=>{
- for(const task of ['请修订已有报告，交付Markdown，不重读全文。','修改刚才的TXT，无需重新读取原件。']){
+ for(const task of ['请修订已有报告，交付Markdown，不重读全文。','修改刚才的TXT，无需重新读取原件。','请把刚才的报告另存一份，正文一字不改，不重新分析或读取全部原件，给我Markdown。','把之前的结果转为Word，无需读取所有材料。']){
   const x=setup(t,task);x.next=()=>{throw Error('Preflight must not start a model request');};
   assert.equal(await reportPreflight(x),null);assert.equal(x.harness.calls,0);
   assert.equal(x.extras.artifacts.size,0);

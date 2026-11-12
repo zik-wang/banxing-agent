@@ -38,15 +38,16 @@ export function executionIntent(request=''){
  const referenceReview=/(?:刚才|之前|上轮|已有|这份).{0,10}(?:审核|审查).{0,8}(?:重点|结果|结论|报告)/u.test(affirmative);
  const freshReview=reviewAgain||!referenceReview&&/(?:审核|审查|重审|复核|补审|检查)/u.test(affirmative.replace(/(?:审核|审查)(?:报告|重点|结果|结论)/gu,'报告'));
  const modification=/(?:修改|修订|更正|补列|加一列|增加|补充说明|删掉|删除列)/u.test(affirmative);
- const conversion=/(?:Word|Excel|PDF).{0,8}再给个(?:Word|Excel|PDF)|(?:转成|转为|转换|导出|整理成|写成|制作成|做成|做个|存成|存为)|(?:Word|Excel|PDF)(?:版)?给我|用(?:Word|Excel|PDF)给我/iu.test(affirmative);
- const retrieve=!answerOnly&&!modification&&!reviewAgain&&!freshReview&&!/(?:转成|转为|转换|导出|生成|整理成|写成|制作成|做成|做个|存成|存为)/u.test(affirmative)&&retrievalPhrase;
+ const saveCopy=active.some(c=>/(?:另存(?:为|成|一份|副本)|保存(?:一份)?副本)/u.test(c)&&!/(?:不要|不用|无需|禁止|不得|不必|别).{0,12}(?:另存|保存)/u.test(c));
+ const conversion=saveCopy||/(?:Word|Excel|PDF).{0,8}再给个(?:Word|Excel|PDF)|(?:转成|转为|转换|导出|整理成|写成|制作成|做成|做个|存成|存为)|(?:Word|Excel|PDF)(?:版)?给我|用(?:Word|Excel|PDF)给我/iu.test(affirmative);
+ const retrieve=!saveCopy&&!answerOnly&&!modification&&!reviewAgain&&!freshReview&&!/(?:转成|转为|转换|导出|生成|整理成|写成|制作成|做成|做个|存成|存为)/u.test(affirmative)&&retrievalPhrase;
  const summary=/说重点|讲重点|核心(?:问题|风险)|最重要|总结/u.test(request);
  const implicitDelivery=/(?:合并|合.{0,3}(?:起来|一起)|去重|汇总|修改|修订|转换|转成|转为).{0,20}(?:报表|表格|台账|文档|文件)|(?:报表|表格|台账|文档|文件).{0,20}(?:合并|合.{0,3}(?:起来|一起)|去重|汇总|修改|修订|转换|转成|转为)/u.test(request);
- const operation=reviewAgain?'review':answerOnly?'answer':retrieve?'retrieve':modification?'modify':formats.length&&conversion&&!freshReview?'convert':freshReview?'review':formats.length||implicitDelivery?'create':summary?'summarize':'answer';
+ const operation=reviewAgain?'review':answerOnly?'answer':retrieve?'retrieve':modification?'modify':(formats.length||saveCopy)&&conversion&&!freshReview?'convert':freshReview?'review':formats.length||implicitDelivery?'create':summary?'summarize':'answer';
  const only=request.match(/(?:只|仅)(?:用|使用|处理|看)第([一二三四五六七八九十\d]+)(?:份|个)/u);
  const excludes=[...request.matchAll(/(?:不要|不用|排除)第([一二三四五六七八九十\d]+)(?:份|个)|第([一二三四五六七八九十\d]+)(?:份|个)(?:不(?:用|要)了?|排除)/gu)].map(m=>ordinal(m[1]||m[2]));
  const oneParagraph=/一(?:个自然)?段(?!.{0,2}时间)/u.test(request)&&/写|汇报|报告|整理|说明/u.test(request),limit=request.match(/(\d+)\s*字(?:以内|内|以下)/u);
  const create=['convert','create','modify','review'].includes(operation),kind=answerOnly?'answer_only':retrieve?'existing_file':create?'create_file':'answer';
  const statsTerm=/统计|合计|总额|总金额|多少(?:条|行)|非空|\b(?:sum|count|total)\b/i.test(request),pureFormatOnly=formats.length>0&&conversion&&!/给领导|带上.{0,12}统计|(?:生成|写|做).{0,12}统计(?:报告|说明)|总额|总金额|计算|算一下/u.test(request);
- return {requiresExternalAction:externalActionRequested(request),wantsStatistics:statsTerm&&!pureFormatOnly,version:'host-intent-2',operation,kind,noNewFiles:answerOnly,formats:answerOnly?[]:formats,targetFormats:answerOnly?[]:formats,reviewAgain,requiresReprocessing:reviewAgain||modification,purpose:/给领导|领导(?:看|汇报)/u.test(request)?'leader':'unspecified',length:{paragraphs:oneParagraph?1:null,minChars:oneParagraph&&!limit?200:null,maxChars:limit?Number(limit[1]):oneParagraph?350:null},onlyOrdinal:only?ordinal(only[1]):null,excludedOrdinals:excludes,wantsSummary:summary,materialTask:/(?:合并|合.{0,3}(?:起来|一起)|对比|比较|转成|转换|读取|阅读|提取|整理|做成)/u.test(request)&&/(?:这个|这份|这两|这些|附件|文件|材料|报表|表格)/u.test(request)&&!/(?:知识库|日历|检索)/u.test(request)};
+ return {requiresExternalAction:externalActionRequested(request),wantsStatistics:statsTerm&&!pureFormatOnly,version:'host-intent-2',operation,kind,saveCopy,noNewFiles:answerOnly,formats:answerOnly?[]:formats,targetFormats:answerOnly?[]:formats,reviewAgain,requiresReprocessing:reviewAgain||modification,purpose:/给领导|领导(?:看|汇报)/u.test(request)?'leader':'unspecified',length:{paragraphs:oneParagraph?1:null,minChars:oneParagraph&&!limit?200:null,maxChars:limit?Number(limit[1]):oneParagraph?350:null},onlyOrdinal:only?ordinal(only[1]):null,excludedOrdinals:excludes,wantsSummary:summary,materialTask:/(?:合并|合.{0,3}(?:起来|一起)|对比|比较|转成|转换|读取|阅读|提取|整理|做成)/u.test(request)&&/(?:这个|这份|这两|这些|附件|文件|材料|报表|表格)/u.test(request)&&!/(?:知识库|日历|检索)/u.test(request)};
 }

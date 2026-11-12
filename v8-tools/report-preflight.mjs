@@ -28,7 +28,7 @@ export async function reportPreflight({docs,harness,config,request,next,signal})
  // An edit to an existing deliverable must not silently expand into a full
  // source-reading job when the user explicitly limits rereading. The ordinary
  // artifact/draft tools can revise the authorized prior result or ask for it.
- if(intent.operation==='modify'&&/(?:不|不要|无需|不用)(?:再|重新|重)?(?:读取|阅读|读)(?:全文|原文|原件|材料)/u.test(request))return null;
+ if(['modify','convert'].includes(intent.operation)&&/(?:不|不要|无需|不用)(?:再|重新|重)?(?:(?:分析|审核|核对|处理)(?:或|和|及))?(?:读取|阅读|读)(?:全部|所有|完整)?(?:全文|原文|原件|材料)/u.test(request))return null;
  const sources=[...docs.assets.values()].filter(a=>a.id===a.sourceId);
  const call=async(name,args)=>{const r=await harness.execute(name,args);if(r.status!=='ok')throw Object.assign(Error(r.error?.message||'报告工具失败'),{code:r.error?.code});return r.data;};
  const previous=config.previousWorkProduct||config.interactionContext;

@@ -9,3 +9,14 @@ test('conversion error retains failure rather than falling through to old Markdo
 test('PDF conversion binds the explicitly selected Word even with several prior versions',async()=>{let args;const r=await exportTextProduct({docs:revisions(),intent:{operation:'convert',formats:['pdf']},harness:{execute:async(name,a)=>{assert.equal(name,'convert_to_pdf');args=a;return{status:'ok'};}}});assert(r.completed);assert.equal(args.artifact_id,'new');});
 test('Word followup uses complete selected text artifact instead of shortened chat summary',async()=>{const artifacts=new Map([['real',{artifactId:'real',path:'/saved/full.txt',title:'检索全文'}]]),docs={continuity:{extras:{artifacts}},results:new Map(),privateAudioMetadataOnly:false};let called;const r=await exportTextProduct({docs,intent:{operation:'convert',formats:['docx']},harness:{execute:async(name,args)=>{called={name,args};return{status:'ok',data:{artifactId:'word'}};}}});assert.equal(r.completed,true);assert.equal(called.name,'export_document');assert.deepEqual(called.args.artifact_ids,['real']);assert.equal(called.args.content,undefined);});
 test('multiple text versions or private audio cannot silently choose a generic text artifact',async()=>{for(const privateAudioMetadataOnly of[false,true]){const artifacts=new Map([['a',{artifactId:'a',path:'/a.txt'}],['b',{artifactId:'b',path:'/b.md'}]]),docs={continuity:{extras:{artifacts}},results:new Map(),privateAudioMetadataOnly};let calls=0;assert.equal(await exportTextProduct({docs,intent:{operation:'convert',formats:['docx']},harness:{execute:()=>calls++}}),null);assert.equal(calls,0);}});
+
+test('same-format explicit copy does not become retrieval or skip requested provenance',async()=>{
+ const {executionIntent}=await import('../v8-tools/execution-intent.mjs');
+ for(const request of ['另存一份Word，正文不改，绑定现有来源','保存一份副本，给我Markdown']){
+  const docs=revisions();docs.request=request;const intent=executionIntent(request);let calls=0;
+  assert.equal(intent.saveCopy,true);assert.equal(intent.operation,'convert');
+  assert.equal(await exportTextProduct({docs,intent,harness:{execute:()=>calls++}}),null);
+  assert.equal(calls,0);assert.equal(docs.turnIntent,undefined);
+ }
+ assert.equal(executionIntent('不要另存一份，给我原来的Word').saveCopy,false);
+});

@@ -19,6 +19,9 @@ export async function enforceContentContract({answer,docs,texts,intent,next,sign
  return {...result,answer:result.body+'\n\n来源：'+sources.map(s=>s.name).join('、')+(accepted?'':'\n\n篇幅整理未满足要求，原稿已保留，需继续核对。')};
 }
 export async function exportTextProduct({docs,harness,intent}){
+ // A requested copy may carry new provenance or other constraints. Reusing a
+ // same-format historical artifact would silently skip that requested work.
+ if(intent.saveCopy)return null;
  if(intent.requiresExternalAction||intent.operation!=='convert'||intent.requiresReprocessing||intent.wantsStatistics||intent.formats.length!==1)return null;
  if(!docs.continuity)return null;
  const selectedIds=docs.continuity.config?.revisionArtifactIds;

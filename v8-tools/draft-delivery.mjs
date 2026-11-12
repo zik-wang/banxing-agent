@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {atomic} from './resource-space.mjs';
+import {resolveSourceIds} from './source-ids.mjs';
 const hash=x=>createHash('sha256').update(x).digest('hex');
 const fail=(code,message,details)=>{throw Object.assign(Error(message),{code,details});};
 export const contentAlternatives=['content','draft_ref','result_ids','table_ids','artifact_ids','statistics_ids'];
@@ -30,7 +31,7 @@ export function recoverPersistedDrafts(docs,previousDirectory){
 }
 export function saveDraft(docs,{content,title='文稿',source_ids=[]}){
  if(typeof content!=='string'||!content.trim())fail('DOCUMENT_CONTENT_REQUIRED','source_ids只记录依据，不能替代正文',{missing_fields:['content_or_draft_ref'],retryable_without_change:false,next_action:'提交非空content，或引用已保存draft_ref'});
- const sources=source_ids.map(id=>{const a=docs.asset(id);return {id,sha256:a.sha256};});
+ const sources=resolveSourceIds(docs,source_ids);
  const sha256=hash(content),version=hash(JSON.stringify({sha256,sources})),id='draft:'+version;
  const existing=docs.results.get(id),folder=path.join(docs.directory,'drafts');fs.mkdirSync(folder,{recursive:true});const file=path.join(folder,version+'.json');
  let record=existing?validateDraft(existing,id):null;
