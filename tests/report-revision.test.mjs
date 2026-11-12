@@ -65,3 +65,18 @@ test('imported Word or separately attached workbook tables do not become partial
 });
 
 test('one prose anchor may expand into readable paragraphs without changing neighboring content',()=>{const before='# 合成报告\r\n5. 原条件\r\n6. 保留99.50\r\n';const r=applyReportEdits(before,JSON.stringify({edits:[{before:'5. 原条件',after:'5. 路径说明\n   - 方式甲：配置示例\n   - 方式乙：未提供',reason:'合成需求要求分路径说明'}]}));assert.equal(r.body,'# 合成报告\r\n5. 路径说明\n   - 方式甲：配置示例\n   - 方式乙：未提供\r\n6. 保留99.50\r\n');assert.equal(r.receipt.unchangedSpansPreserved,true);assert.throws(()=>applyReportEdits('|A|10|',JSON.stringify({edits:[{before:'|A|10|',after:'|A|10|\n|B|20|',reason:'不能拆记录'}]})),/表格/);});
+
+test('Word retrieval-only checkpoint recovers exact draft through selected artifact lineage',async()=>{
+ const x=historicalWordFixture(),c=x.docs.continuity,origin={resourceId:'origin',revisionId:'v1'},oldAllowed=c.allowed,oldRead=c.space.read;
+ const snapshot=structuredClone(x.checkpoint);x.checkpoint.results=[];
+ c.allowed=ref=>{if(ref===origin)return{metadata:{bundle:true},parents:[]};const v=oldAllowed(ref);return ref===x.parent?{...v,parents:[origin]}:v;};
+ c.space.read=(p,ref)=>ref===origin?Buffer.from(JSON.stringify(snapshot)):oldRead(p,ref);
+ const r=await readRevisionBase(x.docs,x.config,async()=>({artifactId:'a',sha256:x.a.sha256,exportIntegrityPassed:true}));assert.equal(r.text,'# 当前报告\n\n'+x.draft.answer);
+});
+for(const mode of ['different-artifact','revoked','cycle','conflicting'])test('retrieval lineage preserves '+mode+' boundary',async()=>{
+ const x=historicalWordFixture(),c=x.docs.continuity,origin={resourceId:'origin',revisionId:'v1'},second={resourceId:'second',revisionId:'v2'},oldAllowed=c.allowed,oldRead=c.space.read,snapshot=structuredClone(x.checkpoint);x.checkpoint.results=[];
+ if(mode==='different-artifact')snapshot.artifacts[0].record.artifactId='foreign';
+ c.allowed=ref=>{if(ref===origin){if(mode==='revoked')throw Error('RESOURCE_REVOKED');return{metadata:{bundle:true},parents:[]}}if(ref===second)return{metadata:{bundle:true},parents:[]};const v=oldAllowed(ref);return ref===x.parent?{...v,parents:mode==='cycle'?[x.parent]:mode==='conflicting'?[origin,second]:[origin]}:v;};
+ c.space.read=(p,ref)=>ref===origin?Buffer.from(JSON.stringify(snapshot)):ref===second?Buffer.from(JSON.stringify({...snapshot,results:[{...x.draft,title:'Conflicting title'}]})):oldRead(p,ref);
+ await assert.rejects(readRevisionBase(x.docs,x.config,async()=>{throw Error('must not validate foreign or ambiguous draft')}),/草稿|RESOURCE_REVOKED/);assert.equal(x.docs.results.size,0);
+});

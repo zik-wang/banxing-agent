@@ -92,7 +92,17 @@ elif job['operation'] == 'inspect_docx':
             raise ValueError('DOCX_READBACK_SIZE_LIMIT')
         body = ET.fromstring(z.read('word/document.xml')).find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}body')
         ns = {'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
-        txt = lambda e: ''.join(t.text or '' for t in e.findall('.//w:t',ns))
+        def txt(element):
+            # Preserve visible inline controls as well as text, in OOXML order.
+            w = '{' + ns['w'] + '}'
+            def inline(node):
+                if node.tag == w+'t': return node.text or ''
+                if node.tag in (w+'br', w+'cr'): return '\n'
+                if node.tag == w+'tab': return '\t'
+                return ''.join(inline(child) for child in node)
+            if element.tag == w+'tc':
+                return '\n'.join(inline(p) for p in element.findall('w:p', ns))
+            return inline(element)
         paragraphs = [txt(p) for p in body.findall('w:p',ns)]
         tables = [[[txt(c) for c in r.findall('w:tc',ns)] for r in table.findall('w:tr',ns)] for table in body.findall('w:tbl',ns)]
     blocks = []

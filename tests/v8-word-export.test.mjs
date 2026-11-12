@@ -1,6 +1,22 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import {DocumentTools} from '../v8-tools/document-tools.mjs';import {DocumentExtras} from '../v8-tools/document-extras.mjs';import {WorkbookTools} from '../v8-tools/workbook-tools.mjs';import {DeliveryTools} from '../v8-tools/delivery-tools.mjs';import {TextTools} from '../v8-tools/text-tools.mjs';import {requestedFormats,checkRequestedFormats} from '../v8-tools/delivery-format.mjs';
 import {settleDelivery} from '../v8-tools/delivery-settlement.mjs';import {ToolHarness,runToolAgent} from '../v8-tools/harness.mjs';
+test('actual saved Word readback preserves Markdown breaks, literal newlines and tabs',{skip:!process.env.V8_PYTHON},async t=>{
+ const x=setup(t);
+ const out=await x.delivery.export({title:'换行与制表符',format:'docx',content:'甲<br>乙\t丙\n\n| 字段 | 内容 |\n|---|---|\n| 值 | **上行<br>下行**<br/>末行 |'});
+ const check=await x.extras.inspect({artifact_id:out.artifactId},{signal:AbortSignal.timeout(30000)});
+ assert.equal(check.exportIntegrityPassed,true);
+ assert(check.document.paragraphs.includes('甲\n乙\t丙'));
+ assert.equal(check.document.tables[0][1][1],'上行\n下行\n末行');
+ x.books.tables.set('literal',{id:'literal',sheet:'原始表',headers:['内容'],rows:[['甲\n乙\t丙']]});
+ const typed=await x.delivery.export({title:'原始表',format:'docx',table_ids:['literal']});
+ const checked=await x.extras.inspect({artifact_id:typed.artifactId},{signal:AbortSignal.timeout(30000)});
+ assert.equal(checked.exportIntegrityPassed,true);
+ assert.equal(checked.document.tables[0][1][0],'甲\n乙\t丙');
+ // Removing a newline from the expected receipt must still fail comparison.
+ const a=x.extras.artifacts.get(typed.artifactId);a.expectedWord.tables[0][1][0]='甲乙\t丙';
+ assert.equal((await x.extras.inspect({artifact_id:typed.artifactId},{signal:AbortSignal.timeout(30000)})).exportIntegrityPassed,false);
+});
 function setup(t){const root=fs.mkdtempSync(path.join(os.tmpdir(),'v8-word-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));const docs=new DocumentTools({directory:path.join(root,'run'),inputs:[],python:process.env.V8_PYTHON||process.execPath}),extras=new DocumentExtras(docs,{docxModule:process.env.V8_DOCX_MODULE}),books=new WorkbookTools(docs,extras),delivery=new DeliveryTools(docs,extras,new TextTools(docs));return {root,docs,extras,books,delivery};}
 test('Word request cannot silently become Markdown and existing unrelated files do not satisfy requested output',async t=>{const x=setup(t);x.docs.requestedFormats=['docx'];await assert.rejects(x.delivery.export({title:'wrong',format:'md',content:'data'}),e=>e.code==='DELIVERY_FORMAT_MISMATCH');assert.equal(x.extras.artifacts.size,0);assert.deepEqual(requestedFormats('把这个转成word'),['docx']);assert.deepEqual(requestedFormats('不要Word，给我Excel'),['xlsx']);assert.deepEqual(requestedFormats('这份Word里写了什么'),[]);assert.equal(checkRequestedFormats([{artifactId:'old',path:'old.docx'}],['docx'],new Set(['old'])).satisfied,false);assert.equal(checkRequestedFormats([{artifactId:'md',path:'data.md'}],['docx']).satisfied,false);});
 test('real DOCX exports an entire registered typed table without model retyping and reopens all cells',{skip:!process.env.V8_PYTHON},async t=>{const x=setup(t);x.books.tables.set('table',{id:'table',sheet:'明细',headers:['编号','金额','备注'],rows:[['001',12.5,'行政 & 研发'],['002',null,'<原文>']]});const out=await x.delivery.export({title:'测试记录',format:'docx',table_ids:['table']});assert.equal(path.extname(out.path),'.docx');assert.equal(fs.readFileSync(out.path).subarray(0,2).toString(),'PK');assert(out.exportIntegrityPassed);const checked=await x.extras.inspect({artifact_id:out.artifactId},{signal:AbortSignal.timeout(30000)});assert.deepEqual(checked.document.tables,[[['编号','金额','备注'],['001','12.5','行政 & 研发'],['002','','<原文>']]]);assert.equal(x.books.tables.get('table').rows[0][1],12.5);});

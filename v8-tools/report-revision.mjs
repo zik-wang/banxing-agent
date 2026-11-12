@@ -5,18 +5,23 @@ const fail=message=>{throw Object.assign(Error(message),{code:'REPORT_REVISION_I
 
 function selectedWordDraft(docs,artifact){
  // Result bundles intentionally omit raw drafts. Recover only the exact draft
- // from the selected result's direct, authorized checkpoint, not a global latest run.
+ // through the selected artifact's authorized lineage. A retrieval-only turn
+ // may have a checkpoint without drafts; it must not sever the original draft.
  if(!docs.results.has(artifact.draftRef)){
   const c=docs.continuity,version=c.allowed(c.result);
-  const matches=[];
-  for(const ref of version?.parents||[]){
+  const matches=new Map(),seen=new Set(),pending=[...(version?.parents||[])];
+  for(let index=0;index<pending.length;index++){
+   const ref=pending[index],key=ref.resourceId+':'+ref.revisionId;
+   if(seen.has(key))continue;seen.add(key);
    const parent=c.allowed(ref);if(!parent.metadata?.bundle)continue;
    const checkpoint=JSON.parse(c.space.read(c.projectId,ref));
    if(checkpoint.schemaVersion!==1||!checkpoint.artifacts?.some(a=>a.record.artifactId===artifact.artifactId&&a.record.sha256===artifact.sha256&&a.record.draftRef===artifact.draftRef))continue;
-   for(const r of checkpoint.results||[])if(r.resultId===artifact.draftRef)matches.push(r);
+   const drafts=(checkpoint.results||[]).filter(r=>r.resultId===artifact.draftRef);
+   for(const r of drafts)matches.set(JSON.stringify({resultId:r.resultId,method:r.method,title:r.title,answer:r.answer,sha256:r.sha256,version:r.version,sourceRefs:r.sourceRefs}),r);
+   if(!drafts.length)pending.push(...(parent.parents||[]));
   }
-  if(matches.length!==1)fail('当前Word的原始草稿无法唯一恢复；未改用其他版本。');
-  const r=matches[0];
+  if(matches.size!==1)fail('当前Word的原始草稿无法唯一恢复；未改用其他版本。');
+  const r=matches.values().next().value;
   if(r.method!=='submitted_draft'||typeof r.answer!=='string'||!Array.isArray(r.sourceRefs)||hash(r.answer)!==r.sha256||'draft:'+r.version!==r.resultId||hash(JSON.stringify({sha256:r.sha256,sources:r.sourceRefs}))!==r.version)fail('Word原始草稿的正文或版本校验失败。');
   for(const source of r.sourceRefs)if(docs.asset(source.id).sha256!==source.sha256)fail('Word草稿来源版本已变化。');
   docs.results.set(r.resultId,r);

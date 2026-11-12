@@ -37,7 +37,8 @@ export function executionIntent(request=''){
  const reviewAgain=/(?:重新|再次|重做|补充材料后).{0,8}(?:审核|审查|复核)|重审|(?:改为|换成|从|按).{0,8}(?:采购方|供方|卖方|买方|中立).{0,8}(?:立场|角度)/u.test(affirmative);
  const referenceReview=/(?:刚才|之前|上轮|已有|这份).{0,10}(?:审核|审查).{0,8}(?:重点|结果|结论|报告)/u.test(affirmative);
  const freshReview=reviewAgain||!referenceReview&&/(?:审核|审查|重审|复核|补审|检查)/u.test(affirmative.replace(/(?:审核|审查)(?:报告|重点|结果|结论)/gu,'报告'));
- const modification=/(?:修改|修订|更正|补列|加一列|增加|补充说明|删掉|删除列)/u.test(affirmative);
+ const rewrite=/(?:精简|缩短|重写|改写|简化|浓缩|扩写|扩充)|(?:整理|写|做|压缩)(?:成|到|为).{0,12}(?:速览|摘要|简报|概览|[一二两三四五六七八九十\d]+页)|(?:再|重新)(?:帮我|帮忙)?(?:核对|核实)/u.test(affirmative);
+ const modification=rewrite||/(?:修改|修订|更正|补列|加一列|增加|补充说明|删掉|删除列)/u.test(affirmative)||/(?:更新(?:一下|一份|这份|这个|刚才|之前|的|\s){0,8}(?:Word|DOCX|Excel|XLSX|PDF|Markdown|文档|报告|报表|表格)|(?:Word|DOCX|Excel|XLSX|PDF|Markdown|文档|报告|报表|表格)(?:再|重新)?更新)/iu.test(affirmative);
  const saveCopy=active.some(c=>/(?:另存(?:为|成|一份|副本)|保存(?:一份)?副本)/u.test(c)&&!/(?:不要|不用|无需|禁止|不得|不必|别).{0,12}(?:另存|保存)/u.test(c));
  const conversion=saveCopy||/(?:Word|Excel|PDF).{0,8}再给个(?:Word|Excel|PDF)|(?:转成|转为|转换|导出|整理成|写成|制作成|做成|做个|存成|存为)|(?:Word|Excel|PDF)(?:版)?给我|用(?:Word|Excel|PDF)给我/iu.test(affirmative);
  const retrieve=!saveCopy&&!answerOnly&&!modification&&!reviewAgain&&!freshReview&&!/(?:转成|转为|转换|导出|生成|整理成|写成|制作成|做成|做个|存成|存为)/u.test(affirmative)&&retrievalPhrase;
