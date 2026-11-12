@@ -25,17 +25,22 @@ function selectedWordDraft(docs,artifact){
 }
 
 // Apply edits against the immutable prior body, never against earlier edits.
-// Whole-line patches preserve every unselected line and its line ending.
+// Whole-line or contiguous prose-block patches preserve all unselected bytes.
 export function applyReportEdits(body,output){
  const data=JSON.parse(output.replace(/^```(?:json)?\s*/u,'').replace(/\s*```$/u,''));
  if(!data||Object.keys(data).some(k=>k!=='edits')||!Array.isArray(data.edits))fail('局部修订必须返回edits数组，不能用重写全文替代。');
- const lines=[...body.matchAll(/[^\r\n]*(?:\r\n|\n|\r|$)/g)].filter(m=>m[0].length),used=new Set(),patches=[];
+ const lines=[...body.matchAll(/[^\r\n]*(?:\r\n|\n|\r|$)/g)].filter(m=>m[0].length).map(m=>({start:m.index,text:m[0].replace(/[\r\n]+$/u,'')})),patches=[];
  for(const edit of data.edits){
-  if(!edit||Object.keys(edit).some(k=>!['before','after','reason'].includes(k))||typeof edit.before!=='string'||!edit.before||typeof edit.after!=='string'||!edit.after.trim()||typeof edit.reason!=='string'||!edit.reason.trim()||/[\r\n]/u.test(edit.before))fail('每项修改必须包含完整单行before、非空after及说明，不能删除整段正文。');
-  if(/^\s*\|.*\|\s*$/u.test(edit.before)&&/[\r\n]/u.test(edit.after))fail('表格行修改须保持单行，不能把一个表格记录拆成多条。');
-  const matches=lines.filter(m=>m[0].replace(/[\r\n]+$/u,'')===edit.before);
-  if(matches.length!==1||used.has(matches[0]?.index))fail('修改位置不唯一或重复；原稿保留。');
-  const start=matches[0].index;used.add(start);patches.push({...edit,start,end:start+edit.before.length});
+  if(!edit||Object.keys(edit).some(k=>!['before','after','reason'].includes(k))||typeof edit.before!=='string'||!edit.before.trim()||typeof edit.after!=='string'||!edit.after.trim()||typeof edit.reason!=='string'||!edit.reason.trim())fail('每项修改必须包含完整行或连续段落before、非空after及说明，不能删除整段正文。');
+  const wanted=edit.before.split(/\r\n|\n|\r/u);
+  if(wanted.some(line=>/^\s*\|.*\|\s*$/u.test(line))&&(wanted.length!==1||/[\r\n]/u.test(edit.after)))fail('表格行修改须保持单行，不能把一个表格记录拆成多条。');
+  const matches=[];
+  for(let i=0;i+wanted.length<=lines.length;i++)if(wanted.every((text,j)=>lines[i+j].text===text))matches.push({start:lines[i].start,end:lines[i+wanted.length-1].start+lines[i+wanted.length-1].text.length});
+  if(matches.length!==1)fail('修改位置不唯一或重复；原稿保留。');
+  const {start,end}=matches[0];
+  if(wanted.length>1&&start===0&&!body.slice(end).trim())fail('局部修订不能用连续段落替换整篇原稿。');
+  if(patches.some(p=>start<p.end&&p.start<end))fail('修改位置重复或重叠；原稿保留。');
+  patches.push({...edit,start,end});
  }
  let revised=body;for(const p of [...patches].sort((a,b)=>b.start-a.start))revised=revised.slice(0,p.start)+p.after+revised.slice(p.end);
  return {body:revised,receipt:{baseSha256:hash(body),revisedSha256:hash(revised),edits:patches,unchangedSpansPreserved:true,semanticVerified:false}};
