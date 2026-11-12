@@ -51,8 +51,8 @@ export function compactHistory(messages,directory,{seenThrough=messages.length,e
  const pinned=new Map(),identities=new Set();let evidenceChars=0;
  for(let i=messages.length-1;i>=0;i--){const m=messages[i];if(m.role!=='tool')continue;let r;try{r=JSON.parse(m.content);}catch{continue;}
   const d=r.data||{},text=typeof d.text==='string'?d.text:typeof d.quote==='string'?d.quote:null;
-  if(r.status!=='ok'||!text||!(d.sourceId||d.assetId)||r.contextReceipt)continue;
-  const key=JSON.stringify([d.sourceId||d.assetId,d.sourceSha256,d.start,d.end,d.pointer,hash(text)]);if(identities.has(key))continue;
+  if(r.status!=='ok'||!text||!(d.sourceId||d.assetId||d.artifactId)||r.contextReceipt)continue;
+  const key=JSON.stringify([d.sourceId||d.assetId||d.artifactId,d.sourceSha256||d.sha256,d.start,d.end,d.pointer,hash(text)]);if(identities.has(key))continue;
   const data={...d};if(data.quote===data.text)delete data.quote;
   const content=JSON.stringify({...r,data});if(evidenceChars+content.length>evidenceBudgetChars)continue;
   identities.add(key);evidenceChars+=content.length;pinned.set(i,content);
@@ -65,6 +65,7 @@ export function compactHistory(messages,directory,{seenThrough=messages.length,e
   const d=r.data||{};const binding=d.sourceRange||d.binding||{};
   const summary={callId:r.callId,tool:r.tool,status:r.status,error:r.error,contextReceipt:{sha256:hash(m.content),characters:m.content.length},data:{sourceId:d.sourceId||binding.sourceId,sourceSha256:d.sourceSha256||binding.sourceSha256,resultId:d.resultId,artifactId:d.artifactId,tableId:d.tableId,draft_ref:d.draft_ref,pointer:d.pointer,nextOffset:d.nextOffset,next_cursor:d.next_cursor,totalChars:d.totalChars,totalItems:d.totalItems,coverage:d.coverage,sourceRange:binding.start!==undefined?{start:binding.start,end:binding.end}:undefined,items:d.items?.map(x=>({pointer:x.pointer,start:x.start,end:x.end})),note:'历史全文已保存。需要原文时按sourceId+pointer/range或resultId取回；这不是语义完整性证明。'}};
   if(r.tool==='discover_tools')summary.data.tools=d.tools;
+  if(r.tool==='search_knowledge')Object.assign(summary.data,{query:d.query,totalMatches:d.totalMatches,offset:d.offset,limit:d.limit,returnedMatches:d.matches?.length,note:d.resultId?'原句已按resultId保存，可直接export_document result_ids导出；压缩后没有matches不代表未取得原句。仍需按nextOffset取回后续页。':'旧检索回执没有保存resultId；需重新检索，不能把明细压缩解释为无命中。'});
   coverage.push({callId:r.callId,file,characters:m.content.length});m.content=JSON.stringify(summary);
  }
  if(coverage.length)fs.appendFileSync(path.join(directory,'context-compaction.jsonl'),JSON.stringify({at:new Date().toISOString(),coverage})+'\n');
