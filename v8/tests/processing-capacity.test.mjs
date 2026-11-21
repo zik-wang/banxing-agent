@@ -1,13 +1,13 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {PROCESSING_LIMITS as limits,scaledLimit,contextBudget} from '../processing-capacity.mjs';
-import {inferenceProfile} from '../inference-config.mjs';
-import {RECOVERY_POLICY,RecoverySession} from '../task-recovery.mjs';
-import {SUPPLEMENT_POLICY} from '../supplement-plan.mjs';
-import {POLICY as invoicePolicy} from '../invoice-stages.mjs';
-import {DELIVERY_TABLE_LIMITS} from '../file-delivery.mjs';
-import {TEXT_PAGE_CHARS} from '../attachment-text-view.mjs';
+import {PROCESSING_LIMITS as limits,scaledLimit,contextBudget} from '../src/runtime/processing-capacity.mjs';
+import {inferenceProfile} from '../src/integrations/inference-config.mjs';
+import {RECOVERY_POLICY,RecoverySession} from '../src/recovery/task-recovery.mjs';
+import {SUPPLEMENT_POLICY} from '../src/recovery/supplement-plan.mjs';
+import {POLICY as invoicePolicy} from '../src/invoices/invoice-stages.mjs';
+import {DELIVERY_TABLE_LIMITS} from '../src/documents/file-delivery.mjs';
+import {TEXT_PAGE_CHARS} from '../src/documents/attachment-text-view.mjs';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
-import {Store} from '../core.mjs';import {Harness} from '../runtime.mjs';
+import {Store} from '../src/runtime/core.mjs';import {Harness} from '../src/runtime/runtime.mjs';
 test('capacity 2.5x increases work without increasing concurrency or the provider window',()=>{
  assert.equal(limits.historyTurns,10);assert.equal(limits.historyAnswerChars,5000);
  assert.equal(limits.chatRounds,18);assert.equal(limits.chatToolCalls,30);

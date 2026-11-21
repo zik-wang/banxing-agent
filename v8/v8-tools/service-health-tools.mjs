@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
-import {CATALOG_URL,SERVICE_IDS,validateServiceUrl,readJson} from '../intranet.mjs';
+import {CATALOG_URL,SERVICE_IDS,validateServiceUrl,readJson} from '../src/integrations/intranet.mjs';
 export class ServiceHealthTools {
  constructor(docs,{chat,vision,asr={},fetchImpl=fetch}={}){this.docs=docs;this.chat=chat;this.vision=vision;this.asr=asr;this.fetch=fetchImpl;}
  modelRoute(config){const u=new URL(config.baseUrl);validateServiceUrl(u.origin);if(u.username||u.password||u.search||u.hash||!['/','/v1','/v1/'].includes(u.pathname))throw Error('只允许主机配置的固定内网模型接口');return config.baseUrl.replace(/\/$/,'')+'/models';}

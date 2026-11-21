@@ -4,12 +4,12 @@ import http from 'node:http';
 import {once} from 'node:events';
 import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
-import {Store} from '../core.mjs';
-import {Harness} from '../runtime.mjs';
-import {Workspace} from '../workspace.mjs';
-import {ConversationActions} from '../conversation-actions.mjs';
-import {resolveArtifact} from '../artifacts.mjs';
-import {prepareDelivery,generateDeliverables,requestedFormats,validateDelivery} from '../file-delivery.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {Harness} from '../src/runtime/runtime.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
+import {ConversationActions} from '../src/conversations/conversation-actions.mjs';
+import {resolveArtifact} from '../src/documents/artifacts.mjs';
+import {prepareDelivery,generateDeliverables,requestedFormats,validateDelivery} from '../src/documents/file-delivery.mjs';
 import {temporary,modelFixture,waitFor,call} from './dsh-fixture.mjs';
 import {extractionReply} from './dsh-analysis-fixture.mjs';
 

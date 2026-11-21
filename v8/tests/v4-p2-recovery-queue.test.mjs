@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {runBoundedBatches} from '../recovery-queue.mjs';
+import test from 'node:test';import assert from 'node:assert/strict';import {runBoundedBatches} from '../src/recovery/recovery-queue.mjs';
 const defer=()=>{let resolve;const promise=new Promise(r=>resolve=r);return {promise,resolve};};
 test('慢批次未结束时空闲槽立即处理下一批，并发始终不超过2',async()=>{const slow=defer(),third=defer(),started=[];let active=0,max=0;const run=runBoundedBatches([1,2,3],async n=>{started.push(n);max=Math.max(max,++active);if(n===1)await slow.promise;if(n===3)third.resolve();active--;});await third.promise;assert.deepEqual(started,[1,2,3]);assert.equal(active,1);assert.equal(max,2);slow.resolve();assert.deepEqual(await run,[]);});
 test('预算用尽和用户取消均不再取新批次',async()=>{let starts=0;await runBoundedBatches([1,2,3,4],async()=>{starts++;},{canStart:()=>starts<2});assert.equal(starts,2);const c=new AbortController(),seen=[];await runBoundedBatches([1,2,3],async n=>{seen.push(n);c.abort();},{signal:c.signal});assert.deepEqual(seen,[1]);});

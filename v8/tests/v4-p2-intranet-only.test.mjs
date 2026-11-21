@@ -1,8 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
-import {IntranetOnlyDirectory,deploymentInvoiceOptions} from '../intranet-only.mjs';
-import {deploymentConfigPath,createServiceDirectory} from '../hybrid-deployment.mjs';
-import {mediaStatus} from '../intranet-media.mjs';
+import {IntranetOnlyDirectory,deploymentInvoiceOptions} from '../src/integrations/intranet-only.mjs';
+import {deploymentConfigPath,createServiceDirectory} from '../src/integrations/hybrid-deployment.mjs';
+import {mediaStatus} from '../src/integrations/intranet-media.mjs';
 const config=()=>({version:'v7-intranet-all-1',chat:{provider:'intranet',baseUrl:'http://10.0.0.32:8861/v1',model:'qwen3.8-27b-fp8',analysisMode:'structured-json',auth:{type:'none'},inference:{input_projection:'unit-text-once-v1'}}});
 function fixtureFetch({failAsr=false,failChat=false}={}){const requested=[];const fetchImpl=async url=>{requested.push(url);assert(/^http:\/\/10\.0\.0\.(?:32|93|94)(?::\d+)?\//.test(url));let data;
  if(url.endsWith('/services'))data={items:[{id:'node-93--host--5055',selected_base_url:'http://10.0.0.93:5055',auth:'none'},{id:'node-32--mygpt-qwen3-asr--p8000',selected_base_url:'http://10.0.0.32:6001',auth:'none'}]};

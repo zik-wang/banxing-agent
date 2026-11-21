@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import {createRequire} from 'node:module';
-import {makeSource,canonical,validateCandidate,resolveFields,sourceRelations,prepareInvoiceSources} from '../invoice-evidence.mjs';
-import {parseInvoiceTables} from '../invoice-relations.mjs';import {parseInvoiceTableNodes} from '../invoice-structure.mjs';import {annotateFieldDispositions,monetaryConsistency} from '../invoice-disposition.mjs';import {extractPageFields,inspectInvoicePages} from '../invoice-page.mjs';
-import {Store} from '../core.mjs';import {Workspace} from '../workspace.mjs';import {Harness} from '../runtime.mjs';import {createInvoiceRuntime} from '../invoice-runtime.mjs';import {resolveArtifact} from '../artifacts.mjs';import {typedError,POLICY} from '../invoice-stages.mjs';
+import {makeSource,canonical,validateCandidate,resolveFields,sourceRelations,prepareInvoiceSources} from '../src/invoices/invoice-evidence.mjs';
+import {parseInvoiceTables} from '../src/invoices/invoice-relations.mjs';import {parseInvoiceTableNodes} from '../src/invoices/invoice-structure.mjs';import {annotateFieldDispositions,monetaryConsistency} from '../src/invoices/invoice-disposition.mjs';import {extractPageFields,inspectInvoicePages} from '../src/invoices/invoice-page.mjs';
+import {Store} from '../src/runtime/core.mjs';import {Workspace} from '../src/workspace/workspace.mjs';import {Harness} from '../src/runtime/runtime.mjs';import {createInvoiceRuntime} from '../src/invoices/invoice-runtime.mjs';import {resolveArtifact} from '../src/documents/artifacts.mjs';import {typedError,POLICY} from '../src/invoices/invoice-stages.mjs';
 const require=createRequire(import.meta.url),{createCanvas}=require('@napi-rs/canvas'),file={id:'r4-synthetic',sha256:'a'.repeat(64)};
 const src=(text,metadata={})=>makeSource(file,'ocr',text,{page:1,...metadata}),check=(s,field,value)=>validateCandidate({field,value,sourceId:s.id,quote:String(value)},[s],{recovery:true}),graph=s=>sourceRelations(s).relations;
 const extract=sources=>extractPageFields(sources).fields;

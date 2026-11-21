@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import JSZip from 'jszip';
-import {Store} from '../core.mjs';
-import {Harness} from '../runtime.mjs';
-import {Workspace} from '../workspace.mjs';
-import {ocrForChat,lookForChat,imageFromConverted} from '../document-tools.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {Harness} from '../src/runtime/runtime.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
+import {ocrForChat,lookForChat,imageFromConverted} from '../src/documents/document-tools.mjs';
 import {modelFixture,temporary,waitFor,call} from './dsh-fixture.mjs';
 
 const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==','base64');

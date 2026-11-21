@@ -1,17 +1,17 @@
-import {recoveryBatches} from '../recovery-batches.mjs';
-import {documentContext} from '../document-context.mjs';
+import {recoveryBatches} from '../src/recovery/recovery-batches.mjs';
+import {documentContext} from '../src/documents/document-context.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
-import {Store} from '../core.mjs';
-import {RecoverySession,readRecovery,validateTaskResume} from '../task-recovery.mjs';
-import {coveredAnalysis} from '../source-coverage.mjs';
-import {documentRequirements} from '../document-integrity.mjs';
-import {Workspace} from '../workspace.mjs';
-import {contentHash,beginVerification,finishVerification} from '../reliability.mjs';
-import {assertCloudTaskAllowed,cloudRuleHash} from '../cloud-policy.mjs';
-import {inferenceProfile,modelConfigFingerprint} from '../inference-config.mjs';
-import {analyzeStructured} from '../structured-analysis.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {RecoverySession,readRecovery,validateTaskResume} from '../src/recovery/task-recovery.mjs';
+import {coveredAnalysis} from '../src/evidence/source-coverage.mjs';
+import {documentRequirements} from '../src/documents/document-integrity.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
+import {contentHash,beginVerification,finishVerification} from '../src/recovery/reliability.mjs';
+import {assertCloudTaskAllowed,cloudRuleHash} from '../src/integrations/cloud-policy.mjs';
+import {inferenceProfile,modelConfigFingerprint} from '../src/integrations/inference-config.mjs';
+import {analyzeStructured} from '../src/evidence/structured-analysis.mjs';
 function fixture(t){const base=fs.realpathSync(os.tmpdir()),dir=fs.mkdtempSync(path.join(base,'v7-p2-'));t.after(()=>{assert.equal(path.dirname(dir),base);assert(path.basename(dir).startsWith('v7-p2-'));fs.rmSync(dir,{recursive:true,force:true});});const store=new Store(dir),job={id:'parent',scenarioId:'08',status:'running',rules:'test',dataScope:[],artifacts:[],checks:[],warnings:[],options:{}},units=[{id:'u1',text:'必须提交文件。'},{id:'u2',text:'例外条件：样品除外。'}],identity={scopeHash:'scope',unitsHash:contentHash(units),modelConfigFingerprint:'model',promptVersions:{extract:'p1',audit:'a1'}};store.state.jobs=[job];return {store,job,units,identity};}
 function session(t,policy={}){const x=fixture(t);return {...x,s:new RecoverySession({...x,policy})};}
 test('提取中断后只恢复该阶段缺失目标，已提取目标仍可独立复核',t=>{const x=session(t);assert(x.s.begin('extract',['u1']));x.s.reserveProvider();x.s.finish('extract',['u1'],['u1']);const bytes=fs.readFileSync(path.join(x.store.directory,'task-recovery/parent/checkpoint.json'));x.job.status='partial';const next={...x.job,id:'next',options:{executionResumeFrom:'parent'}};x.store.state.jobs.unshift(next);const s=new RecoverySession({...x,job:next,previous:x.job});assert.deepEqual(s.remaining('extract'),['u2']);assert.deepEqual(s.remaining('audit'),['u1','u2']);assert.equal(next.recovery.counters.cumulativeRequests,1);assert.deepEqual(fs.readFileSync(path.join(x.store.directory,'task-recovery/parent/checkpoint.json')),bytes);});

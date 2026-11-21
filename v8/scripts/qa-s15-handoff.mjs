@@ -1,4 +1,4 @@
-import fs from 'node:fs';import path from 'node:path';import {fileURLToPath} from 'node:url';import {createHash} from 'node:crypto';import {versionManifest} from '../qa-version.mjs';
+import fs from 'node:fs';import path from 'node:path';import {fileURLToPath} from 'node:url';import {createHash} from 'node:crypto';import {versionManifest} from '../src/diagnostics/qa-version.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),out=path.join(root,'qa-output/s15-fixes-20261027');
 const read=name=>JSON.parse(fs.readFileSync(path.join(out,name),'utf8')),sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const log=fs.readFileSync(path.join(out,'full-regression-final.log'),'utf8'),count=name=>Number(log.match(new RegExp('^ℹ '+name+' (\\d+)','m'))?.[1]??NaN);

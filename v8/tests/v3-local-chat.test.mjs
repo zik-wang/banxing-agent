@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Harness} from '../runtime.mjs';
-import {localChatReply} from '../local-chat.mjs';
-import {ServiceDirectory} from '../intranet.mjs';
+import {Harness} from '../src/runtime/runtime.mjs';
+import {localChatReply} from '../src/conversations/local-chat.mjs';
+import {ServiceDirectory} from '../src/integrations/intranet.mjs';
 
 function fixture(){const store={state:{conversations:[{id:'own',title:'新对话'}],runs:[],jobs:[],workspaceFiles:[]},save(){}};let calls=0;const harness=new Harness(store,{directory:{services:{},get(){calls++;throw Error('offline');}}});return {store,harness,calls:()=>calls};}
 test('本地帮助和进度查询无需模型连接，明确来源与能力边界',()=>{const x=fixture();for(const message of ['你能做什么？','帮助','/help','查看任务进度','查看交付文件']){const r=x.harness.start(message,{conversationId:'own'});assert.equal(r.status,'done');assert.equal(r.turns,0);assert.equal(r.modelProvider,'local');assert(r.answer.length>0);}assert.equal(x.calls(),0);assert.equal(x.harness.active.size,0);assert.equal(x.store.state.jobs.length,0);});

@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {Store} from '../core.mjs';import {Harness} from '../runtime.mjs';import {Workspace} from '../workspace.mjs';import {ConversationActions} from '../conversation-actions.mjs';
+import {Store} from '../src/runtime/core.mjs';import {Harness} from '../src/runtime/runtime.mjs';import {Workspace} from '../src/workspace/workspace.mjs';import {ConversationActions} from '../src/conversations/conversation-actions.mjs';
 import {modelFixture,temporary,waitFor,call} from './dsh-fixture.mjs';
 
 test('对话把转文字交给内网识别，模型推外部工具时改交回来',async t=>{

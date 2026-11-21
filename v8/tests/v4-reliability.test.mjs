@@ -4,9 +4,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
-import {beginVerification,contentHash,createAnalysisAudit,renderReliabilityItems,expectDelivery,finishVerification,evaluateQuality,candidateConservation} from '../reliability.mjs';
-import {writeArtifact} from '../artifacts.mjs';
-import {analyzeTask} from '../workflow-ai.mjs';
+import {beginVerification,contentHash,createAnalysisAudit,renderReliabilityItems,expectDelivery,finishVerification,evaluateQuality,candidateConservation} from '../src/recovery/reliability.mjs';
+import {writeArtifact} from '../src/documents/artifacts.mjs';
+import {analyzeTask} from '../src/workspace/workflow-ai.mjs';
 import {modelFixture,call} from './dsh-fixture.mjs';
 
 function fixture(t){const base=fs.realpathSync(os.tmpdir()),directory=fs.mkdtempSync(path.join(base,'v7-reliability-'));t.after(()=>{assert.equal(path.dirname(fs.realpathSync(directory)),base);assert(path.basename(directory).startsWith('v7-reliability-'));fs.rmSync(directory,{recursive:true,force:true});});const store={directory,save(){}};const job={id:'job-fixture',scenarioId:'08',rules:'只比较更正公告明确前后文字',options:{},artifacts:[],warnings:[],checks:[],status:'completed'};const files=[{id:'file',name:'source.txt',content:'缓存64MB调整为32MB',sha256:contentHash('original'),parseStatus:'ready'}];store.state={jobs:[job]};beginVerification(store,job,files,{modelStatus:()=>({modelName:'fixture'})});return {store,job,files};}

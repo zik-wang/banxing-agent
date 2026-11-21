@@ -1,9 +1,9 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
-import {Store} from '../core.mjs';import {createConversation,deleteConversation} from '../conversations.mjs';
-import {Workspace} from '../workspace.mjs';import {Harness} from '../runtime.mjs';import {ConversationActions,conversationSources} from '../conversation-actions.mjs';
-import {digest,originalPath} from '../workspace-files.mjs';import {createAttachmentAccess} from '../spreadsheet-tools.mjs';
-import {bindConversationFiles,resolveAttachmentContext,setConversationAttachment,conversationAttachmentState,resolvedRunSources} from '../attachment-context.mjs';
-import {buildTaskIntake} from '../task-intake.mjs';import {findReportHandoff,startReportHandoff} from '../report-handoff.mjs';import {writeArtifact,resolveArtifact} from '../artifacts.mjs';
+import {Store} from '../src/runtime/core.mjs';import {createConversation,deleteConversation} from '../src/conversations/conversations.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';import {Harness} from '../src/runtime/runtime.mjs';import {ConversationActions,conversationSources} from '../src/conversations/conversation-actions.mjs';
+import {digest,originalPath} from '../src/workspace/workspace-files.mjs';import {createAttachmentAccess} from '../src/documents/spreadsheet-tools.mjs';
+import {bindConversationFiles,resolveAttachmentContext,setConversationAttachment,conversationAttachmentState,resolvedRunSources} from '../src/documents/attachment-context.mjs';
+import {buildTaskIntake} from '../src/workspace/task-intake.mjs';import {findReportHandoff,startReportHandoff} from '../src/workspace/report-handoff.mjs';import {writeArtifact,resolveArtifact} from '../src/documents/artifacts.mjs';
 function fixture(t){const directory=fs.mkdtempSync(path.join(os.tmpdir(),'v7-p41-'));t.after(()=>{assert.equal(path.dirname(path.resolve(directory)),path.resolve(os.tmpdir()));fs.rmSync(directory,{recursive:true,force:true});});const store=new Store(directory);store.productExperience=true;store.presentationEnabled=true;store.state.conversations=[{id:'A'},{id:'B'}];store.state.runs=[];store.state.jobs=[];store.state.workspaceFiles=[];const add=(name,content='单元测试原文；负责人：张三；条件：验收通过后提交。')=>{const file={id:crypto.randomUUID(),name,extension:'.txt',content,parseStatus:'ready',sha256:digest(Buffer.from(content)),bytes:Buffer.byteLength(content)};fs.mkdirSync(path.dirname(originalPath(store,file)),{recursive:true});fs.writeFileSync(originalPath(store,file),content);store.state.workspaceFiles.push(file);store.save();return file;};return {store,add};}
 const snap=f=>({id:f.id,name:f.name,sha256:f.sha256});
 const resolve=(store,request,options={})=>resolveAttachmentContext(store,{conversationId:'A',request,...options});

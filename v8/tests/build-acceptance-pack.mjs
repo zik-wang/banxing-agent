@@ -1,5 +1,5 @@
 import fs from 'node:fs';import path from 'node:path';import {createHash} from 'node:crypto';import JSZip from 'jszip';
-import {readOriginal,safeName} from '../workspace-files.mjs';import {resolveArtifact} from '../artifacts.mjs';
+import {readOriginal,safeName} from '../src/workspace/workspace-files.mjs';import {resolveArtifact} from '../src/documents/artifacts.mjs';
 const project=path.resolve(import.meta.dirname,'..'),dataRoot=path.join(project,'qa-output/boundary20-data-20261016'),report=JSON.parse(fs.readFileSync(path.join(project,'qa-output/pressure20-20261016/results.json'),'utf8'));
 const store={directory:dataRoot,state:JSON.parse(fs.readFileSync(path.join(dataRoot,'state.json'),'utf8'))};
 const name='V3_20场景验收资料_20261016',root=path.resolve(project,'../deliveries',name);fs.mkdirSync(root,{recursive:true});

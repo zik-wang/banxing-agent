@@ -1,4 +1,4 @@
-import fs from 'node:fs';import path from 'node:path';import {execFileSync} from 'node:child_process';import {fileURLToPath} from 'node:url';import {versionManifest} from '../qa-version.mjs';
+import fs from 'node:fs';import path from 'node:path';import {execFileSync} from 'node:child_process';import {fileURLToPath} from 'node:url';import {versionManifest} from '../src/diagnostics/qa-version.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),manifest=versionManifest(root),out=path.join(root,'qa-output','supervisor');
 if(!manifest.workingTreeClean)throw Error('Commit explicitly reviewed files before handoff; worktree is not clean');
 const records=['build','preflight','regression','smoke'].map(name=>({name,...JSON.parse(fs.readFileSync(path.join(out,name+'.json'),'utf8'))}));

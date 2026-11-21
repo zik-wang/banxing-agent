@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {randomUUID,createHash} from 'node:crypto';
-import {CATALOG_URL,readJson,validateServiceUrl} from '../intranet.mjs';
+import {CATALOG_URL,readJson,validateServiceUrl} from '../src/integrations/intranet.mjs';
 import {ToolError} from './harness.mjs';
 import {classifyFile,decodeSource} from './file-types.mjs';
 const sha=b=>createHash('sha256').update(b).digest('hex');

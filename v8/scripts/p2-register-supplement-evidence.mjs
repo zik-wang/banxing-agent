@@ -1,9 +1,9 @@
 import fs from 'node:fs';import path from 'node:path';
-import {contentHash,canonical} from '../reliability.mjs';
-import {readRecovery} from '../task-recovery.mjs';
-import {buildSupplementPlan,sameUnits} from '../supplement-plan.mjs';
-import {registerSupplementEvidence} from '../supplement-evidence.mjs';
-import {readOriginal} from '../workspace-files.mjs';
+import {contentHash,canonical} from '../src/recovery/reliability.mjs';
+import {readRecovery} from '../src/recovery/task-recovery.mjs';
+import {buildSupplementPlan,sameUnits} from '../src/recovery/supplement-plan.mjs';
+import {registerSupplementEvidence} from '../src/recovery/supplement-evidence.mjs';
+import {readOriginal} from '../src/workspace/workspace-files.mjs';
 const root=path.resolve(import.meta.dirname,'..'),read=file=>JSON.parse(fs.readFileSync(file,'utf8').replace(/^\uFEFF/,''));
 try{
  const reportFile=path.resolve(process.argv[2]||''),folder=path.dirname(reportFile),report=read(reportFile),store={directory:path.join(root,'data'),state:read(path.join(root,'data/state.json'))},registered=[];

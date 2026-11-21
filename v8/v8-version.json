@@ -11,7 +11,7 @@
   "toolsEntry": "v8-tools/run.mjs",
   "baseIndependentAcceptance": "pending",
   "runtimeIsolationRequired": true,
-  "legacyProductEntry": "start-product.mjs",
+  "legacyProductEntry": "src/runtime/start-product.mjs",
   "note": "Personal workspace independent of conversations; scoped cross-conversation discovery, actual artifact reading and legacy grants. Existing Word and table operations preserved. Independent QA pending.",
   "previousBaselineCommit": "8b8a01aad232551794a97600c9cd31a3fdcd6b5d",
   "promptVersion": "v8-tools-personal-workspace-1",

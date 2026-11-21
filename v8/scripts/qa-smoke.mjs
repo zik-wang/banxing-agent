@@ -1,4 +1,4 @@
-import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {pathToFileURL,fileURLToPath} from 'node:url';import {fixtures} from './qa-fixtures.mjs';import {fingerprint} from '../qa-events.mjs';import {versionManifest} from '../qa-version.mjs';
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {pathToFileURL,fileURLToPath} from 'node:url';import {fixtures} from './qa-fixtures.mjs';import {fingerprint} from '../src/diagnostics/qa-events.mjs';import {versionManifest} from '../src/diagnostics/qa-version.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),out=path.join(root,'qa-output','supervisor'),base=process.env.QA_URL||'http://127.0.0.1:8834';fs.mkdirSync(out,{recursive:true});
 const record={mode:'smoke',testKind:'real_browser_deterministic_business_path',realModelTest:'not_run',startedAt:new Date().toISOString(),version:versionManifest(root),checks:[],downloads:[],pageErrors:[]};let browser;
 const pass=(name,detail)=>record.checks.push({name,pass:true,detail});

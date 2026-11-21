@@ -3,16 +3,16 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {reviewLedger,locateCitation,compareNumeric,parseExplicitDate,validateRelation,validateMissingScope} from '../issue-review.mjs';
-import {coverageState,inspectDocument,documentRequirements} from '../document-integrity.mjs';
-import {evaluateBenchmark,runBlindCases} from '../blind-benchmark.mjs';
-import {Store} from '../core.mjs';
-import {Workspace} from '../workspace.mjs';
-import {Harness} from '../runtime.mjs';
-import {digest} from '../workspace-files.mjs';
-import {recognizePdfPages} from '../intranet-media.mjs';
-import {sourceInventory,explicitTransitions} from '../source-coverage.mjs';
-import {contentHash} from '../reliability.mjs';
+import {reviewLedger,locateCitation,compareNumeric,parseExplicitDate,validateRelation,validateMissingScope} from '../src/evidence/issue-review.mjs';
+import {coverageState,inspectDocument,documentRequirements} from '../src/documents/document-integrity.mjs';
+import {evaluateBenchmark,runBlindCases} from '../src/evidence/blind-benchmark.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
+import {Harness} from '../src/runtime/runtime.mjs';
+import {digest} from '../src/workspace/workspace-files.mjs';
+import {recognizePdfPages} from '../src/integrations/intranet-media.mjs';
+import {sourceInventory,explicitTransitions} from '../src/evidence/source-coverage.mjs';
+import {contentHash} from '../src/recovery/reliability.mjs';
 
 function temporary(t){const base=fs.realpathSync(os.tmpdir()),directory=fs.mkdtempSync(path.join(base,'v7-p1-test-'));t.after(()=>{assert.equal(path.dirname(fs.realpathSync(directory)),base);assert(path.basename(directory).startsWith('v7-p1-test-'));fs.rmSync(directory,{recursive:true,force:true});});return directory;}
 const unit=text=>({id:'u1',sourceId:'f1',start:0,text});

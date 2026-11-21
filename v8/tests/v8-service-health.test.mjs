@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';
 import {ServiceHealthTools} from '../v8-tools/service-health-tools.mjs';
-import {CATALOG_URL,SERVICE_IDS} from '../intranet.mjs';
+import {CATALOG_URL,SERVICE_IDS} from '../src/integrations/intranet.mjs';
 function root(t){const p=path.resolve('qa-output/health-test-temp');fs.mkdirSync(p,{recursive:true});const x=fs.mkdtempSync(path.join(p,'case-'));t.after(()=>fs.rmSync(x,{recursive:true,force:true}));return x;}
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json'}});
 test('fixed read-only probes use configured current models and retain real receipts without credentials',async t=>{

@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {Store} from '../core.mjs';
-import {addWorkspaceFile} from '../workspace-files.mjs';
-import {Harness} from '../runtime.mjs';
-import {SCENARIOS} from '../scenarios.mjs';
-import {intentDocuments,validateIntent,selectedChatFiles,chatHandoff} from '../chat-intent.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {addWorkspaceFile} from '../src/workspace/workspace-files.mjs';
+import {Harness} from '../src/runtime/runtime.mjs';
+import {SCENARIOS} from '../src/workspace/scenarios.mjs';
+import {intentDocuments,validateIntent,selectedChatFiles,chatHandoff} from '../src/conversations/chat-intent.mjs';
 const answer=(doc,id='08')=>({summary:'两份版本材料，可对比变更。',candidates:[{scenarioId:id,confidence:'high',reason:'结合材料与用户目标判断',evidence:[{fileId:doc.fileId,quote:doc.content.slice(0,10)}]}],needsClarification:false});
 async function setup(t,analyze){const root=fs.realpathSync(os.tmpdir()),dir=fs.mkdtempSync(path.join(root,'agent-chat-intent-'));t.after(()=>{assert.equal(path.dirname(path.resolve(dir)),root);assert(path.basename(dir).startsWith('agent-chat-intent-'));fs.rmSync(dir,{recursive:true,force:true});});const store=new Store(dir);const file=await addWorkspaceFile(store,{name:'方案.txt',base64:Buffer.from('项目试运行方案。每月先核对进度再归档。').toString('base64')});const harness=new Harness(store,{directory:{get:()=>({baseUrl:'http://10.0.0.93:5055',model:'qwen36-27b-fp8'})},intentAnalyze:analyze|| (async args=>answer(args.documents[0]))});return {store,file,harness};}
 const finished=async(harness)=>{while(harness.active.size)await new Promise(r=>setTimeout(r,5));};

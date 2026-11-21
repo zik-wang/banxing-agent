@@ -1,7 +1,7 @@
 // Visual QA uses the same intranet LibreOffice service as production, then
 // rasterizes every resulting page with the bundled Poppler executable.
 import fs from 'node:fs';import path from 'node:path';import {spawnSync} from 'node:child_process';
-import {readBinary} from '../multimodal.mjs';
+import {readBinary} from '../src/media/multimodal.mjs';
 const root=process.env.FILE_DELIVERY_RENDER_ROOT||JSON.parse(fs.readFileSync('qa-output/file-delivery/live-latest.json','utf8')).root;
 const out=path.join(root,'render');fs.mkdirSync(out,{recursive:true});const report=[];
 const poppler='C:/Users/31125/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin/pdftoppm.exe';

@@ -4,8 +4,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import JSZip from 'jszip';
-import {Store} from '../core.mjs';
-import {extractUpload,extractUploadWorker,importUpload} from '../uploads.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {extractUpload,extractUploadWorker,importUpload} from '../src/documents/uploads.mjs';
 const input=(name,value)=>({name,base64:Buffer.from(value).toString('base64')});
 test('上传文本在独立进程解析，按段完整保存并在重启后可读',async t=>{
   const root=fs.realpathSync(os.tmpdir()),dir=fs.mkdtempSync(path.join(root,'companion-upload-'));

@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import mammoth from 'mammoth';
-import {sourceTerms,guardSourcePresentation,SOURCE_PRESENTATION_POLICY} from '../source-presentation.mjs';
-import {extractMediaFields,compareMediaFields,recordMediaReading,mediaVerification,verificationForSources} from '../media-verification.mjs';
-import {mediaReadSession} from '../media-read-session.mjs';import {Store} from '../core.mjs';import {Harness} from '../runtime.mjs';import {Workspace} from '../workspace.mjs';import {ConversationActions} from '../conversation-actions.mjs';import {resolveArtifact} from '../artifacts.mjs';
+import {sourceTerms,guardSourcePresentation,SOURCE_PRESENTATION_POLICY} from '../src/evidence/source-presentation.mjs';
+import {extractMediaFields,compareMediaFields,recordMediaReading,mediaVerification,verificationForSources} from '../src/media/media-verification.mjs';
+import {mediaReadSession} from '../src/media/media-read-session.mjs';import {Store} from '../src/runtime/core.mjs';import {Harness} from '../src/runtime/runtime.mjs';import {Workspace} from '../src/workspace/workspace.mjs';import {ConversationActions} from '../src/conversations/conversation-actions.mjs';import {resolveArtifact} from '../src/documents/artifacts.mjs';
 const source='# Records and retention\nApplication type: Aster & Nimbus Suite\nSupplier: Aster & Nimbus Limited\nExpiry: 31/12/2028\nAutomated release control (ARC)\nContract: Mobile Enterprise Agreement\nERP\nQZX';
 const file={id:'file-A',name:'source.txt',sha256:'hash-A',extension:'.txt',content:source};
 const visual={...file,extension:'.pdf',name:'source.pdf'};
