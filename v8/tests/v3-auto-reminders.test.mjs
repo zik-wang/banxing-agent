@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
-import {Store} from '../core.mjs';
-import {Workspace} from '../workspace.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
 function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'v3-auto-reminder-'));t.after(()=>{const p=path.resolve(dir);assert.equal(path.dirname(p),path.resolve(os.tmpdir()));assert(path.basename(p).startsWith('v3-auto-reminder-'));fs.rmSync(p,{recursive:true,force:true});});return new Store(dir);}
 const input={title:'核对演示设备',details:'虚构测试任务',dueAt:'2035-10-20T09:00:00+08:00'};
 test('预授权提醒直接创建，产生真实回执、重启和到期触发保留',t=>{const s=fixture(t),task=s.createLocalTask('run-1',input);assert.equal(s.state.tasks.length,1);assert.equal(task.dueAt,input.dueAt);assert.equal(s.state.approvals[0].status,'approved');assert.equal(s.state.approvals[0].autoCreated,true);assert.equal(s.state.approvals[0].taskId,task.id);const restarted=new Store(s.directory);assert.equal(restarted.state.tasks[0].id,task.id);assert.equal(restarted.tick(new Date('2035-10-20T01:00:01Z')),1);assert.equal(restarted.state.notifications[0].taskId,task.id);assert.equal(restarted.tick(new Date('2035-10-20T01:00:02Z')),0);});

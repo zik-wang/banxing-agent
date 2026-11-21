@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Type} from 'typebox';
-import {runDeepSeek} from '../deepseek-runtime.mjs';
+import {runDeepSeek} from '../src/integrations/deepseek-runtime.mjs';
 import {modelFixture,call} from './dsh-fixture.mjs';
 test('官方DSH循环实际往返模型、执行工具、保留关联ID并应用模型配置',async t=>{
   const x=await modelFixture(t,(_body,n)=>n===1?{calls:[call('echo',{value:'甲'})]}:{text:'完成：甲'});let seen=0;

@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {auditComparisonText} from '../comparison-audit.mjs';
+import {auditComparisonText} from '../src/evidence/comparison-audit.mjs';
 test('移动原文保持为文字迁移候选，不因位置改变宣称内容或业务范围改变',()=>{const r=auditComparisonText('第一章 范围\n固定条款\n第二章 交付\n样品除外','第一章 范围\n第二章 交付\n固定条款\n样品除外');assert(r.relocated.length>0);assert(r.relocated.every(x=>x.scopeVerified===false));assert(r.unchanged.some(x=>x.text==='样品除外'));});
 test('新增/删除、日期、数量、条件、例外、表格与标题在全量diff中分别保留',()=>{const r=auditComparisonText('第一章 旧范围\n日期2027-02-11\n仅进口设备；样品除外\n| 缓存 | ≥80MB |\nSSD ≥960GB','第一章 新范围\n日期2027-02-20\n如果批准，必须提交材料\n| 缓存 | ≥40MB |\nSSD ≥960GB');for(const category of ['date','numeric','condition','exception','heading','table'])assert(r.audit.find(a=>a.category===category).matches.length>0);assert(![...r.added,...r.removed].some(x=>x.text==='SSD ≥960GB'));assert(r.unchanged.some(x=>x.text==='SSD ≥960GB'));});
 test('只插入一行造成后续行号变化不能误标为段落搬移，重复条款不强行配对',()=>{const a=auditComparisonText('A\nB\nC','NEW\nA\nB\nC');assert.equal(a.relocated.length,0);const b=auditComparisonText('重复\nX\n重复','重复\n重复\nX');assert(!b.relocated.some(x=>x.text==='重复'));});

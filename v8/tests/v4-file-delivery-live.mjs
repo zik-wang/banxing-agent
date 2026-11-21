@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import {Store} from '../core.mjs';
-import {Harness} from '../runtime.mjs';
-import {Workspace} from '../workspace.mjs';
-import {ConversationActions} from '../conversation-actions.mjs';
-import {ServiceDirectory} from '../intranet.mjs';
-import {resolveArtifact} from '../artifacts.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {Harness} from '../src/runtime/runtime.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
+import {ConversationActions} from '../src/conversations/conversation-actions.mjs';
+import {ServiceDirectory} from '../src/integrations/intranet.mjs';
+import {resolveArtifact} from '../src/documents/artifacts.mjs';
 const root=path.resolve('qa-output/file-delivery/live-'+Date.now());fs.mkdirSync(root,{recursive:true});
 const directory=new ServiceDirectory();await directory.refresh();await directory.discoverMore();directory.get('chat');
 const store=new Store(path.join(root,'data')),h=new Harness(store,{directory}),w=new Workspace(store,h);h.chatActions=new ConversationActions(store,w,h);store.state.conversations=[{id:'qa',title:'文件交付真实验收'}];store.state.runs=[];store.state.jobs=[];

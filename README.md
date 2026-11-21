@@ -16,7 +16,7 @@ npm ci --ignore-scripts
 把已配置的 V8 网页服务配置文件放在当前目录下的 `.local-runtime/v8-web-config.json`，然后运行：
 
 ```sh
-node v8-web/server.mjs .local-runtime/v8-web-config.json
+npm start
 ```
 
 打开终端打印的本机网址。端口由配置决定，默认是 `http://127.0.0.1:8848/`。本机服务配置及凭据需自行提供。[网页版说明](v8/docs/v8-web.txt) · [模型切换说明](v8/docs/model-switch-and-contract-review.md)
@@ -27,6 +27,6 @@ node v8-web/server.mjs .local-runtime/v8-web-config.json
 
 ## 项目入口
 
-- [网页与对话](v8/v8-web/) · [文件处理与导出工具](v8/v8-tools/)
+- [源码目录导航](v8/src/README.md) · [网页与对话](v8/v8-web/) · [文件处理与导出工具](v8/v8-tools/)
 - [本页收录的 V8 原始提交](https://github.com/zik-wang/banxing-agent/tree/f17165bc2dd1d9c4ef3481de24e850a98efb22d3)
 - [历史版本 V7](https://github.com/zik-wang/banxing-agent/tree/v7-mentor-handoff-20261023)

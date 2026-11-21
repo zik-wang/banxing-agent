@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import JSZip from 'jszip';
-import {Store} from '../core.mjs';
-import {addWorkspaceFile,readOriginal,assertWorkspaceCapacity,workspaceStorage,MAX_WORKSPACE_FILES,MAX_WORKSPACE_BYTES} from '../workspace-files.mjs';
-import {importArchive} from '../archives.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {addWorkspaceFile,readOriginal,assertWorkspaceCapacity,workspaceStorage,MAX_WORKSPACE_FILES,MAX_WORKSPACE_BYTES} from '../src/workspace/workspace-files.mjs';
+import {importArchive} from '../src/documents/archives.mjs';
 import {temporary} from './dsh-fixture.mjs';
 const input=name=>({name,base64:Buffer.from('新的原始材料').toString('base64')});
 function seed(store,count,bytes=1){store.state.workspaceFiles=Array.from({length:count},(_,i)=>({id:'existing-'+i,name:'existing-'+i+'.txt',bytes}));return JSON.stringify(store.state.workspaceFiles);}

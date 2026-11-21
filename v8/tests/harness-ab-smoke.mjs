@@ -1,10 +1,10 @@
 // Real-model, same-tools prompt ablation. Not a benchmark against a complete Pi coding product.
 import fs from 'node:fs';import path from 'node:path';import ExcelJS from 'exceljs';
-import {Harness} from '../runtime.mjs';import {Store} from '../core.mjs';import {ServiceDirectory} from '../intranet.mjs';import {addWorkspaceFile} from '../workspace-files.mjs';
+import {Harness} from '../src/runtime/runtime.mjs';import {Store} from '../src/runtime/core.mjs';import {ServiceDirectory} from '../src/integrations/intranet.mjs';import {addWorkspaceFile} from '../src/workspace/workspace-files.mjs';
 const root=path.resolve(import.meta.dirname,'../qa-output/harness-ab-'+new Date().toISOString().replace(/[:.]/g,'-'));
 fs.mkdirSync(root,{recursive:true});
 const directory=new ServiceDirectory();await directory.refresh();if(!directory.get('chat'))throw Error('Model unavailable');
-const {runDeepSeek}=await import('../deepseek-runtime.mjs');
+const {runDeepSeek}=await import('../src/integrations/deepseek-runtime.mjs');
 const cases=[
  {id:'extract',title:'普通文本提取',prompt:'请根据以下虚构材料，直接列出负责人、截止时间和行动项；未写明的内容标为未明确。材料：林澄负责整理附件，截止2026年10月20日17:00；赵宁负责核对预算，原文没有截止时间。只整理，不创建待办。',check:r=>({负责人:/林澄/.test(r.answer)&&/赵宁/.test(r.answer),期限:r.answer.includes('2026')&&r.answer.includes('17:00'),不编期限:/未明确|未说明|未写明|未提供|未给出|没有.*截止/.test(r.answer),未创建:r.createdTasks===0&&r.approvals.length===0})},
  {id:'spreadsheet',title:'Excel跨表读取与精确计算',excel:true,prompt:'请直接读取上传Excel：列出工作表，读取“远端明细”B1801:C1801，并计算“明细”B2:B3合计。回答标明文件、工作表和单元格范围，不要仅推荐工作区。',check:r=>({尾行:r.answer.includes('尾部核对标记')&&r.answer.replace(/,/g,'').includes('98765.43'),正确合计:r.answer.includes('199.75'),工具核实:r.trace.some(t=>t.type==='tool_result'&&t.label==='read_spreadsheet'&&t.detail.includes('B1801:C1801'))&&r.trace.some(t=>t.type==='tool_result'&&t.label==='calculate_spreadsheet'&&t.detail.includes('199.75')),引用范围:r.answer.includes('B1801')&&r.answer.includes('B2')})},

@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import {createRequire} from 'node:module';
-import {AllIntranetDirectory,validateAllIntranetConfig} from '../all-intranet-directory.mjs';
-import {createServiceDirectory} from '../hybrid-deployment.mjs';
-import {recognizeInvoiceInputs} from '../invoice-intranet-media.mjs';
-import {createInvoiceRuntime,validateInvoiceRuntimeConfig} from '../invoice-runtime.mjs';
-import {Store} from '../core.mjs';import {Workspace} from '../workspace.mjs';import {Harness} from '../runtime.mjs';
+import {AllIntranetDirectory,validateAllIntranetConfig} from '../src/integrations/all-intranet-directory.mjs';
+import {createServiceDirectory} from '../src/integrations/hybrid-deployment.mjs';
+import {recognizeInvoiceInputs} from '../src/invoices/invoice-intranet-media.mjs';
+import {createInvoiceRuntime,validateInvoiceRuntimeConfig} from '../src/invoices/invoice-runtime.mjs';
+import {Store} from '../src/runtime/core.mjs';import {Workspace} from '../src/workspace/workspace.mjs';import {Harness} from '../src/runtime/runtime.mjs';
 const require=createRequire(import.meta.url),{createCanvas}=require('@napi-rs/canvas');
 const response=value=>new Response(JSON.stringify(value));
 const media={ocr:{baseUrl:'http://10.0.0.32:8010',model:'MinerU-intranet'},vision:{baseUrl:'http://10.0.0.94:8080',model:'openbmb/MiniCPM-V-4.6-AWQ'}};
@@ -45,7 +45,7 @@ test('09真实适配器整页、视觉与ROI均走内网HTTP，没有Python或�
 });
 
 test('全内网部署只启用已验证的09远程适配器，拒绝错配或云端覆盖',async()=>{
- const {deploymentInvoiceOptions}=await import('../invoice-deployment.mjs');const status=()=>({configured:true,provider:'intranet',localModelsEnabled:false,ocrTransport:'intranet-http'}),safe={descriptor:{provider:'intranet',localModelsEnabled:false,ocrTransport:'intranet-http'}};
+ const {deploymentInvoiceOptions}=await import('../src/invoices/invoice-deployment.mjs');const status=()=>({configured:true,provider:'intranet',localModelsEnabled:false,ocrTransport:'intranet-http'}),safe={descriptor:{provider:'intranet',localModelsEnabled:false,ocrTransport:'intranet-http'}};
  const enabled=deploymentInvoiceOptions({intranetOnly:true},{factory:()=>safe,status});assert.equal(enabled.invoiceRuntimeFactory(),safe);
  const wrong=deploymentInvoiceOptions({intranetOnly:true},{factory:()=>({descriptor:{provider:'siliconflow'}}),status});assert.throws(()=>wrong.invoiceRuntimeFactory(),/不一致/);
  const blocked=deploymentInvoiceOptions({intranetOnly:true},{factory:()=>assert.fail('called cloud'),status:()=>({configured:true,provider:'siliconflow'})});assert.equal(blocked.invoiceRuntimeFactory(),null);

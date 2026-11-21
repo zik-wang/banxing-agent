@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';
-import {Store} from '../core.mjs';import {Harness} from '../runtime.mjs';import {Workspace} from '../workspace.mjs';import {resolveArtifact} from '../artifacts.mjs';
-import {validateEvidenceLedger} from '../invoice-delivery.mjs';
+import {Store} from '../src/runtime/core.mjs';import {Harness} from '../src/runtime/runtime.mjs';import {Workspace} from '../src/workspace/workspace.mjs';import {resolveArtifact} from '../src/documents/artifacts.mjs';
+import {validateEvidenceLedger} from '../src/invoices/invoice-delivery.mjs';
 async function fixture(t,analyze){const root=path.resolve('qa-output/r3-flow-tests');fs.mkdirSync(root,{recursive:true});const dir=fs.mkdtempSync(path.join(root,'case-'));t.after(()=>{assert.equal(path.dirname(dir),root);fs.rmSync(dir,{recursive:true,force:true});});const store=new Store(dir),harness=new Harness(store);harness.invoiceNetworkPolicy=()=>{};return {store,workspace:new Workspace(store,harness,{analyze})};}
 async function execute(workspace,content){const file=await workspace.upload({name:'synthetic.txt',base64:Buffer.from(content).toString('base64')}),job=workspace.start({scenarioId:'09',fileIds:[file.id]});while(workspace.active.has(job.id))await new Promise(r=>setTimeout(r,5));assert.equal(job.error,null);return job;}
 const ledger=(store,job)=>JSON.parse(resolveArtifact(store,job.id,job.artifacts.find(a=>a.name==='票据证据与字段账本.json').id).bytes);

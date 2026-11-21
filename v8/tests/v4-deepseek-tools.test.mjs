@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import ExcelJS from 'exceljs';
-import {Store} from '../core.mjs';import {Harness} from '../runtime.mjs';import {Workspace} from '../workspace.mjs';import {ConversationActions} from '../conversation-actions.mjs';import {Delegations} from '../delegations.mjs';import {DirectoryConnections} from '../directory-connections.mjs';
+import {Store} from '../src/runtime/core.mjs';import {Harness} from '../src/runtime/runtime.mjs';import {Workspace} from '../src/workspace/workspace.mjs';import {ConversationActions} from '../src/conversations/conversation-actions.mjs';import {Delegations} from '../src/workspace/delegations.mjs';import {DirectoryConnections} from '../src/integrations/directory-connections.mjs';
 import {modelFixture,temporary,waitFor,call} from './dsh-fixture.mjs';import {extractionReply} from './dsh-analysis-fixture.mjs';
 test('全部23个聊天工具经过真实DSH调度，组织/目录/附件/定时/停止和交付可回读',async t=>{
   let plans={},store;

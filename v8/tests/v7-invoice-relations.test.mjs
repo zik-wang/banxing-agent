@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {makeSource,sourceRelations,extractRelationCandidates,validateCandidate,resolveFields,FIELDS} from '../invoice-evidence.mjs';
-import {parseInvoiceTables} from '../invoice-relations.mjs';
-import {annotateFieldDispositions,planSemanticRecovery,monetaryConsistency,modelFailureKind} from '../invoice-disposition.mjs';
+import {makeSource,sourceRelations,extractRelationCandidates,validateCandidate,resolveFields,FIELDS} from '../src/invoices/invoice-evidence.mjs';
+import {parseInvoiceTables} from '../src/invoices/invoice-relations.mjs';
+import {annotateFieldDispositions,planSemanticRecovery,monetaryConsistency,modelFailureKind} from '../src/invoices/invoice-disposition.mjs';
 const source=(text,metadata={})=>makeSource({id:'fixture-document',sha256:'fixture-sha'},'ocr',text,{page:1,...metadata});
 const graph=s=>sourceRelations(s).relations;
 const field=(s,f)=>graph(s).filter(r=>r.field===f&&r.validationStatus==='supported');

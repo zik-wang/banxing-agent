@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import ExcelJS from 'exceljs';
-import {Store} from '../core.mjs';import {Harness} from '../runtime.mjs';import {Workspace} from '../workspace.mjs';import {ConversationActions} from '../conversation-actions.mjs';
-import {prepareDelivery,renderWorkbook,validateDelivery,sourceJobContent} from '../file-delivery.mjs';import {writeArtifact} from '../artifacts.mjs';
+import {Store} from '../src/runtime/core.mjs';import {Harness} from '../src/runtime/runtime.mjs';import {Workspace} from '../src/workspace/workspace.mjs';import {ConversationActions} from '../src/conversations/conversation-actions.mjs';
+import {prepareDelivery,renderWorkbook,validateDelivery,sourceJobContent} from '../src/documents/file-delivery.mjs';import {writeArtifact} from '../src/documents/artifacts.mjs';
 const headers=n=>Array.from({length:n},(_,i)=>'字段'+(i+1));
 async function setup(t){
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'office-100-'));t.after(()=>{assert(path.resolve(dir).startsWith(path.resolve(os.tmpdir())+path.sep));fs.rmSync(dir,{recursive:true,force:true});});

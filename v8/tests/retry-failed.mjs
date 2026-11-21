@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {Store} from '../core.mjs';
-import {Harness} from '../runtime.mjs';
-import {Workspace} from '../workspace.mjs';
-import {ServiceDirectory} from '../intranet.mjs';
-import {resolveArtifact} from '../artifacts.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {Harness} from '../src/runtime/runtime.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
+import {ServiceDirectory} from '../src/integrations/intranet.mjs';
+import {resolveArtifact} from '../src/documents/artifacts.mjs';
 
 const DATA='D:/pro222/personal-agent-v6/qa-output/real-run-data';
 const OUT='D:/pro222/personal-agent-v6/qa-output/real-materials-20261019';

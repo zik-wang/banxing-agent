@@ -1,4 +1,4 @@
-import fs from 'node:fs';import path from 'node:path';import {fileURLToPath} from 'node:url';import {contentHash,atomicJson} from '../reliability.mjs';
+import fs from 'node:fs';import path from 'node:path';import {fileURLToPath} from 'node:url';import {contentHash,atomicJson} from '../src/recovery/reliability.mjs';
 const argv=process.argv.slice(2),get=k=>argv[argv.indexOf(k)+1],id=get('--id'),tasks=(get('--tasks')||'').split(',').filter(Boolean),codeFile=get('--code-file');
 if(!argv.includes('--id')||!argv.includes('--tasks')||!argv.includes('--code-file')||!/^[a-zA-Z0-9_-]{3,80}$/.test(id||'')||!tasks.length)throw Error('Usage: node scripts/p3-reviewer-cli.mjs --id HUMAN_ID --tasks TASK_ID,TASK_ID --code-file SECURE_CODE_FILE [--independent]; only provision actual authorized people');
 const code=fs.readFileSync(codeFile,'utf8').trim();if(code.length<32)throw Error('授权码至少32字符，请用安全随机生成器预先创建；不在日志输出');

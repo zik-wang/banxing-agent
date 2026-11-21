@@ -4,9 +4,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {sourceInventory,scheduleSource,explicitTransitions,coveredAnalysis,writeCoverageArtifacts} from '../source-coverage.mjs';
-import {Store} from '../core.mjs';
-import {resolveArtifact} from '../artifacts.mjs';
+import {sourceInventory,scheduleSource,explicitTransitions,coveredAnalysis,writeCoverageArtifacts} from '../src/evidence/source-coverage.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {resolveArtifact} from '../src/documents/artifacts.mjs';
 
 const file=(id,content)=>({id,name:id+'.txt',content,sha256:createHash('sha256').update(content).digest('hex')});
 function fixture(t,files,analyze){

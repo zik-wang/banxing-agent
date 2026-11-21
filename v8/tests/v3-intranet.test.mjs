@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {ServiceDirectory,SERVICE_IDS,validateServiceUrl,readJson} from '../intranet.mjs';
-import {recognizeIntranet,transcribeIntranet} from '../intranet-media.mjs';
-import {findFfmpeg} from '../audio-decode.mjs';
-import {Store} from '../core.mjs';
-import {addWorkspaceFile} from '../workspace-files.mjs';
-import {Workspace} from '../workspace.mjs';
+import {ServiceDirectory,SERVICE_IDS,validateServiceUrl,readJson} from '../src/integrations/intranet.mjs';
+import {recognizeIntranet,transcribeIntranet} from '../src/integrations/intranet-media.mjs';
+import {findFfmpeg} from '../src/media/audio-decode.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {addWorkspaceFile} from '../src/workspace/workspace-files.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
 const response=value=>new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}});
 function directoryFixture(){const calls=[],catalog={items:Object.entries(SERVICE_IDS).map(([kind,id],index)=>({id,name:kind,auth:'none',selected_base_url:'http://10.0.0.'+(index===0?'93:5055':index===1?'32:6001':'32:8010')}))};const directory=new ServiceDirectory(async(url,options)=>{calls.push({url,options});if(url.endsWith('/services'))return response(catalog);if(url.endsWith('/v1/models'))return response({data:[{id:'qwen36-27b-fp8'}]});return response(url.endsWith('/health/ready')?{status:'ready',id:'Qwen/Qwen3-ASR-1.7B'}:{status:'healthy',version:'fixture'});});return {directory,calls,catalog};}
 function storeFixture(t){const root=fs.realpathSync(os.tmpdir()),dir=fs.mkdtempSync(path.join(root,'agent-v3-test-'));t.after(()=>{assert.equal(path.dirname(path.resolve(dir)),root);assert(path.basename(dir).startsWith('agent-v3-test-'));fs.rmSync(dir,{recursive:true,force:true});});return new Store(dir);}

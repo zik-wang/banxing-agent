@@ -6,8 +6,8 @@ import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import JSZip from 'jszip';
 import {path7za} from '7zip-bin';
-import {Store} from '../core.mjs';
-import {Workspace} from '../workspace.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
 
 function tempStore(t){const root=fs.realpathSync(os.tmpdir()),dir=fs.mkdtempSync(path.join(root,'v6-arc-'));t.after(()=>{assert.equal(path.dirname(path.resolve(dir)),root);assert(path.basename(dir).startsWith('v6-arc-'));fs.rmSync(dir,{recursive:true,force:true});});return new Store(dir);}
 async function sampleZip(){const zip=new JSZip();zip.file('发票.txt','发票正文');zip.file('sub/说明.txt','第二份');zip.file('../逃逸.txt','不能导入');zip.file('run.exe','MZ');zip.file('__MACOSX/._发票.txt','junk');return zip.generateAsync({type:'nodebuffer'});}

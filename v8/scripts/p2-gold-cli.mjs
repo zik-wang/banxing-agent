@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {recordAnnotation,adjudicateReference,scoreGoldCase,validateReferenceFact} from '../gold-benchmark.mjs';
+import {recordAnnotation,adjudicateReference,scoreGoldCase,validateReferenceFact} from '../src/evidence/gold-benchmark.mjs';
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 const [command,...args]=process.argv.slice(2);
 try{

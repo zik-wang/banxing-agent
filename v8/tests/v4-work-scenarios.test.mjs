@@ -4,15 +4,15 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
-import {Store} from '../core.mjs';
-import {Harness} from '../runtime.mjs';
-import {Workspace} from '../workspace.mjs';
-import {SCENARIOS} from '../scenarios.mjs';
-import {WORK_SCENARIOS} from '../work-scenario-catalog.mjs';
-import {WORKFLOW_KEYS,ACTION_PHRASES,ConversationActions} from '../conversation-actions.mjs';
-import {sampleFiles} from '../samples.mjs';
-import {readOriginal} from '../workspace-files.mjs';
-import {resolveArtifact} from '../artifacts.mjs';
+import {Store} from '../src/runtime/core.mjs';
+import {Harness} from '../src/runtime/runtime.mjs';
+import {Workspace} from '../src/workspace/workspace.mjs';
+import {SCENARIOS} from '../src/workspace/scenarios.mjs';
+import {WORK_SCENARIOS} from '../src/workspace/work-scenario-catalog.mjs';
+import {WORKFLOW_KEYS,ACTION_PHRASES,ConversationActions} from '../src/conversations/conversation-actions.mjs';
+import {sampleFiles} from '../src/workspace/samples.mjs';
+import {readOriginal} from '../src/workspace/workspace-files.mjs';
+import {resolveArtifact} from '../src/documents/artifacts.mjs';
 import {fixtureWorkAnalysis} from './work-scenarios-fixture.mjs';
 
 async function fixture(t,id,analyze=fixtureWorkAnalysis){

@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import {createHash} from 'node:crypto';
-import {scoreGoldCase,recordAnnotation,adjudicateReference,GOLD_VERSION,validateReferenceFact} from '../gold-benchmark.mjs';
-import {ConfiguredIntranetDirectory} from '../configured-intranet.mjs';
+import {scoreGoldCase,recordAnnotation,adjudicateReference,GOLD_VERSION,validateReferenceFact} from '../src/evidence/gold-benchmark.mjs';
+import {ConfiguredIntranetDirectory} from '../src/integrations/configured-intranet.mjs';
 const fact={reference_item_id:'ref',source_file:'synthetic.txt',source_location:{unit_id:'U1',start:0,end:9},expected_fact:'Only imported equipment requires customs proof; samples exempt.',subject:'supplier',relation:'submit',object:'customs-proof',condition:['imported'],exception:['sample'],change_type:'added',risk_level:'critical'};
 const hash=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
 const fakeGold=()=>({id:'unit-fixture',familyId:'unit-only',usedInDevelopment:false,sealedAt:'2026-01-01T00:00:00Z',reference:{status:'adjudicated',complete:true,humanIndependent:true,annotationIds:['a','b'],annotatorIds:['human-a','human-b'],adjudicatorId:'human-c',facts:[fact],referenceHash:hash([fact])}});

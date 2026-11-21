@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import mammoth from 'mammoth';
-import {recordMediaReading,extractMediaFields,compareMediaFields,mediaVerification} from '../media-verification.mjs';
-import {guardSourcePresentation} from '../source-presentation.mjs';import {Store} from '../core.mjs';import {Harness} from '../runtime.mjs';import {Workspace} from '../workspace.mjs';import {ConversationActions} from '../conversation-actions.mjs';import {resolveArtifact} from '../artifacts.mjs';
+import {recordMediaReading,extractMediaFields,compareMediaFields,mediaVerification} from '../src/media/media-verification.mjs';
+import {guardSourcePresentation} from '../src/evidence/source-presentation.mjs';import {Store} from '../src/runtime/core.mjs';import {Harness} from '../src/runtime/runtime.mjs';import {Workspace} from '../src/workspace/workspace.mjs';import {ConversationActions} from '../src/conversations/conversation-actions.mjs';import {resolveArtifact} from '../src/documents/artifacts.mjs';
 const file={id:'synth',name:'contract.pdf',sha256:'synthetic-offline-only',extension:'.pdf',content:'# 合同A\n供应商：Aster Limited\n到期日：2028-12-31'},coverage={totalPages:1,pages:[1],pageMapping:'exact'};
 function compareValues(a,b=a){const run={id:'synthetic-only',conversationId:'A'};for(const [reader,value]of [['read_with_vision',a],['ocr_document',b]])recordMediaReading(run,file,reader,{text:'# 合同A\n供应商：'+value+'\n到期日：'+value,coverage});return run.mediaVerification.files[0];}
 const present=content=>guardSourcePresentation({content},{run:{id:'synthetic-claims',conversationId:'A'},files:[file]});

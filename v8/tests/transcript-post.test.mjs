@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {structureTranscript} from '../transcript-post.mjs';
+import {structureTranscript} from '../src/media/transcript-post.mjs';
 
 test('问句和回答分成两个说话人，不编造姓名',()=>{
   const raw='我们用了五折交叉验证，还问过李老师。你只用了两百个样本吗？对，只用了这些，我是项目陈述人。';

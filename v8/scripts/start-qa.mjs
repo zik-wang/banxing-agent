@@ -8,4 +8,4 @@ if(process.env.DEMO_DATA_DIR&&path.resolve(process.env.DEMO_DATA_DIR)!==data)thr
 process.env.DEMO_DATA_DIR=data;fs.mkdirSync(data,{recursive:true});
 // Use only an explicitly supplied provider profile. No company addresses or secrets embedded.
 console.log('QA namespace='+namespace+' port='+process.env.PORT+' data='+data);
-await import('../start-product.mjs');
+await import('../src/runtime/start-product.mjs');

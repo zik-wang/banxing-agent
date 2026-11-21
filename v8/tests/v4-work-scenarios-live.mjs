@@ -1,10 +1,10 @@
 // Opt-in integration run against the configured company model. Synthetic data only.
 import fs from 'node:fs';import path from 'node:path';
-import {Store} from '../core.mjs';import {Harness} from '../runtime.mjs';import {Workspace} from '../workspace.mjs';
-import {ServiceDirectory} from '../intranet.mjs';import {ConversationActions,ACTION_PHRASES} from '../conversation-actions.mjs';
-import {WORK_SCENARIOS} from '../work-scenario-catalog.mjs';import {sampleFiles} from '../samples.mjs';
-import {resolveArtifact} from '../artifacts.mjs';import {readOriginal,digest} from '../workspace-files.mjs';
-import {createConversation,initConversations} from '../conversations.mjs';
+import {Store} from '../src/runtime/core.mjs';import {Harness} from '../src/runtime/runtime.mjs';import {Workspace} from '../src/workspace/workspace.mjs';
+import {ServiceDirectory} from '../src/integrations/intranet.mjs';import {ConversationActions,ACTION_PHRASES} from '../src/conversations/conversation-actions.mjs';
+import {WORK_SCENARIOS} from '../src/workspace/work-scenario-catalog.mjs';import {sampleFiles} from '../src/workspace/samples.mjs';
+import {resolveArtifact} from '../src/documents/artifacts.mjs';import {readOriginal,digest} from '../src/workspace/workspace-files.mjs';
+import {createConversation,initConversations} from '../src/conversations/conversations.mjs';
 const root=path.resolve(import.meta.dirname,'../qa-output/work-scenarios-live-'+new Date().toISOString().replace(/[:.]/g,'-'));
 fs.mkdirSync(root,{recursive:true});const directory=new ServiceDirectory();await directory.refresh();directory.get('chat');
 const report={syntheticInputs:true,actualModel:true,startedAt:new Date().toISOString(),scenarios:[]};
