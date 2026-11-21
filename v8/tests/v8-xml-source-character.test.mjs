@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import os from 'node:os';
+import {DocumentTools} from '../v8-tools/document-tools.mjs';import {DocumentExtras} from '../v8-tools/document-extras.mjs';
+test('XML-forbidden original character gets explicit display representation and exact original sidecar',{skip:!process.env.V8_PYTHON||!process.env.V8_SMALL_PDF||!process.env.V8_ARTIFACT_MODULE},async t=>{
+ const parent=path.resolve(os.tmpdir()),root=fs.mkdtempSync(path.join(parent,'v8-xml-source-'));t.after(()=>{assert.equal(path.dirname(root),parent);assert(path.basename(root).startsWith('v8-xml-source-'));fs.rmSync(root,{recursive:true,force:true});});
+ const docs=new DocumentTools({directory:path.join(root,'run'),inputs:[process.env.V8_SMALL_PDF],python:process.env.V8_PYTHON}),extras=new DocumentExtras(docs,{artifactModule:process.env.V8_ARTIFACT_MODULE}),signal=new AbortController().signal,id=[...docs.assets.keys()][0],original='synthetic original \ufffe footer';
+ const exported=await extras.export({title:'XML字面表示回归',sheets:[{name:'原文',headers:['原文显示'],rows:[[original]]}],source_refs:[{asset_id:id,page:1}]},{signal});
+ const a=extras.artifacts.get(exported.artifactId);assert.equal(a.serializationTransformations[0].original,original);assert(a.serializationTransformations[0].displayed.includes('⟦U+FFFE⟧'));assert(fs.existsSync(path.join(path.dirname(a.path),'source-character-transformations.json')));assert((await extras.inspect({artifact_id:a.artifactId},{signal})).exportIntegrityPassed);docs.asset(id);
+});

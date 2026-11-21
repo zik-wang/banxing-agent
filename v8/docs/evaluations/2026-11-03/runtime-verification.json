@@ -1,0 +1,40 @@
+{
+  "productCommit": "abfbf4ed76b7aa132baec0d96eb9ca07b8ffc92c",
+  "snapshotBase": "5ef2184284fb9cfe5917db1a3c25972b2311f4e8",
+  "trackedSnapshotFiles": 541,
+  "fingerprint": "06c6047943ddc49a8d7ae5f889bdc597dc43e1c91e5d1177ecea15d019625d4a",
+  "results": [
+    {
+      "path": "contract-review/chat-summary.mjs",
+      "snapshotMatchesCurrent": true
+    },
+    {
+      "path": "contract-review/host-integration.mjs",
+      "snapshotMatchesCurrent": true
+    },
+    {
+      "path": "contract-review/temporary-test.mjs",
+      "snapshotMatchesCurrent": true
+    },
+    {
+      "path": "v8-tools/provider-config.mjs",
+      "snapshotMatchesCurrent": true
+    },
+    {
+      "path": "v8-tools/statistics-report.mjs",
+      "snapshotMatchesCurrent": true
+    },
+    {
+      "path": "v8-tools/table-statistics.mjs",
+      "snapshotMatchesCurrent": true
+    },
+    {
+      "path": "v8-tools/word-document.mjs",
+      "snapshotMatchesCurrent": true
+    },
+    {
+      "path": "v8-web/model-connections.mjs",
+      "snapshotMatchesCurrent": true
+    }
+  ]
+}

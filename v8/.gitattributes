@@ -1,0 +1,6 @@
+# Preserve original public input bytes and Windows launcher line endings.
+examples/mentor/desnz-202509.csv -text
+START-WINDOWS.cmd -text
+# Preserve original QA fixture bytes and PDF cross-reference offsets on Windows.
+tests/fixtures/**/*.pdf binary
+tests/fixtures/**/*.xlsx binary

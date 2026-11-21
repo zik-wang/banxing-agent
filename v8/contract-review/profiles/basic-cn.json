@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-cn",
+  "version": "1.0.0",
+  "title": "中国大陆合同基础文本核查",
+  "contract_type": "basic_cn",
+  "region": "中国大陆",
+  "scope_description": "合同类型未知时仅做基础文本核查，不代表任何合同类型专项全覆盖",
+  "title_pattern": "合同|协议",
+  "checks": [
+    {
+      "id": "B01",
+      "title": "主体与明确字段",
+      "pattern": "主体|甲方|乙方|签署|邮箱",
+      "trigger": "明确字段缺失或主体不清",
+      "safeguards": "核对材料中实际填写，不猜事实",
+      "consequence": "义务主体和沟通不确定",
+      "acceptable_alternative": "补齐明确字段",
+      "positive_example": "通知邮箱留空，列缺口",
+      "negative_example": "有完整地址和联系人，不按无邮箱认定无通知路径"
+    },
+    {
+      "id": "B02",
+      "title": "义务标的与期限",
+      "pattern": "标的|服务|数量|交付|期限",
+      "trigger": "义务对象或期限不清",
+      "safeguards": "检查条件、例外和附件",
+      "consequence": "履行范围可能争议",
+      "acceptable_alternative": "明确对象和触发期限",
+      "positive_example": "交付内容无可识别范围，列待确认",
+      "negative_example": "另有明确附件，不忽略附件内容"
+    },
+    {
+      "id": "B03",
+      "title": "金额口径与付款",
+      "pattern": "金额|总价|付款|税|担保",
+      "trigger": "明确计算不一致或资金安排缺保障",
+      "safeguards": "先核币种税费单位与担保",
+      "consequence": "多付或资金风险",
+      "acceptable_alternative": "明确口径和保障",
+      "positive_example": "同口径大小写不一致，列事实",
+      "negative_example": "币种不同不直接作数额冲突"
+    },
+    {
+      "id": "B04",
+      "title": "附件与依赖",
+      "pattern": "附件|配合|资料|条件",
+      "trigger": "被引用材料未提供",
+      "safeguards": "核对本次清单与版本",
+      "consequence": "无法核对履行条件",
+      "acceptable_alternative": "补齐对应材料",
+      "positive_example": "引用附件未提供，列缺口",
+      "negative_example": "已提供且可定位，记已提供"
+    },
+    {
+      "id": "B05",
+      "title": "责任例外与救济",
+      "pattern": "责任|免责|违约|退款|解除",
+      "trigger": "义务可能被免责或救济限制",
+      "safeguards": "查远处保障、例外及适用主体",
+      "consequence": "救济可能落空",
+      "acceptable_alternative": "明确条件、流程及例外",
+      "positive_example": "解除后无退款流程，列候选",
+      "negative_example": "独立退款条款存在，不报完全无救济"
+    },
+    {
+      "id": "B06",
+      "title": "保密知识产权与争议",
+      "pattern": "保密|知识产权|侵权|争议|管辖",
+      "trigger": "权利边界或争议流程不明确",
+      "safeguards": "结合必要披露例外与授权范围",
+      "consequence": "使用或争议成本可能增加",
+      "acceptable_alternative": "明确权利范围与可操作争议路径",
+      "positive_example": "全面保密无必要披露安排，列待核",
+      "negative_example": "律师审计披露明确允许，不报例外缺失"
+    }
+  ],
+  "cross_checks": [
+    {
+      "title": "义务与例外保障的范围及先后条件",
+      "pattern": "付款|担保|保函|验收|交付|例外|除非|但是|退款|解除"
+    },
+    {
+      "title": "主附件、责任限制与独立救济",
+      "pattern": "附件|优先|责任|免责|保密|披露|终止|退款|质保"
+    }
+  ],
+  "program_check_map": {
+    "C03": "B03",
+    "C04": "B03",
+    "C07": "B04",
+    "C08": "B05",
+    "C09": "B05",
+    "C16": "B01"
+  },
+  "local_signal_checks": {
+    "范围与义务风险": "B02",
+    "支付与财务风险": "B03",
+    "责任与救济风险": "B05"
+  }
+}

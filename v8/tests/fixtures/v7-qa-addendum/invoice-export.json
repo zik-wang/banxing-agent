@@ -1,0 +1,55 @@
+{
+  "title": "发票汇总表（3张）",
+  "content": "",
+  "sheets": [
+    {
+      "name": "发票汇总",
+      "headers": [
+        "发票号码",
+        "开票日期",
+        "销售方",
+        "购买方",
+        "币种",
+        "不含税金额",
+        "税额",
+        "价税合计",
+        "备注"
+      ],
+      "rows": [
+        [
+          "QA-20261026-001",
+          "2026-10-26",
+          "QA Office Supplies Ltd",
+          "QA Buyer 1",
+          "CNY",
+          100,
+          6,
+          106,
+          "NOT VALID FOR PAYMENT"
+        ],
+        [
+          "QA-20261026-002",
+          "2026-10-26",
+          "QA Office Supplies Ltd",
+          "QA Buyer 2",
+          "CNY",
+          200,
+          12,
+          212,
+          "NOT VALID FOR PAYMENT"
+        ],
+        [
+          "QA-20261026-003",
+          "2026-10-26",
+          "QA Office Supplies Ltd",
+          "QA Buyer 3",
+          "CNY",
+          300,
+          18,
+          318,
+          "NOT VALID FOR PAYMENT"
+        ]
+      ]
+    }
+  ]
+}

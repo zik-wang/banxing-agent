@@ -1,0 +1,646 @@
+{
+  "kind": "ACTUAL_EDGE_OFFLINE_FILE_PAGE_AND_DOWNLOADS",
+  "sections": 10,
+  "expectedSections": 10,
+  "primaryDownloads": 10,
+  "downloadResults": [
+    {
+      "caseId": "03",
+      "primary": true,
+      "name": "服务业扩能提质政策文本与吹风会要点梳理.pdf",
+      "bytes": 301199,
+      "sha256": "b20e42adf520e432d63a1efb2ae4115a06479cb7549e43ecfd145e0ecc523bdd",
+      "expectedSha256": "b20e42adf520e432d63a1efb2ae4115a06479cb7549e43ecfd145e0ecc523bdd",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "03",
+      "primary": false,
+      "name": "服务业扩能提质政策文本与吹风会要点梳理.html",
+      "bytes": 8476,
+      "sha256": "33cb931b5dbd06c0226f1f8849cc878a7f32d3f613cf7e2e71f742c2a2131c22",
+      "expectedSha256": "33cb931b5dbd06c0226f1f8849cc878a7f32d3f613cf7e2e71f742c2a2131c22",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "03",
+      "primary": false,
+      "name": "服务业扩能提质政策文本与吹风会要点梳理.docx",
+      "bytes": 11765,
+      "sha256": "4b00c6d2311f8530408c5bdb8243e8512602d47f3fa8a482efce05ce05765cbd",
+      "expectedSha256": "4b00c6d2311f8530408c5bdb8243e8512602d47f3fa8a482efce05ce05765cbd",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "03",
+      "primary": false,
+      "name": "beijing-2025-03-13-常务会议.txt",
+      "bytes": 1776,
+      "sha256": "a98dc8f501bf940a89283b2d6e16fdf19c99f0dc7294cfc37f1c5cf77f324303",
+      "expectedSha256": "a98dc8f501bf940a89283b2d6e16fdf19c99f0dc7294cfc37f1c5cf77f324303",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "03",
+      "primary": false,
+      "name": "briefing-2026-04-28.txt",
+      "bytes": 38643,
+      "sha256": "5ec9ea742c794e08b6c0ed87636c722482f6e3785ac316cbf80e0ecad9bf0131",
+      "expectedSha256": "5ec9ea742c794e08b6c0ed87636c722482f6e3785ac316cbf80e0ecad9bf0131",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "03",
+      "primary": false,
+      "name": "guofa-2026-7.txt",
+      "bytes": 18434,
+      "sha256": "b3ec7b4a0711e17622e919e5dc484f0e77127fc451cfb95fd0414c59d67abf01",
+      "expectedSha256": "b3ec7b4a0711e17622e919e5dc484f0e77127fc451cfb95fd0414c59d67abf01",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "03",
+      "primary": false,
+      "name": "editorial-receipt.json",
+      "bytes": 596,
+      "sha256": "ee8ccb162349ae2e680d3a551231370008012cb6a2a2263a55ad88f5e6b27408",
+      "expectedSha256": "ee8ccb162349ae2e680d3a551231370008012cb6a2a2263a55ad88f5e6b27408",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "06",
+      "primary": true,
+      "name": "项目状态核查报告 070GXH2026096.pdf",
+      "bytes": 236189,
+      "sha256": "4ba34de1fc7d7cff534a9741c641fc685d32e0a1841f052c3586380975b16b2a",
+      "expectedSha256": "4ba34de1fc7d7cff534a9741c641fc685d32e0a1841f052c3586380975b16b2a",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "06",
+      "primary": false,
+      "name": "项目状态核查报告 070GXH2026096.html",
+      "bytes": 5817,
+      "sha256": "4260c6e334a45668193887356a46ddab7d627aa963a455e9c4e85957efaf97b4",
+      "expectedSha256": "4260c6e334a45668193887356a46ddab7d627aa963a455e9c4e85957efaf97b4",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "06",
+      "primary": false,
+      "name": "项目状态核查报告 070GXH2026096.docx",
+      "bytes": 10406,
+      "sha256": "98e39a663ec118139bc6335840eb997b7d9e84eddf67e46aa7a54c50f7b7fbea",
+      "expectedSha256": "98e39a663ec118139bc6335840eb997b7d9e84eddf67e46aa7a54c50f7b7fbea",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "06",
+      "primary": false,
+      "name": "pbc-070-tender-notice.txt",
+      "bytes": 6972,
+      "sha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8",
+      "expectedSha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "06",
+      "primary": false,
+      "name": "pbc-070GXH2026096-award-candidates.pdf",
+      "bytes": 150679,
+      "sha256": "2670388a0ffe1c10ab71ac7257ca81199cedc3eb8d155563c0846af568f3e2dd",
+      "expectedSha256": "2670388a0ffe1c10ab71ac7257ca81199cedc3eb8d155563c0846af568f3e2dd",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "06",
+      "primary": false,
+      "name": "editorial-receipt.json",
+      "bytes": 2595,
+      "sha256": "f5a280a0b44667010c6ef518005e400a83a13bd2c115aff023721cd11dfb2a66",
+      "expectedSha256": "f5a280a0b44667010c6ef518005e400a83a13bd2c115aff023721cd11dfb2a66",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "08",
+      "primary": true,
+      "name": "成方金融2026年服务器采购项目更正公告对比报告.pdf",
+      "bytes": 238730,
+      "sha256": "c8be3620748d67b2185ad32cbb5fb10b9ba71e6fea2b65df15000f8c478c626a",
+      "expectedSha256": "c8be3620748d67b2185ad32cbb5fb10b9ba71e6fea2b65df15000f8c478c626a",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "08",
+      "primary": false,
+      "name": "成方金融2026年服务器采购项目更正公告对比报告.html",
+      "bytes": 7140,
+      "sha256": "41c95b0d91820434f22dd689ed415ce2377c95ffd991ca3fa0aac14e963607d1",
+      "expectedSha256": "41c95b0d91820434f22dd689ed415ce2377c95ffd991ca3fa0aac14e963607d1",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "08",
+      "primary": false,
+      "name": "成方金融2026年服务器采购项目更正公告对比报告.docx",
+      "bytes": 11042,
+      "sha256": "ee427b983adfb57069ad206f647d2ec7d6c809e43799ebd28773acc7463c3714",
+      "expectedSha256": "ee427b983adfb57069ad206f647d2ec7d6c809e43799ebd28773acc7463c3714",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "08",
+      "primary": false,
+      "name": "pbc-070-correction.txt",
+      "bytes": 7562,
+      "sha256": "e4d728b029ce61e4a271e0c1df8db37b34d176a6e4d027c475255e384099b3d2",
+      "expectedSha256": "e4d728b029ce61e4a271e0c1df8db37b34d176a6e4d027c475255e384099b3d2",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "08",
+      "primary": false,
+      "name": "pbc-070-tender-notice.txt",
+      "bytes": 6972,
+      "sha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8",
+      "expectedSha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "08",
+      "primary": false,
+      "name": "editorial-receipt.json",
+      "bytes": 603,
+      "sha256": "45c8925277ba0fadd2d100d53e0d06932eb3da32ded9b3dac70143a97ae58a4e",
+      "expectedSha256": "45c8925277ba0fadd2d100d53e0d06932eb3da32ded9b3dac70143a97ae58a4e",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "10",
+      "primary": true,
+      "name": "合并报表.xlsx",
+      "bytes": 7259,
+      "sha256": "fc5b0d2bb8416aba0568d75f9e75ddce0a8136a722a7a4656161db93539f03bb",
+      "expectedSha256": "fc5b0d2bb8416aba0568d75f9e75ddce0a8136a722a7a4656161db93539f03bb",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "10",
+      "primary": false,
+      "name": "采购成交A.xlsx",
+      "bytes": 8015,
+      "sha256": "daa051ee302267cb7adbef0b94bd76c0da1e5c6dcf4a6fbb25c5248140c15fc2",
+      "expectedSha256": "daa051ee302267cb7adbef0b94bd76c0da1e5c6dcf4a6fbb25c5248140c15fc2",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "10",
+      "primary": false,
+      "name": "采购成交B.xlsx",
+      "bytes": 7023,
+      "sha256": "fecec0257a8d5338969778ccdf8121deeee50494240a8577613accb9c979c704",
+      "expectedSha256": "fecec0257a8d5338969778ccdf8121deeee50494240a8577613accb9c979c704",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "10",
+      "primary": false,
+      "name": "s10-output-check.json",
+      "bytes": 554,
+      "sha256": "35aa55246d1a6edd04edbb4ecff037db421e96964d8a8d8ed1a7a26be25c63a8",
+      "expectedSha256": "35aa55246d1a6edd04edbb4ecff037db421e96964d8a8d8ed1a7a26be25c63a8",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "11",
+      "primary": true,
+      "name": "FunASR 项目阶段工作简报.pdf",
+      "bytes": 323141,
+      "sha256": "83448a84251e51728ba7c39318598f8713ab92aa02180cc49c775858670601f6",
+      "expectedSha256": "83448a84251e51728ba7c39318598f8713ab92aa02180cc49c775858670601f6",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "11",
+      "primary": false,
+      "name": "FunASR 项目阶段工作简报.html",
+      "bytes": 8934,
+      "sha256": "27932019fbcab604c73273d4098ce8fcae739e1dfe989a6eea9755f9be6b8a14",
+      "expectedSha256": "27932019fbcab604c73273d4098ce8fcae739e1dfe989a6eea9755f9be6b8a14",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "11",
+      "primary": false,
+      "name": "FunASR 项目阶段工作简报.docx",
+      "bytes": 12549,
+      "sha256": "85265eecabf1a1022ee3de39d987a514cdc78a08f156d95d28530bb687784eab",
+      "expectedSha256": "85265eecabf1a1022ee3de39d987a514cdc78a08f156d95d28530bb687784eab",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "11",
+      "primary": false,
+      "name": "FunASR-releases-snapshot.json",
+      "bytes": 118192,
+      "sha256": "686137cfc924e816cb81578b19cdb1cad383751ab07d166a207ee4d2aee7c1a2",
+      "expectedSha256": "686137cfc924e816cb81578b19cdb1cad383751ab07d166a207ee4d2aee7c1a2",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "11",
+      "primary": false,
+      "name": "editorial-receipt.json",
+      "bytes": 1227,
+      "sha256": "8c4a5f666bdfd8ea1c144779964c3fc30bab8dcca99895b8418aac0200813620",
+      "expectedSha256": "8c4a5f666bdfd8ea1c144779964c3fc30bab8dcca99895b8418aac0200813620",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "13",
+      "primary": true,
+      "name": "三份 README 版本、许可与能力对比报告.pdf",
+      "bytes": 239960,
+      "sha256": "e8154aa99067cf06c882347ce43574810eadb8fc05fcb52e65820061878ebf73",
+      "expectedSha256": "e8154aa99067cf06c882347ce43574810eadb8fc05fcb52e65820061878ebf73",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "13",
+      "primary": false,
+      "name": "三份 README 版本、许可与能力对比报告.html",
+      "bytes": 7897,
+      "sha256": "c0d5614b990307934851292acde41138c437da27fa70cf84315aa62c65877dab",
+      "expectedSha256": "c0d5614b990307934851292acde41138c437da27fa70cf84315aa62c65877dab",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "13",
+      "primary": false,
+      "name": "三份 README 版本、许可与能力对比报告.docx",
+      "bytes": 11405,
+      "sha256": "a7351d7c581e4bc68203e6d7d7b94ace0cf557cdaaa8a99c887db9ae14fcea6a",
+      "expectedSha256": "a7351d7c581e4bc68203e6d7d7b94ace0cf557cdaaa8a99c887db9ae14fcea6a",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "13",
+      "primary": false,
+      "name": "CosyVoice-README.md",
+      "bytes": 13764,
+      "sha256": "66436370172c2830ed98aa643b31898c65e16eee14ade68f00828d21fae602e0",
+      "expectedSha256": "66436370172c2830ed98aa643b31898c65e16eee14ade68f00828d21fae602e0",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "13",
+      "primary": false,
+      "name": "FunASR-README.md",
+      "bytes": 24205,
+      "sha256": "fcb21ed91e803ba153b3f8863b8c15f2b0d3ef227a7f30ab03da0b1986690cdc",
+      "expectedSha256": "fcb21ed91e803ba153b3f8863b8c15f2b0d3ef227a7f30ab03da0b1986690cdc",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "13",
+      "primary": false,
+      "name": "livekit-agents-README.md",
+      "bytes": 17010,
+      "sha256": "003e4b6ee5a401945fa1542c41fa4cf7592e6cee873809426852a45a2018c604",
+      "expectedSha256": "003e4b6ee5a401945fa1542c41fa4cf7592e6cee873809426852a45a2018c604",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "13",
+      "primary": false,
+      "name": "editorial-receipt.json",
+      "bytes": 589,
+      "sha256": "46a58eee2685ab9deca35cd8d43b377df9647c87cf1b5e027f78a566d8e271ef",
+      "expectedSha256": "46a58eee2685ab9deca35cd8d43b377df9647c87cf1b5e027f78a566d8e271ef",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "14",
+      "primary": true,
+      "name": "公开说明入库及关键词检索报告.pdf",
+      "bytes": 259201,
+      "sha256": "b13774661abf149c2e0d3ee577d55e16d266b8e6cc3c31a2ede9826d6e7d94f3",
+      "expectedSha256": "b13774661abf149c2e0d3ee577d55e16d266b8e6cc3c31a2ede9826d6e7d94f3",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "14",
+      "primary": false,
+      "name": "公开说明入库及关键词检索报告.html",
+      "bytes": 8552,
+      "sha256": "c117d96dfc8d6d97ae00143d4c20559a0158ed90ab608cb30a3e3c4430a7aa46",
+      "expectedSha256": "c117d96dfc8d6d97ae00143d4c20559a0158ed90ab608cb30a3e3c4430a7aa46",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "14",
+      "primary": false,
+      "name": "公开说明入库及关键词检索报告.docx",
+      "bytes": 11907,
+      "sha256": "187b58486c6751d592f1c3bc8226cc5b6ccaed72605412b914a21ae47345aea9",
+      "expectedSha256": "187b58486c6751d592f1c3bc8226cc5b6ccaed72605412b914a21ae47345aea9",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "14",
+      "primary": false,
+      "name": "gitlab-onboarding.md",
+      "bytes": 10808,
+      "sha256": "6af4a947df52cdd6f6208e1bc3bcb57c8901bf9d4711ddc8f6047e942296c873",
+      "expectedSha256": "6af4a947df52cdd6f6208e1bc3bcb57c8901bf9d4711ddc8f6047e942296c873",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "14",
+      "primary": false,
+      "name": "sta-2024-11-notice.txt",
+      "bytes": 9265,
+      "sha256": "c408b529f723390203515c87aef9902879c3aa7ca6bec500e53075948358ea02",
+      "expectedSha256": "c408b529f723390203515c87aef9902879c3aa7ca6bec500e53075948358ea02",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "14",
+      "primary": false,
+      "name": "editorial-receipt.json",
+      "bytes": 581,
+      "sha256": "45348a8ea64d52a2aa0cd3d25e635afa45fde5bdbb3f8b5dde0e444fca310202",
+      "expectedSha256": "45348a8ea64d52a2aa0cd3d25e635afa45fde5bdbb3f8b5dde0e444fca310202",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "14",
+      "primary": false,
+      "name": "result.json",
+      "bytes": 112682,
+      "sha256": "26bf158bdb60049b9d912c1ccfa19377df326356b5c1f0db328f8b3dee670efb",
+      "expectedSha256": "26bf158bdb60049b9d912c1ccfa19377df326356b5c1f0db328f8b3dee670efb",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "15",
+      "primary": true,
+      "name": "清单.xlsx",
+      "bytes": 5949,
+      "sha256": "ab1acaee8d6b229b71fda0f937c021bbbf71410dbde1133d763b8c709021ebff",
+      "expectedSha256": "ab1acaee8d6b229b71fda0f937c021bbbf71410dbde1133d763b8c709021ebff",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "15",
+      "primary": false,
+      "name": "公开合同到期事实清单.csv",
+      "bytes": 3238,
+      "sha256": "d5ab1f1e7a8c1fe147738d0c4a473b5c783954f1f4ae4963082a1f1f3e66c9e5",
+      "expectedSha256": "d5ab1f1e7a8c1fe147738d0c4a473b5c783954f1f4ae4963082a1f1f3e66c9e5",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "15",
+      "primary": false,
+      "name": "公开合同到期事实清单.json",
+      "bytes": 111069,
+      "sha256": "015897abde6632902853f18a2cf59c62148d99dcfd5af99c5ad28d90971b3ecc",
+      "expectedSha256": "015897abde6632902853f18a2cf59c62148d99dcfd5af99c5ad28d90971b3ecc",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "15",
+      "primary": false,
+      "name": "公开合同到期事实清单.md",
+      "bytes": 3692,
+      "sha256": "ff4a77d3d32733ba828b21f117cfd1962f207e7ddc155442f270b1b18f7d2081",
+      "expectedSha256": "ff4a77d3d32733ba828b21f117cfd1962f207e7ddc155442f270b1b18f7d2081",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "15",
+      "primary": false,
+      "name": "公开合同到期事实清单.docx",
+      "bytes": 11721,
+      "sha256": "898106f511f934ac0fbbeac6dc2efcc25cb40515e044cd7a71d441782dc6dd48",
+      "expectedSha256": "898106f511f934ac0fbbeac6dc2efcc25cb40515e044cd7a71d441782dc6dd48",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "15",
+      "primary": false,
+      "name": "public-contract-expiry.pdf",
+      "bytes": 36223,
+      "sha256": "359492ec59d9438cf52032d942399929b045cc8f77d95e4eb6b89ba569f55fe2",
+      "expectedSha256": "359492ec59d9438cf52032d942399929b045cc8f77d95e4eb6b89ba569f55fe2",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "15",
+      "primary": false,
+      "name": "independent-field-readback.json",
+      "bytes": 10146,
+      "sha256": "c3524fa5d27dd744c4b3d079455a9c4a8e55d882442ca1512d83716a23fff273",
+      "expectedSha256": "c3524fa5d27dd744c4b3d079455a9c4a8e55d882442ca1512d83716a23fff273",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "15",
+      "primary": false,
+      "name": "field-evidence-validation.json",
+      "bytes": 20941,
+      "sha256": "8f46db3f6ed407829b979520ee84bdf0f4b15e8aecfdce8ddfa92a9c839bddcd",
+      "expectedSha256": "8f46db3f6ed407829b979520ee84bdf0f4b15e8aecfdce8ddfa92a9c839bddcd",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "18",
+      "primary": true,
+      "name": "真实录音识别原文_未经人工核听.txt",
+      "bytes": 13567,
+      "sha256": "0da99c524d7ced815671e3f78e89f1534dd8c820b16622c62ac0d622ad9a2776",
+      "expectedSha256": "0da99c524d7ced815671e3f78e89f1534dd8c820b16622c62ac0d622ad9a2776",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "18",
+      "primary": false,
+      "name": "真实录音分段字幕_时间范围来自输入切段.srt",
+      "bytes": 14197,
+      "sha256": "f2282e982c8d1b545b0f7b4c82bd208cdf35e82369ad9340056652638c234573",
+      "expectedSha256": "f2282e982c8d1b545b0f7b4c82bd208cdf35e82369ad9340056652638c234573",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "18",
+      "primary": false,
+      "name": "真实录音识别原文_未经人工核听.docx",
+      "bytes": 14840,
+      "sha256": "237f54fdcbf7e854a7dac6893f7692ce749eec17a963055525a905e67fb65a32",
+      "expectedSha256": "237f54fdcbf7e854a7dac6893f7692ce749eec17a963055525a905e67fb65a32",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "19",
+      "primary": true,
+      "name": "修改副本-CSVExporter-pyqtgraph-0.11.0.py",
+      "bytes": 2925,
+      "sha256": "4b87bddffd62d27923bfdeadf15289c1e37d67025e7335620ba631943defeb39",
+      "expectedSha256": "4b87bddffd62d27923bfdeadf15289c1e37d67025e7335620ba631943defeb39",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "19",
+      "primary": false,
+      "name": "CSVExporter-pyqtgraph-0.11.0.py.patch",
+      "bytes": 389,
+      "sha256": "388cffad6727a6c0a1fd7c698da96f0a6d4af1e57fdc261880437b0307150d19",
+      "expectedSha256": "388cffad6727a6c0a1fd7c698da96f0a6d4af1e57fdc261880437b0307150d19",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "19",
+      "primary": false,
+      "name": "CSVExporter-pyqtgraph-0.11.0.py",
+      "bytes": 2907,
+      "sha256": "e8f88e8b08f80c98cfa63283551616529e3391a83bb7f4615843a156dfefbb76",
+      "expectedSha256": "e8f88e8b08f80c98cfa63283551616529e3391a83bb7f4615843a156dfefbb76",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "19",
+      "primary": false,
+      "name": "pyqtgraph-issue-1081.json",
+      "bytes": 5546,
+      "sha256": "0d2d9db1df9b6af3b86d4fd5dce1b63a93209810e3c85f0a26ccf5705e9a69ea",
+      "expectedSha256": "0d2d9db1df9b6af3b86d4fd5dce1b63a93209810e3c85f0a26ccf5705e9a69ea",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "19",
+      "primary": false,
+      "name": "s19-static-check.json",
+      "bytes": 735,
+      "sha256": "81a01ea716c63fc5e84e9e7eea1b5d52069cdbdda55bd93d39e87be2503eaec7",
+      "expectedSha256": "81a01ea716c63fc5e84e9e7eea1b5d52069cdbdda55bd93d39e87be2503eaec7",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "",
+      "primary": false,
+      "name": "cost-and-token-report.json",
+      "bytes": 116182,
+      "sha256": "1fdb371b04427e9932ab13a918238a7f99e3f210079c92f743630616e549f8b1",
+      "expectedSha256": "1fdb371b04427e9932ab13a918238a7f99e3f210079c92f743630616e549f8b1",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "",
+      "primary": false,
+      "name": "source-integrity-final.json",
+      "bytes": 5242,
+      "sha256": "c15524090f207769a66010877aa361de791d1b876873a8c0c54333dd1cba4582",
+      "expectedSha256": "c15524090f207769a66010877aa361de791d1b876873a8c0c54333dd1cba4582",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "",
+      "primary": false,
+      "name": "reviews.json",
+      "bytes": 11836,
+      "sha256": "78a85ebe076874e8931b312acdcbb136e1e3f2778a6fb6c48f2110c9030c868c",
+      "expectedSha256": "78a85ebe076874e8931b312acdcbb136e1e3f2778a6fb6c48f2110c9030c868c",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "",
+      "primary": false,
+      "name": "runtime-fingerprint.json",
+      "bytes": 622,
+      "sha256": "46345dd2d99cd46660825ce23373e32e836cab78ce4697f9ca012552f1e51461",
+      "expectedSha256": "46345dd2d99cd46660825ce23373e32e836cab78ce4697f9ca012552f1e51461",
+      "passed": true,
+      "downloadFailure": null
+    },
+    {
+      "caseId": "",
+      "primary": false,
+      "name": "reading-layout-final.json",
+      "bytes": 37813,
+      "sha256": "6a63969966f44df944de51fc18ddfd6d6ea31bd4b795ba790b38f5d5e6042d39",
+      "expectedSha256": "6a63969966f44df944de51fc18ddfd6d6ea31bd4b795ba790b38f5d5e6042d39",
+      "passed": true,
+      "downloadFailure": null
+    }
+  ],
+  "audioClipDuration": 20,
+  "pageErrors": [],
+  "externalRequests": [],
+  "desktopOverflow": false,
+  "mobileOverflow": false,
+  "allDownloadLinksInline": true,
+  "downloadLinkCount": 63,
+  "passed": true
+}

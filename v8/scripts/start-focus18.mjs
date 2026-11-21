@@ -1,0 +1,8 @@
+import fs from 'node:fs';import path from 'node:path';
+if(process.env.QA_NAMESPACE!=='dev-focus18')throw Error('Requires isolated dev-focus18 namespace');
+const out=path.resolve('qa-output/focus18');fs.mkdirSync(out,{recursive:true});const journal=path.join(out,'model-requests.jsonl'),limit=Number(process.env.FOCUS18_MAX_MODEL_REQUESTS||64),original=globalThis.fetch;
+let calls=fs.existsSync(journal)?fs.readFileSync(journal,'utf8').split('\n').filter(Boolean).map(JSON.parse).filter(e=>e.event==='start').length:0;
+if(!Number.isInteger(limit)||limit<1||limit>72)throw Error('Invalid bounded developer budget');
+if(limit>64&&(!fs.existsSync(journal)||!fs.readFileSync(journal,'utf8').split('\n').filter(Boolean).map(JSON.parse).some(e=>e.event==='budget_extension'&&e.to===limit)))fs.appendFileSync(journal,JSON.stringify({event:'budget_extension',from:64,to:limit,reason:'One bounded regression retest for static-code delivery discovered during this authorized batch',at:new Date().toISOString()})+'\n');
+globalThis.fetch=async(input,init)=>{const url=String(input?.url||input),model=/\/chat\/completions(?:\?|$)/.test(url);if(!model)return original(input,init);if(calls>=limit)throw Error('DEVELOPER_FOCUS18_MODEL_BUDGET_EXHAUSTED');const id=++calls,start=Date.now();fs.appendFileSync(journal,JSON.stringify({event:'start',id,at:new Date().toISOString()})+'\n');try{const r=await original(input,init);fs.appendFileSync(journal,JSON.stringify({event:'headers',id,status:r.status,elapsedMs:Date.now()-start})+'\n');return r;}catch(e){fs.appendFileSync(journal,JSON.stringify({event:'error',id,error:e.name,elapsedMs:Date.now()-start})+'\n');throw e;}};
+await import('./start-qa.mjs');

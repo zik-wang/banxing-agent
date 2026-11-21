@@ -1,0 +1,10 @@
+[
+ {"id":"tax-inclusive","kind":"synthetic_regression","source":"发票A：金额(不含税)300元，税额18元，价税合计318元。发票B：金额(不含税)300元，税额18元，价税合计318元。","request":"算一下两张票可报销的含税总金额，不要把税前金额当总额。"},
+ {"id":"mixed-units","kind":"synthetic","source":"采购合同：设备价款1.25亿元；安装费360万元；培训费48,000元。三项均为人民币含税，均需计入本次合同总额。","request":"计算含税合同总额，统一用元表示。"},
+ {"id":"decimal-refund","kind":"synthetic","source":"报销明细：人民币0.1元；人民币0.2元；人民币100.35元。另有退款人民币20.05元。","request":"扣掉退款后，实际报销多少人民币？"},
+ {"id":"payment-percent","kind":"synthetic","source":"合同含税价款人民币286.75万元。首付款为合同含税价款的30%，验收后支付其余款项。","request":"首付款是多少元？本次只算首付款。"},
+ {"id":"different-currencies","kind":"synthetic","source":"费用甲：人民币300元；费用乙：USD 20元；费用丙：人民币36元。合同未约定汇率。","request":"汇总本次费用；没有汇率不要合成单一人民币总计，按币种分开。"},
+ {"id":"unknown-unit","kind":"synthetic_negative","source":"待报销清单：交通费120，住宿费800。币种和计价单位未填写，没有发票。","request":"请给本次报销人民币总金额；依据不足时说明待补什么。"},
+ {"id":"quoted-total-trap","kind":"synthetic_negative","source":"合同明细：设备价款人民币125万元，安装费人民币8万元。附件旧版曾写合计人民币130万元，本次应按前述两项现行明细核算。","request":"算现行合同总额，不沿用旧版合计。"},
+ {"id":"holdout-perturbed","kind":"synthetic_heldout_not_used_in_rules","source":"报销票甲价税合计人民币241.13元（税前227.48元）；票乙价税合计人民币73.29元（税前69.14元）；未审批的预估费用人民币900元，本次不报。","request":"仅汇总两张已开票的含税报销金额，不含预估。"}
+]

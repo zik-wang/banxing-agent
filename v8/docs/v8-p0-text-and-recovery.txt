@@ -1,0 +1,15 @@
+V8-TOOLS-FIX-R1 P0
+
+基线8b8a01a；仅V8独立CLI改动，旧产品入口仍为V7，未迁移UI。
+
+read_text_range：TXT/MD/JSON/PY等均作为数据，验证每次读取的原件哈希，返回解码编码、UTF16字符单位、准确原文/行号/字符区间、总量及nextOffset/unreadTailChars。UTF-8或带BOM的UTF-16；错误编码不替换字符。分批读完不代表语义正确。源文件从不执行。
+
+read_json_range：RFC6901路径、直接子项分页、原文范围。大项给出结构继续定位与字符读取建议，不声称读取完整。JSON投影使用JavaScript类型，原文quote/源字符范围是保留精确数字与转义的依据。
+
+search_document：字面关键词匹配，返回匹配跨度和真实行/上下文位置。零命中不能证明语义不存在。暂只支持文本原件；PDF读取仍由extract_pdf_text按物理页执行。
+
+inspect_material不再把文本、音频、未知文件交给PIL。读取器选择来自类型与注册工具，不按场景编号分派。
+
+Harness：相同失败默认最多执行两次；连续五次没有取得新信息停止，空发现及重复已知发现不算新进展。预算、取消和模型故障都保存带原因的blocked/partial答复和已有工具结果，不把这些标记为业务完成。
+
+测试：tests/v8-text-tools.test.mjs。新批次p0-real-source-results.json是七场景14个文本原件真实离线读取/原文恢复检查，无模型请求。后续P1及真实模型回归另行记录，不用P0读取通过代替业务验收。

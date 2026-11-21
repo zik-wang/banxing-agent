@@ -1,0 +1,16 @@
+{
+  "baseCommit": "1f1e06db3a6d808996297bb70d62594011ad09b7",
+  "isExactUnmodifiedCommit": false,
+  "taskLocalTransportPatches": [
+    {
+      "path": "runtime\\v8-tools\\long-request-fetch.mjs",
+      "sha256": "18497e297ac3630a014c6c4142da4b5ae2d4071da3ad17c7b659b3ebf8628798"
+    },
+    {
+      "path": "runtime\\v8-tools\\model-transport.mjs",
+      "sha256": "71a30b5d5a85ff3b9a5e16560ee1234d980e1505b84db7f40baedd5abeb5b3e2"
+    }
+  ],
+  "productionPortsModified": false,
+  "notes": "实验运行副本加入长请求/SSE传输及限速；未部署8884或8964，不将其归因于同配置基准。"
+}

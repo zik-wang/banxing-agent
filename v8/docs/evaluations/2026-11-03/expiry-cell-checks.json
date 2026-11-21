@@ -1,0 +1,191 @@
+{
+  "kind": "LITERAL_PDF_TEXT_VS_SAVED_CELLS_NOT_SEMANTIC_RECALL",
+  "artifactSha256": "aa35234d00e52eb55387a7c5ca3b302711489474c4b3f4cae3d66a5c4b1bbaee",
+  "sheet": "原文事实清单",
+  "matchedRows": 17,
+  "comparedRows": 17,
+  "checks": [
+    {
+      "range": "A4:D4",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "ERP",
+        "Business World",
+        "Unit 4",
+        "31/03/2024"
+      ]
+    },
+    {
+      "range": "A5:D5",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Finance",
+        "Business World",
+        "Unit 4",
+        "31/03/2024"
+      ]
+    },
+    {
+      "range": "A6:D6",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "HR",
+        "Resourcelink",
+        "Zellis",
+        "24/10/2027"
+      ]
+    },
+    {
+      "range": "A7:D7",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Payroll",
+        "Resourcelink",
+        "Zellis",
+        "24/10/2027"
+      ]
+    },
+    {
+      "range": "A8:D8",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Recruitment",
+        "Talentlink",
+        "Tribepad",
+        "31/03/2024"
+      ]
+    },
+    {
+      "range": "A9:D9",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "CRM",
+        "Firmstep",
+        "Granicus",
+        "12/05/2023"
+      ]
+    },
+    {
+      "range": "A10:D10",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Contact centre",
+        "8x8",
+        "Voicenet Solution Ltd",
+        "31/03/2024"
+      ]
+    },
+    {
+      "range": "A11:D11",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Robotic process automation (RPA)",
+        "EBI AI Assistant",
+        "EBI Solutions Ltd",
+        "31/03/2023"
+      ]
+    },
+    {
+      "range": "A12:D12",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Revenue and benefits",
+        "Academy",
+        "Capita",
+        "31/12/2023"
+      ]
+    },
+    {
+      "range": "A13:D13",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Housing management",
+        "Locata Pro Plus",
+        "Locata (Housing Services) Limited",
+        "30/09/2036"
+      ]
+    },
+    {
+      "range": "A14:D14",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Social care case management",
+        "CareDirector & Liquidlogic Childrens System (LCS)",
+        "CareWorks Limited & Liquidlogic Ltc",
+        "30/11/2026 & 31/03/2028"
+      ]
+    },
+    {
+      "range": "A15:D15",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Planning",
+        "Idox Cloud Planning",
+        "Idox",
+        "30/11/2033"
+      ]
+    },
+    {
+      "range": "A16:D16",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Library management",
+        "Axiell",
+        "Axiell ALM Ltd",
+        "31/03/2033"
+      ]
+    },
+    {
+      "range": "A17:D17",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Electoral management",
+        "Xpress",
+        "Civica UK Ltd",
+        "31/03/2026"
+      ]
+    },
+    {
+      "range": "A18:D18",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Waste management",
+        "Collective",
+        "Bartec",
+        "31/07/2028"
+      ]
+    },
+    {
+      "range": "A19:D19",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Election management",
+        "Xpress",
+        "Civica UK Ltd",
+        "31/03/2026"
+      ]
+    },
+    {
+      "range": "A20:D20",
+      "literalFourFieldsMatch": true,
+      "actual": [
+        "Licensing and compliance",
+        "Idox Cloud Planning & M3",
+        "Idox & NEC Software Solutions UK Limited",
+        "30/11/2033 & 31/03/2024"
+      ]
+    }
+  ],
+  "yearOnlyAgreementStructuredInPrimaryList": false,
+  "additionalNonExpiryRow": {
+    "range": "A21:F21",
+    "content": [
+      "M365 E5 – 5500 licenses",
+      null,
+      null,
+      null,
+      "5860",
+      "p4:400–404"
+    ]
+  }
+}

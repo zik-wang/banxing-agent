@@ -1,0 +1,3 @@
+*.docx binary
+*.zip binary
+*.txt -text

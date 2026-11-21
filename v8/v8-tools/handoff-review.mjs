@@ -1,0 +1,14 @@
+import fs from 'node:fs';import path from 'node:path';import {digest} from './resource-space.mjs';import {combineDatasets} from './workbook-tools.mjs';import {tableStatistics} from './table-statistics.mjs';
+export async function prepareHandoffReview({config,docs,extras,books,harness}){
+ if(config.assistantRouting?.phase!=='verify')return null;
+ const receipts=[],issues=[],originals=[];
+ for(const a of [...extras.artifacts.values()]){const r=await harness.execute('read_artifact',{artifact_id:a.artifactId});if(r.status==='error'){issues.push({code:'DELIVERY_READ_FAILED',artifactId:a.artifactId,error:r.error});continue;}receipts.push({artifactId:a.artifactId,sha256:a.sha256,readbackPassed:r.data.readbackPassed===true,statistics:r.data.statistics||null});}
+ for(const a of docs.assets.values())if(a.kind==='workbook'){
+  const inspected=await harness.execute('inspect_material',{asset_id:a.id});if(inspected.status==='error'){issues.push({code:'SOURCE_INSPECT_FAILED',assetId:a.id});continue;}
+  const sheets=inspected.data.sheets||[];if(sheets.length!==1){issues.push({code:'SOURCE_SHEET_SELECTION_REQUIRED',assetId:a.id,sheets:sheets.map(s=>s.name)});continue;}
+  const r=await harness.execute('read_workbook',{asset_id:a.id,sheet:sheets[0].name});if(r.status==='error')issues.push({code:'SOURCE_READ_FAILED',assetId:a.id});else originals.push(books.tables.get(r.data.tableId));
+ }
+ const comparisons=[];for(const a of extras.artifacts.values()){const target=books?.tables.get(a.tableId);if(!target)continue;if(issues.length||!originals.length||target.revisions?.length||!['append','deduplicate'].includes(target.mode)){comparisons.push({artifactId:a.artifactId,state:'not_established',reason:'No complete original table set or supported unchanged merge operation'});continue;}
+  try{const ordered=[...originals].sort((a,b)=>(target.sourceIds||[]).indexOf(a.sourceId)-(target.sourceIds||[]).indexOf(b.sourceId));const expected=combineDatasets(ordered,{mode:target.mode,key_columns:target.keyColumns||[]}),actualHash=digest({headers:target.headers,rows:target.rows}),expectedHash=digest({headers:expected.headers,rows:expected.rows});comparisons.push({artifactId:a.artifactId,state:actualHash===expectedHash?'all_cells_equal':'mismatch',actualTableSha256:actualHash,expectedTableSha256:expectedHash,sourceTables:ordered.map(t=>tableStatistics(t,{assetId:t.sourceId,sha256:docs.assets.get(t.sourceId)?.sha256||null})),method:'Replay recorded merge mode/key over complete source rows; not semantic correctness proof'});}catch(e){issues.push({code:'MERGE_COMPARISON_UNAVAILABLE',error:e.message});}}
+ const receipt={version:1,deliveries:receipts,comparisons,issues,sourceCount:originals.length,semanticCorrectnessProven:false};receipt.id='REVIEW-'+digest(receipt);fs.writeFileSync(path.join(docs.directory,'handoff-review-receipt.json'),JSON.stringify(receipt,null,2));return receipt;
+}

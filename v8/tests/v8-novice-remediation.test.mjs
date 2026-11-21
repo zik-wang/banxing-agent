@@ -1,0 +1,56 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
+import {executionIntent} from '../v8-tools/execution-intent.mjs';
+import {businessStatistics} from '../v8-tools/statistics-report.mjs';import {tableStatistics} from '../v8-tools/table-statistics.mjs';
+import {EvidenceProgress} from '../v8-tools/evidence-progress.mjs';import {ToolHarness,runToolAgent} from '../v8-tools/harness.mjs';
+import {taskScope} from '../v8-web/task-scope.mjs';import {checkParagraph,enforceContentContract} from '../v8-tools/content-contract.mjs';
+import {reviewHighlights} from '../contract-review/chat-summary.mjs';
+import {spawnSync} from 'node:child_process';import {Continuity} from '../v8-tools/continuity.mjs';import {DocumentTools} from '../v8-tools/document-tools.mjs';import {DocumentExtras} from '../v8-tools/document-extras.mjs';import {WorkbookTools} from '../v8-tools/workbook-tools.mjs';import {DeliveryTools} from '../v8-tools/delivery-tools.mjs';import {TextTools} from '../v8-tools/text-tools.mjs';import {SourceRecordTools} from '../v8-tools/source-record-tools.mjs';
+const tmp=t=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),'v8-novice-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));return root;};
+test('business prose binds variant counts and exact decimals without presenting identifier totals as money',()=>{
+ const r=tableStatistics({id:'variant',headers:['序号','中标金额_元','来源说明'],rows:[[1,1.1,'公告'],[2,2.2,null]],inputTableRows:[2,1],removed:[{}]});const p=businessStatistics(r,{draft:'已支付999元，审计通过。',appendix:true});
+ assert(p.body.includes('2 + 1 = 3条输入'));assert(p.body.includes('2条数据、3个字段'));assert(p.body.includes('3.3元'));assert(p.body.includes('1条非空记录、1条空记录'));assert(!p.body.includes('序号'));assert(!p.body.includes('STAT-'));assert(!p.body.includes('999'));assert(p.body.includes('不等于实际付款'));assert(p.text.includes(r.receiptId));assert.equal(p.corrections.length,1);
+});
+test('mixed currency amounts are shown by currency and never summed into one business amount',()=>{const p=businessStatistics(tableStatistics({id:'fx',headers:['金额','币种'],rows:[[100,'CNY'],[20,'USD'],[.5,'USD']]}));assert(p.body.includes('CNY 100'));assert(p.body.includes('USD 20.5'));assert(!p.body.includes('120.5'));});
+test('ordinary table-to-Word conversion preserves table semantics instead of turning it into a statistics report',()=>{assert.equal(executionIntent('把统计表转成Word').wantsStatistics,false);assert.equal(executionIntent('给领导做个Word，带上刚才的统计').wantsStatistics,true);assert.equal(executionIntent('领导那个Word再给个PDF').operation,'convert');});
+test('unchanged evidence is detected despite new result IDs and varying query words',()=>{const p=new EvidenceProgress();for(let i=0;i<4;i++)p.observe('read_text_range',{asset_id:'A',query:String(i)},{status:'ok',data:{sourceSha256:'hash',start:0,end:10,text:'原文',resultId:String(i)}});assert(p.blocked);assert.equal(p.last.consecutiveUnchanged,3);});
+test('normal pagination, different region and newly returned evidence reset no-progress',()=>{const p=new EvidenceProgress();for(let i=0;i<12;i++){p.observe('read_text_range',{asset_id:'A',offset:i*10},{status:'ok',data:{sourceSha256:'hash',start:i*10,end:i*10+10,text:'重复页眉'}});assert(!p.blocked);}p.observe('vision_extract',{asset_id:'A',box:[1,2,3,4]},{status:'ok',data:{answer:'100'}});p.observe('vision_extract',{asset_id:'A',box:[1,2,4,5]},{status:'ok',data:{answer:'100'}});assert(!p.blocked);});
+test('repeated successful draft and export cannot hide a loop over the same two pages', () => {
+  const progress = new EvidenceProgress();
+  const artifact = {artifactId: 'report', sha256: 'version-one'};
+  const write = (tool, data = artifact) => progress.observe(tool, {}, {status: 'ok', data});
+  const read = offset => progress.observe('read_artifact', {artifact_id: 'report', offset}, {
+    status: 'ok', data: {...artifact, text: offset ? 'tail' : 'first page'}
+  });
+
+  write('save_draft');
+  write('export_document');
+  read(0);
+  read(5000);
+  assert.equal(progress.blocked, false);
+
+  write('save_draft', {...artifact, recoveredReceipt: true});
+  write('export_document');
+  read(0);
+  assert.equal(progress.blocked, true);
+
+  write('save_draft', {...artifact, sha256: 'version-two'});
+  assert.equal(progress.blocked, false);
+  assert.equal(progress.last.unchanged, false);
+});
+test('adaptive agent stops repeated successful reads without reintroducing a global request cap',async t=>{let calls=0;const h=new ToolHarness({directory:tmp(t),maxCalls:null,maxNoProgress:null,tools:[{name:'read_text_range',description:'Read',inputSchema:{type:'object',properties:{asset_id:{type:'string'},query:{type:'string'}}},execute:async()=>({sourceSha256:'same',start:0,end:4,text:'same',resultId:String(calls)})}]});const r=await runToolAgent({harness:h,maxRounds:null,request:'read',next:async()=>({role:'assistant',tool_calls:[{id:String(++calls),function:{name:'read_text_range',arguments:JSON.stringify({asset_id:'A',query:'different'+calls})}}]})});assert.equal(calls,4);assert.equal(r.termination.reason,'no_evidence_progress');assert(!r.answer.includes('预算已耗尽'));});
+test('explicit second material excludes the first and third at host intake, independent of model wording',()=>{const files=['A','B','C'].map(id=>({id,name:id,ref:{resourceId:id,revisionId:'v'}})),w={available:()=>true,space:{check:()=>({createdAt:'now'})}};const s=taskScope(w,{id:'c',files},'第一份不用了，只用第二份写一段给领导的汇报',{});assert.deepEqual(s.body.fileIds,['B']);assert.deepEqual(s.resolution.excludedFileIds,['A','C']);assert.equal(s.body.useConversationFiles,false);});
+test('unknown ordinal yields a concrete pending choice rather than guessing or using current output',()=>{const s=taskScope({available:()=>true,space:{check:()=>({})}},{id:'c',files:[{id:'A',ref:{resourceId:'A',revisionId:'v'}}]},'只用第二份写汇报',{});assert.equal(s.question.state,'pending');assert.deepEqual(s.body.fileIds,[]);});
+test('paragraph contract honors explicit length and detects an invented number',()=>{const i=executionIntent('只用第二份写一段给领导的汇报，80字内');assert.equal(i.length.maxChars,80);assert.equal(checkParagraph('金额999元。',i,'金额100元。').unexpectedNumbers[0],'999');assert.equal(checkParagraph('第一段\n\n第二段',i,'').paragraphsMet,false);});
+test('one bounded compression preserves original draft and source identity; rejected output remains partial-capable',async t=>{let calls=0;const dir=tmp(t),intent=executionIntent('写一段给领导的汇报'),answer='旧草稿'.repeat(150),docs={directory:dir,request:'写一段给领导的汇报',assets:new Map([['B',{id:'B',kind:'text',name:'第二份.txt',sha256:'B-sha'}]])};const r=await enforceContentContract({answer,docs,texts:{readableSource:async()=>({text:'已知事实。'})},intent,next:async()=>{calls++;return {content:'简洁事实'.repeat(60)};}});assert.equal(calls,1);assert.equal(r.originalDraft,answer);assert(r.accepted);assert.equal(r.sources.length,1);assert.equal(r.sources[0].sha256,'B-sha');const saved=JSON.parse(fs.readFileSync(path.join(dir,'content-contract.json')));assert(saved.accepted);});
+test('review highlights contain at most three actual saved issues, evidence and next steps, not execution counters',()=>{const run={report_groups:Array.from({length:5},(_,i)=>({title:'候选'+i,memberFindingIds:['f'+i],subIssues:[{summary:'条款待核',suggestion:'补完整条款'}],evidenceLinks:[{role:'support',evidenceId:'E'+i}],unresolvedQuestions:[]})),findings:[],evidence_units:[{id:'E0',raw_text:'实际原文'}]};const s=reviewHighlights(run);assert(s.includes('实际原文'));assert(s.includes('下一步'));assert(s.includes('候选2'));assert(!s.includes('候选3'));assert(s.includes('法律依据尚未核验'));assert(!s.includes('16/16'));});
+test('actual worker retrieves requested old Excel rather than replaying the original Word-generation request',{skip:!process.env.V8_PYTHON||!process.env.V8_DOCX_MODULE||!process.env.V8_ARTIFACT_MODULE},async t=>{
+ const root=tmp(t),directory=path.join(root,'first'),config={directory,request:'给领导做个Word，带上刚才的统计',python:process.env.V8_PYTHON,docxModule:process.env.V8_DOCX_MODULE,artifactModule:process.env.V8_ARTIFACT_MODULE,chat:{provider:'intranet',baseUrl:'http://127.0.0.1:9/v1',model:'unreachable-no-model',maxAttempts:1,timeoutMs:500},workbookTools:true,inputClassification:'synthetic',continuity:{spaceRoot:path.join(root,'space'),projectId:'test',workItemId:'w',selectedResult:null}},c=new Continuity(config),docs=new DocumentTools({...config,inputs:[]}),extras=new DocumentExtras(docs,config),books=new WorkbookTools(docs,extras,config),texts=new TextTools(docs),records=new SourceRecordTools(docs,extras,texts);c.bind({docs,extras,workbooks:books,records});
+ books.tables.set('t',{id:'t',headers:['金额'],rows:[[1.1],[2.2]]});const x=await books.export({table_id:'t',title:'真实合成Excel'},{}),w=await new DeliveryTools(docs,extras,texts).export({title:'真实合成Word',format:'docx',content:'合法合成文字。'});c.finish({state:'completed',verifiedArtifacts:[x,w]});
+ for(const [index,{request,expected}] of [{request:'之前那个Excel给我',expected:x},{request:'把刚才的Word文件给我，不要重新生成。',expected:w},{request:'之前那个Excel给我，不要修改或导出新文件。',expected:x}].entries()){
+  const dir=path.join(root,'recover'+index),file=path.join(root,'recover'+index+'.json');
+  const mode=executionIntent(request).kind==='existing_file'?'rebuild_delivery':'revise';
+  fs.writeFileSync(file,JSON.stringify({...config,directory:dir,request,continuity:{...config.continuity,mode,resumeRunId:c.runId}}));
+  const proc=spawnSync(process.execPath,['v8-tools/run.mjs',file],{encoding:'utf8',timeout:30000});assert.equal(proc.status,0,proc.stderr);
+  const r=JSON.parse(fs.readFileSync(path.join(dir,'agent-run.json')));assert.equal(r.metrics.modelRequests,0);assert.equal(r.metrics.actualExecutions,0);assert.equal(r.delivery.verifiedArtifacts.length,1);assert.equal(r.delivery.verifiedArtifacts[0].artifactId,expected.artifactId);assert.equal(r.delivery.verifiedArtifacts[0].sha256,expected.sha256);assert(!r.delivery.answer.includes('已生成'));
+ }
+});

@@ -1,0 +1,11 @@
+# Generic PDF conversion
+
+`convert_to_pdf` accepts exactly one registered `asset_id` or `artifact_id` and an optional title. Original Word DOCX, Excel XLSX, text/Markdown, images and existing PDFs are supported. It does not accept paths or URLs from the model. For a new report, first create a Word/text artifact and convert that artifact ID. Existing workspace deliveries can be resolved through their recorded producer checkpoint.
+
+Office inputs use the fixed intranet LibreOffice service discovered from the operator catalog. No model credential is forwarded. Literal UTF-8/BOM-marked UTF-16 text becomes a local DOCX intermediate with Chinese fonts. Markdown syntax is retained literally, not interpreted as HTML. Images use a local conversion, including multiple TIFF frames as separate pages, with white compositing for transparency. This is not OCR. PDF inputs are verified copies.
+
+Excel conversion modifies only a temporary copy: all visible sheets, complete used print area, fit to page width, expanded columns and wrapped row heights. Hidden sheets remain excluded. Very large tables or cells that cannot fit the supported row layout fail explicitly. Office rendering recalculates formulas; macros, embedded objects, animations, exact original pagination and arbitrary formats are not promised.
+
+Each successful result checks the original hash, PDF magic bytes, parser/page-count readback and actual first/last page rendering before artifact registration. The result exposes a normal artifact ID and derived PDF asset ID for subsequent reading/rendering. Files use the existing local open/reveal links. Byte/structure validation is separate from factual completeness and visual acceptance. Failed HTTP responses, non-PDF payloads and changed originals are not reported as successful delivery. A conversion in flight at a crash is not automatically resent.
+
+Real verification covers Chinese DOCX with a 45-row table, an 80-row XLSX, multi-page Chinese TXT, literal Markdown and an image. The XLSX first attempt visibly clipped remarks despite successful text extraction; the conversion-copy layout fix was separately rerun and visually verified. Unit checks cover multi-frame images, output readback, unsupported/changed inputs, catalog restrictions, non-PDF responses, provider failures and source preservation.

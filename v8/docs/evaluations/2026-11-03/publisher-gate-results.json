@@ -1,0 +1,14 @@
+[
+  {
+    "case": "unchanged-authorized-file",
+    "passed": true
+  },
+  {
+    "case": "stale-readback-hash",
+    "passed": true
+  },
+  {
+    "case": "outside-output-root",
+    "passed": true
+  }
+]

@@ -1,0 +1,135 @@
+[
+  {
+    "caseId": "03",
+    "name": "beijing-2025-03-13-常务会议.txt",
+    "copiedSha256": "a98dc8f501bf940a89283b2d6e16fdf19c99f0dc7294cfc37f1c5cf77f324303",
+    "originalSha256": "a98dc8f501bf940a89283b2d6e16fdf19c99f0dc7294cfc37f1c5cf77f324303",
+    "unchanged": true
+  },
+  {
+    "caseId": "03",
+    "name": "briefing-2026-04-28.txt",
+    "copiedSha256": "5ec9ea742c794e08b6c0ed87636c722482f6e3785ac316cbf80e0ecad9bf0131",
+    "originalSha256": "5ec9ea742c794e08b6c0ed87636c722482f6e3785ac316cbf80e0ecad9bf0131",
+    "unchanged": true
+  },
+  {
+    "caseId": "03",
+    "name": "guofa-2026-7.txt",
+    "copiedSha256": "b3ec7b4a0711e17622e919e5dc484f0e77127fc451cfb95fd0414c59d67abf01",
+    "originalSha256": "b3ec7b4a0711e17622e919e5dc484f0e77127fc451cfb95fd0414c59d67abf01",
+    "unchanged": true
+  },
+  {
+    "caseId": "06",
+    "name": "pbc-070-tender-notice.txt",
+    "copiedSha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8",
+    "originalSha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8",
+    "unchanged": true
+  },
+  {
+    "caseId": "06",
+    "name": "pbc-070GXH2026096-award-candidates.pdf",
+    "copiedSha256": "2670388a0ffe1c10ab71ac7257ca81199cedc3eb8d155563c0846af568f3e2dd",
+    "originalSha256": "2670388a0ffe1c10ab71ac7257ca81199cedc3eb8d155563c0846af568f3e2dd",
+    "unchanged": true
+  },
+  {
+    "caseId": "08",
+    "name": "pbc-070-correction.txt",
+    "copiedSha256": "e4d728b029ce61e4a271e0c1df8db37b34d176a6e4d027c475255e384099b3d2",
+    "originalSha256": "e4d728b029ce61e4a271e0c1df8db37b34d176a6e4d027c475255e384099b3d2",
+    "unchanged": true
+  },
+  {
+    "caseId": "08",
+    "name": "pbc-070-tender-notice.txt",
+    "copiedSha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8",
+    "originalSha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8",
+    "unchanged": true
+  },
+  {
+    "caseId": "10",
+    "name": "采购成交A.xlsx",
+    "copiedSha256": "daa051ee302267cb7adbef0b94bd76c0da1e5c6dcf4a6fbb25c5248140c15fc2",
+    "originalSha256": "daa051ee302267cb7adbef0b94bd76c0da1e5c6dcf4a6fbb25c5248140c15fc2",
+    "unchanged": true
+  },
+  {
+    "caseId": "10",
+    "name": "采购成交B.xlsx",
+    "copiedSha256": "fecec0257a8d5338969778ccdf8121deeee50494240a8577613accb9c979c704",
+    "originalSha256": "fecec0257a8d5338969778ccdf8121deeee50494240a8577613accb9c979c704",
+    "unchanged": true
+  },
+  {
+    "caseId": "11",
+    "name": "FunASR-releases-snapshot.json",
+    "copiedSha256": "686137cfc924e816cb81578b19cdb1cad383751ab07d166a207ee4d2aee7c1a2",
+    "originalSha256": "686137cfc924e816cb81578b19cdb1cad383751ab07d166a207ee4d2aee7c1a2",
+    "unchanged": true
+  },
+  {
+    "caseId": "13",
+    "name": "CosyVoice-README.md",
+    "copiedSha256": "66436370172c2830ed98aa643b31898c65e16eee14ade68f00828d21fae602e0",
+    "originalSha256": "66436370172c2830ed98aa643b31898c65e16eee14ade68f00828d21fae602e0",
+    "unchanged": true
+  },
+  {
+    "caseId": "13",
+    "name": "FunASR-README.md",
+    "copiedSha256": "fcb21ed91e803ba153b3f8863b8c15f2b0d3ef227a7f30ab03da0b1986690cdc",
+    "originalSha256": "fcb21ed91e803ba153b3f8863b8c15f2b0d3ef227a7f30ab03da0b1986690cdc",
+    "unchanged": true
+  },
+  {
+    "caseId": "13",
+    "name": "livekit-agents-README.md",
+    "copiedSha256": "003e4b6ee5a401945fa1542c41fa4cf7592e6cee873809426852a45a2018c604",
+    "originalSha256": "003e4b6ee5a401945fa1542c41fa4cf7592e6cee873809426852a45a2018c604",
+    "unchanged": true
+  },
+  {
+    "caseId": "14",
+    "name": "gitlab-onboarding.md",
+    "copiedSha256": "6af4a947df52cdd6f6208e1bc3bcb57c8901bf9d4711ddc8f6047e942296c873",
+    "originalSha256": "6af4a947df52cdd6f6208e1bc3bcb57c8901bf9d4711ddc8f6047e942296c873",
+    "unchanged": true
+  },
+  {
+    "caseId": "14",
+    "name": "sta-2024-11-notice.txt",
+    "copiedSha256": "c408b529f723390203515c87aef9902879c3aa7ca6bec500e53075948358ea02",
+    "originalSha256": "c408b529f723390203515c87aef9902879c3aa7ca6bec500e53075948358ea02",
+    "unchanged": true
+  },
+  {
+    "caseId": "15",
+    "name": "public-contract-expiry.pdf",
+    "copiedSha256": "359492ec59d9438cf52032d942399929b045cc8f77d95e4eb6b89ba569f55fe2",
+    "originalSha256": "359492ec59d9438cf52032d942399929b045cc8f77d95e4eb6b89ba569f55fe2",
+    "unchanged": true
+  },
+  {
+    "caseId": "18",
+    "name": "光华大道+18.m4a",
+    "copiedSha256": "180a88ce27c29c67f7a4c4626f62e7058f4036e8bdd7db7e3bbf26efde986bed",
+    "originalSha256": "180a88ce27c29c67f7a4c4626f62e7058f4036e8bdd7db7e3bbf26efde986bed",
+    "unchanged": true
+  },
+  {
+    "caseId": "19",
+    "name": "CSVExporter-pyqtgraph-0.11.0.py",
+    "copiedSha256": "e8f88e8b08f80c98cfa63283551616529e3391a83bb7f4615843a156dfefbb76",
+    "originalSha256": "e8f88e8b08f80c98cfa63283551616529e3391a83bb7f4615843a156dfefbb76",
+    "unchanged": true
+  },
+  {
+    "caseId": "19",
+    "name": "pyqtgraph-issue-1081.json",
+    "copiedSha256": "0d2d9db1df9b6af3b86d4fd5dce1b63a93209810e3c85f0a26ccf5705e9a69ea",
+    "originalSha256": "0d2d9db1df9b6af3b86d4fd5dce1b63a93209810e3c85f0a26ccf5705e9a69ea",
+    "unchanged": true
+  }
+]

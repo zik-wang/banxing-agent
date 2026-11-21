@@ -1,0 +1,17 @@
+✔ narrative year and cross-page subject remain a fact without inventing a party (2.6994ms)
+✔ roles stay as actually answered, grouped values remain unresolved, duplicate groups remain (1.0153ms)
+✔ Chinese narrative month precision is retained and adjacent quantities are not expiry groups (0.8043ms)
+✔ frozen public PDF: all printed groups and the year-only narrative are represented (484.9362ms)
+Inspect result written to file: C:\Users\31125\AppData\Local\Temp\expiry-views-8QSXOh\run\outputs\3a609cd0-dac5-4660-986d-eb0b0fdbb6e9\清单.xlsx.inspect.ndjson
+✔ real PDF → one ledger → five real formats retains names, year-only precision, empty contract parties (9691.4671ms)
+Inspect result written to file: C:\Users\31125\AppData\Local\Temp\expiry-checkpoint-SPDAUE\run1\outputs\8cedbe47-9a32-4b67-b1d7-1bca709da437\清单.xlsx.inspect.ndjson
+✔ multi-format fact export resumes after first actual file without duplicating or losing its version (8530.1672ms)
+✔ saved expiry ledger converts to actual Word and retrieves that same Word without model calls (1464.7585ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20790.2964

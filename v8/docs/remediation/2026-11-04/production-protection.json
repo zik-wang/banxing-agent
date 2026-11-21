@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-11-03T17:46:44.657Z",
+  "noProductionRestartPerformed": true,
+  "entries": [
+    {
+      "port": 8884,
+      "url": "http://127.0.0.1:8884/api/build",
+      "httpStatus": 200,
+      "startedAt": "2026-11-03T11:13:01.588Z",
+      "commit": "d812cd1152963cb68daf8e6101bf6b924763c556",
+      "fingerprint": "7b30959854ca1fa76ee49a0e4d52f42cef8853fa1efb3d276b51ea0137244e66",
+      "codeChanged": false,
+      "model": {
+        "provider": "siliconflow",
+        "model": "Qwen/Qwen3.8-27B",
+        "fingerprint": "5d0d7ec4fde3428d867c51ce94f2b76249bc485ebc0f1b5cfce8068bc6419f52"
+      }
+    },
+    {
+      "port": 8874,
+      "url": "http://127.0.0.1:8874/",
+      "error": "fetch failed",
+      "code": "ECONNREFUSED"
+    },
+    {
+      "port": 8964,
+      "url": "http://127.0.0.1:8964/api/build",
+      "httpStatus": 200,
+      "startedAt": "2026-11-03T17:45:34.496Z",
+      "commit": "e24bfce8d8821a565796b129d2a5898f2c05f75a",
+      "fingerprint": "7cb9d1adb308cd0dd9efe7ecbbb53e84858d97ffbd31ece95b883c377873c007",
+      "codeChanged": false,
+      "model": {
+        "provider": "siliconflow",
+        "model": "Qwen/Qwen3.8-27B",
+        "fingerprint": "3908082c8306a22e065baafa798a4eec446247e28a4fc3e45cc1ecd959265ebf"
+      }
+    }
+  ],
+  "original8884FrozenFingerprint": "7b30959854ca1fa76ee49a0e4d52f42cef8853fa1efb3d276b51ea0137244e66"
+}
