@@ -1,0 +1,255 @@
+{
+  "conversations": [
+    {
+      "id": "104635a8-df39-43c6-bb28-d2038ea84e9f",
+      "attachmentContext": {
+        "activeFileIds": [
+          "422b9063-c4ee-448e-9ae4-5a672dfbce07"
+        ]
+      }
+    }
+  ],
+  "runs": [
+    {
+      "id": "5a736d42-a360-4501-831a-1c25916d9f3b",
+      "conversationId": "104635a8-df39-43c6-bb28-d2038ea84e9f",
+      "request": "转成 Excel",
+      "status": "done",
+      "startedAt": "2026-10-26T05:21:26.277Z",
+      "finishedAt": "2026-10-26T05:21:26.454Z",
+      "officeOperation": {
+        "operation": "convert",
+        "sourceJobId": null,
+        "formats": [
+          "xlsx"
+        ],
+        "requirement": "转成 Excel",
+        "steps": [],
+        "requestPlan": {
+          "version": "office-request-1",
+          "request": "转成 Excel",
+          "steps": [],
+          "formats": [
+            "xlsx"
+          ],
+          "conversion": true,
+          "unknown": [],
+          "complete": true
+        }
+      },
+      "retryOfRunId": null,
+      "resolvedFileIds": [
+        "422b9063-c4ee-448e-9ae4-5a672dfbce07"
+      ],
+      "sourceFiles": [
+        {
+          "id": "422b9063-c4ee-448e-9ae4-5a672dfbce07",
+          "name": "independent-18-columns.xlsx",
+          "sha256": "66a7215a55094d8f297933da5c679318a245e3eb5112cebc036a181a610efae6"
+        }
+      ]
+    },
+    {
+      "id": "d5b01d01-0ade-4279-9e35-cee7219d5d07",
+      "conversationId": "104635a8-df39-43c6-bb28-d2038ea84e9f",
+      "request": "转成 PDF",
+      "status": "failed",
+      "startedAt": "2026-10-26T05:21:28.211Z",
+      "finishedAt": "2026-10-26T05:21:28.359Z",
+      "officeOperation": {
+        "operation": "convert",
+        "sourceJobId": "30a7f0cb-d03b-4d20-9200-7ed66faf3db3",
+        "formats": [
+          "pdf"
+        ],
+        "requirement": "转成 PDF",
+        "steps": [],
+        "requestPlan": {
+          "version": "office-request-1",
+          "request": "转成 PDF",
+          "steps": [],
+          "formats": [
+            "pdf"
+          ],
+          "conversion": true,
+          "unknown": [],
+          "complete": true
+        }
+      },
+      "retryOfRunId": null,
+      "resolvedFileIds": [
+        "422b9063-c4ee-448e-9ae4-5a672dfbce07"
+      ],
+      "sourceFiles": [
+        {
+          "id": "422b9063-c4ee-448e-9ae4-5a672dfbce07",
+          "name": "independent-18-columns.xlsx",
+          "sha256": "66a7215a55094d8f297933da5c679318a245e3eb5112cebc036a181a610efae6"
+        }
+      ]
+    },
+    {
+      "id": "ad3a253f-313e-4b9d-b7e3-e277c8a7fa0e",
+      "conversationId": "104635a8-df39-43c6-bb28-d2038ea84e9f",
+      "request": "重试",
+      "status": "failed",
+      "startedAt": "2026-10-26T05:21:30.610Z",
+      "finishedAt": "2026-10-26T05:21:30.724Z",
+      "officeOperation": {
+        "operation": "convert",
+        "sourceJobId": "30a7f0cb-d03b-4d20-9200-7ed66faf3db3",
+        "formats": [
+          "pdf"
+        ],
+        "requirement": "转成 PDF",
+        "steps": [],
+        "requestPlan": {
+          "version": "office-request-1",
+          "request": "转成 PDF",
+          "steps": [],
+          "formats": [
+            "pdf"
+          ],
+          "conversion": true,
+          "unknown": [],
+          "complete": true
+        }
+      },
+      "retryOfRunId": "d5b01d01-0ade-4279-9e35-cee7219d5d07",
+      "resolvedFileIds": [
+        "422b9063-c4ee-448e-9ae4-5a672dfbce07"
+      ],
+      "sourceFiles": [
+        {
+          "id": "422b9063-c4ee-448e-9ae4-5a672dfbce07",
+          "name": "independent-18-columns.xlsx",
+          "sha256": "66a7215a55094d8f297933da5c679318a245e3eb5112cebc036a181a610efae6"
+        }
+      ]
+    },
+    {
+      "id": "eb2f4c13-a847-4321-b16d-e6835c786558",
+      "conversationId": "104635a8-df39-43c6-bb28-d2038ea84e9f",
+      "request": "按部门汇总。",
+      "status": "failed",
+      "startedAt": "2026-10-26T05:21:33.009Z",
+      "finishedAt": "2026-10-26T05:21:33.304Z",
+      "resolvedFileIds": [
+        "422b9063-c4ee-448e-9ae4-5a672dfbce07"
+      ],
+      "sourceFiles": [
+        {
+          "id": "422b9063-c4ee-448e-9ae4-5a672dfbce07",
+          "name": "independent-18-columns.xlsx",
+          "sha256": "66a7215a55094d8f297933da5c679318a245e3eb5112cebc036a181a610efae6"
+        }
+      ]
+    }
+  ],
+  "jobs": [
+    {
+      "id": "af724864-27c9-4a9a-87ef-f28ed8c61e15",
+      "conversationId": "104635a8-df39-43c6-bb28-d2038ea84e9f",
+      "chatRunId": "ad3a253f-313e-4b9d-b7e3-e277c8a7fa0e",
+      "title": "independent-18-columns",
+      "goal": "重试",
+      "scenarioId": "export",
+      "status": "failed",
+      "createdAt": "2026-10-26T05:21:30.619Z",
+      "startedAt": "2026-10-26T05:21:30.619Z",
+      "finishedAt": "2026-10-26T05:21:30.701Z",
+      "dataScope": [
+        {
+          "id": "422b9063-c4ee-448e-9ae4-5a672dfbce07",
+          "name": "independent-18-columns.xlsx",
+          "sha256": "66a7215a55094d8f297933da5c679318a245e3eb5112cebc036a181a610efae6"
+        }
+      ],
+      "artifacts": [],
+      "options": {
+        "outputFormats": [
+          "pdf"
+        ]
+      },
+      "exportSource": {
+        "title": "independent-18-columns"
+      }
+    },
+    {
+      "id": "7ee6db9b-88b6-4b7d-933e-95503a06c05c",
+      "conversationId": "104635a8-df39-43c6-bb28-d2038ea84e9f",
+      "chatRunId": "d5b01d01-0ade-4279-9e35-cee7219d5d07",
+      "title": "independent-18-columns",
+      "goal": "转成 PDF",
+      "scenarioId": "export",
+      "status": "failed",
+      "createdAt": "2026-10-26T05:21:28.220Z",
+      "startedAt": "2026-10-26T05:21:28.220Z",
+      "finishedAt": "2026-10-26T05:21:28.334Z",
+      "dataScope": [
+        {
+          "id": "422b9063-c4ee-448e-9ae4-5a672dfbce07",
+          "name": "independent-18-columns.xlsx",
+          "sha256": "66a7215a55094d8f297933da5c679318a245e3eb5112cebc036a181a610efae6"
+        }
+      ],
+      "artifacts": [],
+      "options": {
+        "outputFormats": [
+          "pdf"
+        ]
+      },
+      "exportSource": {
+        "title": "independent-18-columns"
+      }
+    },
+    {
+      "id": "30a7f0cb-d03b-4d20-9200-7ed66faf3db3",
+      "conversationId": "104635a8-df39-43c6-bb28-d2038ea84e9f",
+      "chatRunId": "5a736d42-a360-4501-831a-1c25916d9f3b",
+      "title": "independent-18-columns",
+      "goal": "转成 Excel",
+      "scenarioId": "export",
+      "status": "completed",
+      "createdAt": "2026-10-26T05:21:26.302Z",
+      "startedAt": "2026-10-26T05:21:26.302Z",
+      "finishedAt": "2026-10-26T05:21:26.420Z",
+      "dataScope": [
+        {
+          "id": "422b9063-c4ee-448e-9ae4-5a672dfbce07",
+          "name": "independent-18-columns.xlsx",
+          "sha256": "66a7215a55094d8f297933da5c679318a245e3eb5112cebc036a181a610efae6"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "bf9add0c-1f3b-439e-96df-e03b47d9f004",
+          "name": "independent-18-columns.xlsx",
+          "kind": "document"
+        },
+        {
+          "id": "5e0bbd6d-9cef-4fcd-ad61-11e267bf428c",
+          "name": "工作成果报告.html",
+          "kind": "presentation"
+        }
+      ],
+      "options": {
+        "outputFormats": [
+          "xlsx"
+        ]
+      },
+      "exportSource": {
+        "title": "independent-18-columns"
+      }
+    }
+  ],
+  "conversationAttachments": [
+    {
+      "conversationId": "104635a8-df39-43c6-bb28-d2038ea84e9f",
+      "fileId": "422b9063-c4ee-448e-9ae4-5a672dfbce07",
+      "status": "active",
+      "sha256": "66a7215a55094d8f297933da5c679318a245e3eb5112cebc036a181a610efae6",
+      "name": "independent-18-columns.xlsx"
+    }
+  ]
+}

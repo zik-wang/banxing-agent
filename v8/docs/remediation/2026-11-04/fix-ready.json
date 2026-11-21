@@ -1,0 +1,59 @@
+{
+  "status": "READY_FOR_INDEPENDENT_QA",
+  "runtimeCommit": "e24bfce8d8821a565796b129d2a5898f2c05f75a",
+  "matrixFixedCommit": "3bb0894675e8e6bd70fe5013be46f6b5e8cfa6bd",
+  "matrixBaselineCommit": "47a05c4a37c83b2bed10b9fda12def009be0a0a5",
+  "branch": "codex/execution-convergence-20261103",
+  "candidateURL": "http://127.0.0.1:8964/",
+  "runtimeFingerprint": "7cb9d1adb308cd0dd9efe7ecbbb53e84858d97ffbd31ece95b883c377873c007",
+  "regression": {
+    "total": 364,
+    "passed": 358,
+    "failed": 0,
+    "skipped": 6
+  },
+  "businessAcceptance": "partial",
+  "independentQa": "not performed; candidate awaits review",
+  "openIssues": [
+    "CLI case11 writing request timeout: no actual draft or export returned; requires controlled re-verification of writing stage.",
+    "No independent human gold/reference or new real holdout evaluation.",
+    "Explicit expiry parser covers limited labels/predicates; no zero-omission claim.",
+    "Page case11 Word follow-up searched repeatedly after no draft existed, then stopped without delivery; needs deterministic missing-draft handling.",
+    "Six legacy fixture-dependent tests skipped; see regression-results.md.",
+    "The six CLI experiments used3bb0894; the final e24bfce candidate adds dispatch, visibility and recovery fixes. These later changes were locally/browser tested, not re-run as six cloud CLI experiments.",
+    "Initial live page15 failed due fresh parallel tool results being compacted before first model exposure; fixed in be97520 and regression verified.",
+    "be97520 live page15 wrote files but late cancellation hid delivery cards and resume regenerated an earlier XLSX; e24bfce fixes candidate recovery, demonstrated with actual local browser retrieval and injected real-file resume. No additional cloud retest after budget exhausted.",
+    "Original failed page11 workflow and pre-fix page15 workflow remain failed; local recovery does not retroactively make them successful."
+  ],
+  "targetCases": [
+    "11",
+    "15",
+    "19"
+  ],
+  "resultPath": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-convergence-remediation-20261103\\result.json",
+  "evidenceRoot": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-convergence-remediation-20261103",
+  "finalReportPath": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-convergence-remediation-20261103\\final-report.md",
+  "mainMerged": false,
+  "oldEvidenceModified": false,
+  "zeroModelPageRecovery": {
+    "workflowPassed": true,
+    "downloads": 3,
+    "actualQwenCalls": 0,
+    "originalStatusesUnchanged": true,
+    "artifactIdentityPreserved": true,
+    "downloadReadbackPassed": true,
+    "conversationURL": "http://127.0.0.1:8964/#2738b539-4e75-422d-b017-11d65458ed18",
+    "evidence": "page15-local-recovery-v2/e2e-results.json"
+  },
+  "pageModelCost": {
+    "scope": "candidate page only, not six CLI comparison",
+    "workspaceChargedAttempts": 34,
+    "savedTransportAttemptReceipts": 32,
+    "unfinishedAttemptDifference": 2,
+    "cost": "unknown",
+    "note": "onAttempt budget entries happen before fetch; hard-cancelled in-flight requests can lack final response/usage. Do not infer zero cost or treat all entries as successful POST responses."
+  },
+  "actualCliModelPosts": 38,
+  "testEvidence": "regression-delivery-recovery.log",
+  "runtimeDirectory": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-convergence-remediation-20261103\\candidate-runtime-e24bfce"
+}

@@ -1,0 +1,600 @@
+{
+  "createdAt": "2026-11-04T21:50:56.051727+08:00",
+  "status": "REAL_C_END_DELIVERIES_AVAILABLE_NOT_FULL_C_END_SIGNOFF",
+  "baseUrl": "http://127.0.0.1:8884/",
+  "runtimeCommit": "3824f5ebba991b6603ea293810df7060087a4fff",
+  "runtimeFingerprint": "1cd363a4b398aeea17150a4d419edfa590a25558981d629e127861cf3a48590b",
+  "casesWithRealBrowserDownloads": 10,
+  "recommendedArtifactCount": 14,
+  "developerReviewed": true,
+  "independentQaVerified": false,
+  "regression": {
+    "tests": 413,
+    "passed": 408,
+    "failed": 0,
+    "skipped": 5,
+    "log": "isolated-complete-dependency-regression.log",
+    "priorDependencyLimitedLog": "frozen-final-regression.log (402 passed, 11 skipped)"
+  },
+  "modelReceipts": {
+    "readAt": "2026-11-04T21:50:11.813735+08:00",
+    "model": "Qwen/Qwen3.8-27B",
+    "provider": "siliconflow",
+    "networkReceipts": 54,
+    "completeUsagePromptTokens": 840005,
+    "completeUsageCompletionTokens": 35087,
+    "usageUnknownReceipts": 1,
+    "recordingCaseCloudModelReceipts": 0,
+    "knownCost": "unknown",
+    "allRecordedCendConversations": 31,
+    "allRecordedCendNetworkReceipts": 125,
+    "allRecordedCendKnownPromptTokens": 1651285,
+    "allRecordedCendKnownCompletionTokens": 51429,
+    "allRecordedCendUsageUnknownReceipts": 7,
+    "allRecordedScope": "Union of conversation IDs retained in this batch browser/collection receipts, including earlier failures. One 64-token connectivity probe is additional. Interrupted attempts without a final receipt may be uncounted; these are observed receipts, not a billing reconciliation."
+  },
+  "checks": {
+    "procurement": {
+      "derivedUniqueInputRows": 30,
+      "actualOutputRows": 30,
+      "headersPreserved": true,
+      "rowOrderPreserved": true,
+      "allOriginalNonemptyValuesPreserved": true,
+      "independentInputUnionSum": "275012056.75",
+      "independentActualExcelSum": "275012056.75",
+      "amountCellsAreNumeric": true,
+      "nonemptySourceNotes": 15,
+      "wordMainBodyAmountMatches": true,
+      "wordMainBodySourceCountMatches": true,
+      "wordBindsActualExcelHash": true
+    },
+    "releaseTable": {
+      "sourceRecords": 5,
+      "actualRows": 5,
+      "metadataBindings": [
+        {
+          "version": "1.4.16",
+          "publishedAtMatches": true,
+          "authorMatches": true
+        },
+        {
+          "version": "1.4.15",
+          "publishedAtMatches": true,
+          "authorMatches": true
+        },
+        {
+          "version": "0.4.3",
+          "publishedAtMatches": true,
+          "authorMatches": true
+        },
+        {
+          "version": "1.4.14",
+          "publishedAtMatches": true,
+          "authorMatches": true
+        },
+        {
+          "version": "1.4.13",
+          "publishedAtMatches": true,
+          "authorMatches": true
+        }
+      ]
+    },
+    "expirySpans": {
+      "kind": "INDEPENDENT_ACTUAL_C_END_SOURCE_SPAN_CHECK_NOT_SEMANTIC_RECALL",
+      "sourceSha256": "359492ec59d9438cf52032d942399929b045cc8f77d95e4eb6b89ba569f55fe2",
+      "originalHashMatches": true,
+      "recordCount": 18,
+      "uniqueEvidenceSpans": 122,
+      "spanMismatches": []
+    },
+    "originalPreservation": {
+      "count": 19,
+      "unchanged": true
+    },
+    "audioCloudReceipts": 0,
+    "notProven": [
+      "independent human gold correctness",
+      "native Word visual pagination",
+      "unheard ASR semantic accuracy",
+      "arbitrary unfamiliar-document recall",
+      "all followup wording and failure recovery"
+    ]
+  },
+  "cases": [
+    {
+      "id": "03",
+      "title": "会前背景资料准备",
+      "conversationId": "fbeee86f-7f8d-4e0b-8e96-f6161897c0af",
+      "url": "http://127.0.0.1:8884/#fbeee86f-7f8d-4e0b-8e96-f6161897c0af",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "已回读分离政策文本、吹风会与地方会议，修正编写日期和统一统计时点推断；追加的800字限制未严格满足，不计为篇幅验收通过。",
+      "files": [
+        {
+          "name": "服务业扩能提质政策摘要（800字内）.docx",
+          "artifactId": "139d8636-fc6d-410d-a188-85e308181394",
+          "turnId": "8e7c3613-6d85-4a1a-9d55-38c850b804f1",
+          "sha256": "d905d1a22db8a7231fa6a9c4108d63db8413692d57c4c878de23087c1b1bacf5",
+          "bytes": 10644,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/fbeee86f-7f8d-4e0b-8e96-f6161897c0af/turns/8e7c3613-6d85-4a1a-9d55-38c850b804f1/files/139d8636-fc6d-410d-a188-85e308181394/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "customer-brief03\\results.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "国发文件是会前政策文本，4月28日吹风会是当场说明，北京常务会新闻是地方会情摘要。\n请分开：上次/会前文件要点、这次发言/会议强调的内容；不把建议或部署写成已经办完。\n这不是用户个人会议的会前包；会期角色与执行进展未给出的留空。",
+      "inputHashes": [
+        {
+          "name": "beijing-2025-03-13-常务会议.txt",
+          "sha256": "a98dc8f501bf940a89283b2d6e16fdf19c99f0dc7294cfc37f1c5cf77f324303"
+        },
+        {
+          "name": "briefing-2026-04-28.txt",
+          "sha256": "5ec9ea742c794e08b6c0ed87636c722482f6e3785ac316cbf80e0ecad9bf0131"
+        },
+        {
+          "name": "guofa-2026-7.txt",
+          "sha256": "b3ec7b4a0711e17622e919e5dc484f0e77127fc451cfb95fd0414c59d67abf01"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "fd1090c4-c681-49d1-8f12-538849c8afe0",
+          "status": "completed",
+          "artifactCount": 1
+        },
+        {
+          "id": "32ced69c-27f7-4f4a-95f3-a8b277098a69",
+          "status": "completed",
+          "artifactCount": 2
+        },
+        {
+          "id": "8e7c3613-6d85-4a1a-9d55-38c850b804f1",
+          "status": "completed",
+          "artifactCount": 2
+        }
+      ]
+    },
+    {
+      "id": "06",
+      "title": "查找最终文件与确认依据",
+      "conversationId": "21308b03-6a52-48ee-a5d3-78f9398a3f04",
+      "url": "http://127.0.0.1:8884/#21308b03-6a52-48ee-a5d3-78f9398a3f04",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "核对项目编号、三名候选人及报价，区分候选公示与最终通知/合同；没有从未取得后续文件推断现实业务未发生。追加篇幅约束仍有偏差。",
+      "files": [
+        {
+          "name": "材料核对说明.docx",
+          "artifactId": "de4db95f-b330-42cb-b034-41a3ae6a5ec1",
+          "turnId": "98a9935b-e73f-463b-b09d-c068c7b9d780",
+          "sha256": "1db92a8a0f55a8cbcbfa830ab916daaa5e9dfa2f71aa0da2fb1d245fc160c2f5",
+          "bytes": 10610,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/21308b03-6a52-48ee-a5d3-78f9398a3f04/turns/98a9935b-e73f-463b-b09d-c068c7b9d780/files/de4db95f-b330-42cb-b034-41a3ae6a5ec1/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "customer-brief06\\results.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "招标公告和中标候选人公示是同一项目 070GXH2026096。\n候选人公示不是客户确认邮件，也不是已签合同。\n缺少最终中标通知书、合同和确认邮件时，不得仅凭文件名或排名认定「最终文件」。",
+      "inputHashes": [
+        {
+          "name": "pbc-070-tender-notice.txt",
+          "sha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8"
+        },
+        {
+          "name": "pbc-070GXH2026096-award-candidates.pdf",
+          "sha256": "2670388a0ffe1c10ab71ac7257ca81199cedc3eb8d155563c0846af568f3e2dd"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "19a5118d-3e55-4c7a-8192-230af28e94a6",
+          "status": "completed",
+          "artifactCount": 1
+        },
+        {
+          "id": "d17be350-6ff8-443e-bb8f-ee02ea50fd55",
+          "status": "completed",
+          "artifactCount": 1
+        },
+        {
+          "id": "98a9935b-e73f-463b-b09d-c068c7b9d780",
+          "status": "completed",
+          "artifactCount": 1
+        }
+      ]
+    },
+    {
+      "id": "08",
+      "title": "合同或方案版本比较",
+      "conversationId": "080be3b9-923b-4dc9-b460-7fb89c2c5d7a",
+      "url": "http://127.0.0.1:8884/#080be3b9-923b-4dc9-b460-7fb89c2c5d7a",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "开发回读确认5项明确技术变化、2项日期变化，SSD不变，第七项未展开及未提供附件明确列作缺口；这是已知材料复测，不是陌生材料召回率。",
+      "files": [
+        {
+          "name": "070GXH2026096 更正公告对比摘要.docx",
+          "artifactId": "4b1815c2-af68-4b8b-a8e4-edf7367229ee",
+          "turnId": "b33f1b1b-3fc1-408e-839b-0129c388b71f",
+          "sha256": "a57c85f775144519f51c57923bea2ea443a1f328c57ca517786ecf73b1436232",
+          "bytes": 10697,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/080be3b9-923b-4dc9-b460-7fb89c2c5d7a/turns/b33f1b1b-3fc1-408e-839b-0129c388b71f/files/4b1815c2-af68-4b8b-a8e4-edf7367229ee/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "collected-1793798735548\\results.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "旧版是招标公告，新版是更正公告（同一项目）。\n只列原文里的日期和技术条款变化；未在更正公告写出的变更不要发明。\n未核对招标文件全文和澄清附件。",
+      "inputHashes": [
+        {
+          "name": "pbc-070-correction.txt",
+          "sha256": "e4d728b029ce61e4a271e0c1df8db37b34d176a6e4d027c475255e384099b3d2"
+        },
+        {
+          "name": "pbc-070-tender-notice.txt",
+          "sha256": "f1295571cb8cea0792c10d0a2ef111fd167ace593c39f51403c4f7e9a12e7bf8"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "fa5fb43b-38dc-40bb-b1e6-514165f8b9d8",
+          "status": "completed",
+          "artifactCount": 1
+        },
+        {
+          "id": "b33f1b1b-3fc1-408e-839b-0129c388b71f",
+          "status": "completed",
+          "artifactCount": 2
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "title": "按规则追加业务台账",
+      "conversationId": "3f480fe0-992f-4116-a494-3ec4b859d6ce",
+      "url": "http://127.0.0.1:8884/#3f480fe0-992f-4116-a494-3ec4b859d6ce",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "实际Excel为30条数据、9列，独立求和275012056.75元、15条来源说明非空，Word主文统计一致。额外的去重复查回合曾失败，原Excel保留；不能把整条连续修改链判为全通过。",
+      "files": [
+        {
+          "name": "合并报表.xlsx",
+          "artifactId": "1c8ba2f1-e07e-4a48-880f-dd426aff1f26",
+          "turnId": "fb7ef79b-9ccc-45e2-9433-3f4104adc997",
+          "sha256": "6e6a7e665c9f2a19379cae0b766f3e397aaa6148962b9b1ac0a39bada2e62046",
+          "bytes": 7260,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/3f480fe0-992f-4116-a494-3ec4b859d6ce/turns/fb7ef79b-9ccc-45e2-9433-3f4104adc997/files/1c8ba2f1-e07e-4a48-880f-dd426aff1f26/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "verified-r2\\browser-progress.json",
+          "registeredByteIntegrityPassed": true
+        },
+        {
+          "name": "业务数据统计报告.docx",
+          "artifactId": "7379b132-2966-4392-839d-38085a2693ce",
+          "turnId": "150cfed1-e43e-4196-bbdc-40a89e51a246",
+          "sha256": "1a6691d3ea3971b73a89e0061517e1d1b3f0442cc3aebd105abda40da0fab8c8",
+          "bytes": 9860,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/3f480fe0-992f-4116-a494-3ec4b859d6ce/turns/150cfed1-e43e-4196-bbdc-40a89e51a246/files/7379b132-2966-4392-839d-38085a2693ce/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "collected-1793797822274\\results.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "使用「采购成交A」作为原台账，将「采购成交B」中的新增记录追加至副本。\n去重键建议：供应商 + 中标金额 + 项目名称（或原文主键字段）；保留所有原始字段与历史内容，有歧义单列「待核」。\n原文件保留，新增行只写副本。不要冒称完整年度审计。",
+      "inputHashes": [
+        {
+          "name": "采购成交A.xlsx",
+          "sha256": "daa051ee302267cb7adbef0b94bd76c0da1e5c6dcf4a6fbb25c5248140c15fc2"
+        },
+        {
+          "name": "采购成交B.xlsx",
+          "sha256": "fecec0257a8d5338969778ccdf8121deeee50494240a8577613accb9c979c704"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "fb7ef79b-9ccc-45e2-9433-3f4104adc997",
+          "status": "completed",
+          "artifactCount": 1
+        },
+        {
+          "id": "8af50a42-3902-4adb-a504-26b7be64cdd8",
+          "status": "failed",
+          "artifactCount": 0
+        },
+        {
+          "id": "150cfed1-e43e-4196-bbdc-40a89e51a246",
+          "status": "completed",
+          "artifactCount": 1
+        }
+      ]
+    },
+    {
+      "id": "11",
+      "title": "有依据的个人周报",
+      "conversationId": "9472a75e-2d08-458a-a504-8a63359f12b8",
+      "url": "http://127.0.0.1:8884/#9472a75e-2d08-458a-a504-8a63359f12b8",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "最终成果表核对原JSON五条发布记录的版本、完整发布时间、发布者；不把公开成果写成个人进展或硬件性能认证。同一最终回合重复导出两份同名Word，推荐最后一份；两份正文一致但文件SHA不同。",
+      "files": [
+        {
+          "name": "FunASR 阶段工作简报（修订版）.docx",
+          "artifactId": "f7f7290f-7cbd-46a9-a7e9-c66ad54abcc0",
+          "turnId": "8be082df-a728-4550-b97c-b43427b9ce28",
+          "sha256": "d569a3da8a4d06af99dcb5ca8cf193a1929a06963e85c0749222f32a30dbd119",
+          "bytes": 11640,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/9472a75e-2d08-458a-a504-8a63359f12b8/turns/8be082df-a728-4550-b97c-b43427b9ce28/files/f7f7290f-7cbd-46a9-a7e9-c66ad54abcc0/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "customer-table11\\results.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "根据这份真实公开项目发布记录，生成该项目的阶段工作简报。\n只报告文档中已发布的成果，不冒称是用户个人完成；未给出的「本周个人进展」留空。\n输入是项目发布快照，不是用户工作日志；不要建立每周自动委托。",
+      "inputHashes": [
+        {
+          "name": "FunASR-releases-snapshot.json",
+          "sha256": "686137cfc924e816cb81578b19cdb1cad383751ab07d166a207ee4d2aee7c1a2"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "5f008989-b531-4432-b5f1-1bc1778d1ec0",
+          "status": "failed",
+          "artifactCount": 0
+        },
+        {
+          "id": "b70478ec-08d5-47c7-9834-c784c747b0a5",
+          "status": "completed",
+          "artifactCount": 1
+        },
+        {
+          "id": "4bb4df74-e3f9-4ac1-8530-946cf43f3875",
+          "status": "completed",
+          "artifactCount": 1
+        },
+        {
+          "id": "8be082df-a728-4550-b97c-b43427b9ce28",
+          "status": "completed",
+          "artifactCount": 2
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "title": "技术选型与可核查比较",
+      "conversationId": "282016fc-742c-4516-9a50-a54a0b4edd5d",
+      "url": "http://127.0.0.1:8884/#282016fc-742c-4516-9a50-a54a0b4edd5d",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "三份README实际进入最终报告；代码与模型许可分开，CosyVoice未提供许可留待确认，不拿动态徽章当安装版本。旧版同句曾重复检索失败，新版同句实际交付Word。",
+      "files": [
+        {
+          "name": "语音AI组件选型简报.docx",
+          "artifactId": "163e4f78-2b7b-42b4-b202-c9b3d3470ce5",
+          "turnId": "39c4ee4c-0446-4d40-aa52-967c81f8e1ac",
+          "sha256": "28c46be59079231de3e2b96ea98bca73448c9ac0a0ff85267c02192e770fcccf",
+          "bytes": 10030,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/282016fc-742c-4516-9a50-a54a0b4edd5d/turns/39c4ee4c-0446-4d40-aa52-967c81f8e1ac/files/163e4f78-2b7b-42b4-b202-c9b3d3470ce5/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "collected-1793798929884\\results.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "只比较这三份 README 写明的版本、许可和能力。\n没有运行记录的标成「文档宣称」。不要把动态版本徽章当成已安装版本。",
+      "inputHashes": [
+        {
+          "name": "CosyVoice-README.md",
+          "sha256": "66436370172c2830ed98aa643b31898c65e16eee14ade68f00828d21fae602e0"
+        },
+        {
+          "name": "FunASR-README.md",
+          "sha256": "fcb21ed91e803ba153b3f8863b8c15f2b0d3ef227a7f30ab03da0b1986690cdc"
+        },
+        {
+          "name": "livekit-agents-README.md",
+          "sha256": "003e4b6ee5a401945fa1542c41fa4cf7592e6cee873809426852a45a2018c604"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "2f9e28fb-cb52-4c9c-9d81-bb7f1a0eab87",
+          "status": "completed",
+          "artifactCount": 1
+        },
+        {
+          "id": "ea14bb64-03aa-4976-a171-6009af478e3f",
+          "status": "failed",
+          "artifactCount": 0
+        },
+        {
+          "id": "39c4ee4c-0446-4d40-aa52-967c81f8e1ac",
+          "status": "completed",
+          "artifactCount": 1
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "title": "收藏沉淀为知识库",
+      "conversationId": "fe53f52e-8bf8-42d5-b00e-ea6c8937b74a",
+      "url": "http://127.0.0.1:8884/#fe53f52e-8bf8-42d5-b00e-ea6c8937b74a",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "全文条目持久保存，按指定字面查询取得入职0、发票69、电子发票13处命中并交付全部已取得原句；不等于跨语言语义召回，0字面命中不等于没有相关内容。",
+      "files": [
+        {
+          "name": "知识原句检索结果.txt",
+          "artifactId": "d446b5c3-a40b-4af1-b1ac-ff21b7dc575c",
+          "turnId": "272b749a-7b56-4d7d-b529-bab0002273dc",
+          "sha256": "8c4dfc907abd07fc013be7b6eba1194842f86ed7ba35e13826c7ce92df2fbf95",
+          "bytes": 39241,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/fe53f52e-8bf8-42d5-b00e-ea6c8937b74a/turns/272b749a-7b56-4d7d-b529-bab0002273dc/files/d446b5c3-a40b-4af1-b1ac-ff21b7dc575c/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "verified-r2\\browser-progress.json",
+          "registeredByteIntegrityPassed": true
+        },
+        {
+          "name": "知识原句检索结果.docx",
+          "artifactId": "29a3798a-ae2e-4bce-a372-8b8d40aa0c9d",
+          "turnId": "2d4c5663-206b-4172-b65b-d1d0ab32be2e",
+          "sha256": "3f71b965a05f46a0f4c313d1c097760f7ec35c13bceb6a249faf5dd790d7c79f",
+          "bytes": 12942,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/fe53f52e-8bf8-42d5-b00e-ea6c8937b74a/turns/2d4c5663-206b-4172-b65b-d1d0ab32be2e/files/29a3798a-ae2e-4bce-a372-8b8d40aa0c9d/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "collected-1793796929688\\results.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "把这两份公开说明入库，并检索其中与「入职/发票/电子发票」相关的原句。\n关键词检索无法证明语义召回率；未提供个人办理回执。",
+      "inputHashes": [
+        {
+          "name": "gitlab-onboarding.md",
+          "sha256": "6af4a947df52cdd6f6208e1bc3bcb57c8901bf9d4711ddc8f6047e942296c873"
+        },
+        {
+          "name": "sta-2024-11-notice.txt",
+          "sha256": "c408b529f723390203515c87aef9902879c3aa7ca6bec500e53075948358ea02"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "272b749a-7b56-4d7d-b529-bab0002273dc",
+          "status": "completed",
+          "artifactCount": 1
+        },
+        {
+          "id": "2d4c5663-206b-4172-b65b-d1d0ab32be2e",
+          "status": "completed",
+          "artifactCount": 1
+        }
+      ]
+    },
+    {
+      "id": "15",
+      "title": "订阅与合同到期管理",
+      "conversationId": "27950f3d-4647-452a-873f-d947a4232b35",
+      "url": "http://127.0.0.1:8884/#27950f3d-4647-452a-873f-d947a4232b35",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "18组原文事实，122处引文跨度已对回PDF；不是18份独立合同。保留原词、年精度及并列歧义，时区、续约和合同供应商无依据不补值。",
+      "files": [
+        {
+          "name": "清单.xlsx",
+          "artifactId": "382e7ed7-18df-4859-90d7-a6784efb70f7",
+          "turnId": "271f9188-c996-4d21-a0ba-1fc299b1046d",
+          "sha256": "76042095dfe30561e7273be14b672436f062c05890138e647bc2da1eeb8cf7a8",
+          "bytes": 5938,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/27950f3d-4647-452a-873f-d947a4232b35/turns/271f9188-c996-4d21-a0ba-1fc299b1046d/files/382e7ed7-18df-4859-90d7-a6784efb70f7/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "collected-1793797822274\\results.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "从真实公开合同/软件到期信息中提取到期日，列出到期清单和需确认的时区/续约情况。\n没有准确时间或续约依据，不猜测，不付款。\n说明：本输入为境外 FOI 公开合同到期表；大陆政府采购合同公告常见「签订日」而非「到期日」字段，本轮未找到免登录的到期清单可替换。",
+      "inputHashes": [
+        {
+          "name": "public-contract-expiry.pdf",
+          "sha256": "359492ec59d9438cf52032d942399929b045cc8f77d95e4eb6b89ba569f55fe2"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "271f9188-c996-4d21-a0ba-1fc299b1046d",
+          "status": "completed",
+          "artifactCount": 1
+        }
+      ]
+    },
+    {
+      "id": "18",
+      "title": "长音视频主题片段导出",
+      "conversationId": "b0b2d571-a094-456e-ab4d-42c6bf6bc28d",
+      "url": "http://127.0.0.1:8884/#b0b2d571-a094-456e-ab4d-42c6bf6bc28d",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "真实18分01.88秒录音仅本地识别，13段均返回，交付TXT/SRT；云端模型回执为0。尚未人工核听，分段时码不是逐字强制对齐，不能报告转写准确率。",
+      "files": [
+        {
+          "name": "录音转写原文_未经人工核听.txt",
+          "artifactId": "aa6f26d0-bff4-4608-9557-2df99381b03a",
+          "turnId": "e3b61f0c-1576-4086-af82-9887d8e44f1b",
+          "sha256": "05a727361250f13be8e97381e87ffcd8c429bb0b197c401396815ef030d17533",
+          "bytes": 13567,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/b0b2d571-a094-456e-ab4d-42c6bf6bc28d/turns/e3b61f0c-1576-4086-af82-9887d8e44f1b/files/aa6f26d0-bff4-4608-9557-2df99381b03a/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "s18-local-only-final/result.json",
+          "registeredByteIntegrityPassed": true
+        },
+        {
+          "name": "录音转写原文_未经人工核听.srt",
+          "artifactId": "abdabf94-9c4d-498f-996c-11ea6d56b164",
+          "turnId": "e3b61f0c-1576-4086-af82-9887d8e44f1b",
+          "sha256": "f2282e982c8d1b545b0f7b4c82bd208cdf35e82369ad9340056652638c234573",
+          "bytes": 14197,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/b0b2d571-a094-456e-ab4d-42c6bf6bc28d/turns/e3b61f0c-1576-4086-af82-9887d8e44f1b/files/abdabf94-9c4d-498f-996c-11ea6d56b164/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "s18-local-only-final/result.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "这是一份已授权私下演示的真实录音。请先转写，保留识别原文，并列出尚需回听的位置。给我一份可下载的转写稿。未经人工核听不要冒充已核对；若主题剪辑需要核对或明确片段范围，请明确说明，先交付已经得到的内容。",
+      "inputHashes": [
+        {
+          "name": "光华大道+18.m4a",
+          "sha256": "180a88ce27c29c67f7a4c4626f62e7058f4036e8bdd7db7e3bbf26efde986bed"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "e3b61f0c-1576-4086-af82-9887d8e44f1b",
+          "status": "completed",
+          "artifactCount": 2
+        }
+      ]
+    },
+    {
+      "id": "19",
+      "title": "限定范围代码修复与PR",
+      "conversationId": "8afd3a2e-1d0b-4d82-8569-2845d3fe9dcc",
+      "url": "http://127.0.0.1:8884/#8afd3a2e-1d0b-4d82-8569-2845d3fe9dcc",
+      "status": "REAL_DELIVERY_DEVELOPER_REVIEWED_WITH_EXPLICIT_LIMITS",
+      "review": "原源码SHA和唯一before核对后生成副本/补丁；没有执行上传源码或创建PR。仅静态与保存回读通过，未宣称运行回归通过。",
+      "files": [
+        {
+          "name": "修改副本-CSVExporter-pyqtgraph-0.11.0.py",
+          "artifactId": "c1415974-3a6d-4f7a-b79b-85f8f733ef81",
+          "turnId": "71583418-0100-4766-8815-0b852e0b0122",
+          "sha256": "4b87bddffd62d27923bfdeadf15289c1e37d67025e7335620ba631943defeb39",
+          "bytes": 2925,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/8afd3a2e-1d0b-4d82-8569-2845d3fe9dcc/turns/71583418-0100-4766-8815-0b852e0b0122/files/c1415974-3a6d-4f7a-b79b-85f8f733ef81/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "verified-other\\browser-progress.json",
+          "registeredByteIntegrityPassed": true
+        },
+        {
+          "name": "CSVExporter-pyqtgraph-0.11.0.py.patch",
+          "artifactId": "1ce0b3a7-3062-4445-9850-4bebe9292b8a",
+          "turnId": "71583418-0100-4766-8815-0b852e0b0122",
+          "sha256": "388cffad6727a6c0a1fd7c698da96f0a6d4af1e57fdc261880437b0307150d19",
+          "bytes": 389,
+          "downloadUrl": "http://127.0.0.1:8884/api/conversations/8afd3a2e-1d0b-4d82-8569-2845d3fe9dcc/turns/71583418-0100-4766-8815-0b852e0b0122/files/1ce0b3a7-3062-4445-9850-4bebe9292b8a/download",
+          "finalHttpStatus": 200,
+          "actualBrowserProof": "verified-other\\browser-progress.json",
+          "registeredByteIntegrityPassed": true
+        }
+      ],
+      "originalRequest": "修 CSVExporter 在未指定编码时按系统默认编码写入失败的问题。\nbefore 必须是源码里的唯一原文。不要运行代码，不要创建 PR。\nissue 已关闭不代表上传的旧版本源码已被修复。",
+      "inputHashes": [
+        {
+          "name": "CSVExporter-pyqtgraph-0.11.0.py",
+          "sha256": "e8f88e8b08f80c98cfa63283551616529e3391a83bb7f4615843a156dfefbb76"
+        },
+        {
+          "name": "pyqtgraph-issue-1081.json",
+          "sha256": "0d2d9db1df9b6af3b86d4fd5dce1b63a93209810e3c85f0a26ccf5705e9a69ea"
+        }
+      ],
+      "savedTurns": [
+        {
+          "id": "71583418-0100-4766-8815-0b852e0b0122",
+          "status": "completed",
+          "artifactCount": 2
+        }
+      ]
+    }
+  ]
+}

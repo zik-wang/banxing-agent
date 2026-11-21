@@ -1,0 +1,68 @@
+V8通用工具数量评估：09和15真实材料试验
+
+口径
+一个tool指模型可调用的一个命名函数接口，不把内部Python库、HTTP端点、Harness步骤计成额外tool。
+这是能力组合验证，不是工具数量的数学最小值证明，也不是完整Personal Agent验收。
+本批只测试09和15；15复用上一版原PDF，5页SHA256 359492ec59d9438cf52032d942399929b045cc8f77d95e4eb6b89ba569f55fe2。
+09原PDF为1页SHA256 7aa2e84b1da3bc1ae29430164db2a500832267c00dd1e6f1ffdc182a6896e099。
+
+两场景的候选工具集：11种
+基础与取证：discover_tools、list_materials、inspect_material、read_result、processing_status。
+材料读取：extract_pdf_text、render_pdf_page、split_image、vision_extract。
+交付：export_xlsx、validate_artifact。
+其中3种是本批新增。所有处理器共用相同注册机制，不以09/15编号或已知业务答案分支。
+工具库11种、某次实际调用的去重种类、调用总次数是三个不同指标。
+本实验没有缩减工具集逐项消融，未证明11种全部必需。
+
+任务与验收边界
+09遵循原REQUEST：原币种和金额、Excel清单与待核事项，不判断已付或可报销。
+15遵循原REQUEST：到期清单、时区与续约待核。共同测试说明额外要求：保留原词和符号、核对跨页、工具可用时导出Excel。
+15本轮不要求重建旧版Word版式；Excel交付是本次扩展验证，不冒充旧版全部格式功能已迁移。
+QA先看原图建立独立gold.json，gold从不提供给测试模型，也不编入工具。
+17条Q1/Q2业务记录和1组Microsoft Enterprise Agreement分别核验；同组中的两种产品不能伪造为两份独立合同。
+文字层、视觉读数、导出回读、QA判定分别记录；导出内容与模型参数一致不等于原文正确。
+
+实验设计
+最初8工具基线沿用2000输出token上限，09/15均截断，原日志保留。
+正式对照：8工具与11工具使用相同7000输出token、同一请求、36总工具调用、10视觉调用、24轮、900秒预算。
+模型为现有内网Qwen规划、MiniCPM视觉；可能并发运行，延迟受服务排队影响，不能归因为工具数量。
+单次配对试验不提供稳定成功率或因果保证。结果和实际tool统计见qa-output/v8-s09-s15-20261027/results.json。
+后续guided组保持11工具及同一预算，仅增加通用任务指导并修正导出行高；15出现7000 completion tokens全部为reasoning tokens、无正文/工具调用的截断。
+无材料短探针验证该公司Qwen接受chat_template_kwargs.enable_thinking=false，返回2个正文token且0 reasoning tokens；reasoning_effort=low探针也成功但仍有10推理token。
+profiled组在guided组基础上采用已核实的关闭思考配置，不再增加tool。该配置也见旧V7 deepseek-runtime.mjs，早期V8直连时遗漏。
+参数官方说明：https://qwen.readthedocs.io/en/stable/deployment/vllm.html 。是否支持仍以本机实际探针为准，不外推到所有模型。
+
+本批实际结果（2026-10-27）
+共10次场景运行（每场景5组）和2个不带文件的接口探针，原始失败全部留存；不是独立样本成功率统计。
+最终profiled组：09实际7种工具、17次调用、9次视觉；15实际8种工具、17次调用、3次视觉；两场景工具种类并集为9种，注册池仍11种。
+两组都生成真实Excel并逐单元格回读无损。12项运行器定向测试通过，不代表完整产品回归。
+09仍有Exp. Date空白误填为8/31/2016、SOLD TO地址配错；15核心17条记录四字段准确，但聊天摘要仍缩写/and改&，供应商与时区仍被推断。两场景整体业务验收均不通过。
+本轮证明工具链可以运行，并没有证明11种就能稳定免修改交付。下一步优先解决版面字段证据、关系约束、聊天与导出统一保真、推理配置和完成判定，再扩展工具库。
+
+覆盖现有18项材料任务的建设估计：约25–30种，本轮未实测其余场景
+下列28种方案是工程拆分建议，不是28种已实现：
+01–11 上述已实现通用工具。
+12 read_text_range：TXT/MD/JSON/代码按范围读取，支持01/03/04/05/08/11/12/13/14/19。
+13 search_document：多文件定位证据，支持06/08/13/14。
+14 compare_versions：可定位的文本差异，支持08/19。
+15 copy_material：授权工作副本复制和命名，支持07。
+16 read_workbook：枚举工作表、按范围读取，支持10。
+17 transform_table：明确键的筛选/连接/去重等确定性操作，支持10。
+18 write_workbook_copy：保留原历史及字段的工作簿副本更新，支持10。
+19 calculate：限定表达式的金额/日期计算；金额口径、日期精度及日期配对仍需源依据。
+20 store_knowledge：持久化授权知识与来源，支持14。
+21 search_knowledge：检索已入库内容，支持14。
+22 read_configured_api：宿主允许的服务目录和接口读取，支持20及真正联网更新。
+23 inspect_media：时长、音轨、格式，支持18。
+24 split_media：按时间范围切段并保留偏移，支持18。
+25 transcribe_audio：实际ASR与时间戳，支持18。
+26 export_document：TXT/Markdown/Word等明确格式输出，支持简报、转写和巡检交付。
+27 apply_patch_copy：限定原文跨度的代码副本补丁，支持19，不自动运行或创建PR。
+28 package_artifacts：将真实产物与清单打包下载。
+如18要求实际音视频片段导出而非转写稿，再补export_media_clip，或明确扩展split_media的产物语义。
+16缺真实订单，增加工具不能补出不存在的资料，仍需真实输入才能验收。
+
+完整Personal Agent的额外范围
+原18项材料REQUEST多次明确不发邮件、不接日历、不设置定时，因此上述估计不等于真实邮箱/日历/订阅监控的完整闭环。
+若要日常持续办事，需要再评估任务与记忆持久化、提醒/调度、邮件读取与发送、日历读取与变更、通知等适配能力。
+断点恢复、预算、去重调用、授权、日志和验收属于Harness基础设施，不为了增加tool数量而机械拆成工具。

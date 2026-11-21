@@ -1,0 +1,18 @@
+{
+  "node": "v24.15.0",
+  "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "pythonPackages": {
+    "pypdf": "6.10.0",
+    "pypdfium2": "5.14.0",
+    "Pillow": "12.3.0",
+    "openpyxl": "3.1.5",
+    "python-docx": "1.2.0"
+  },
+  "workBranch": "codex/execution-convergence-20261103",
+  "artifactModule": "bundled @oai/artifact-tool; exact renderer path retained in private operator config",
+  "docxModule": "bundled docx; exact renderer path retained in private operator config",
+  "matrixTestedRuntimeCommit": "3bb0894675e8e6bd70fe5013be46f6b5e8cfa6bd",
+  "finalCandidateRuntimeCommit": "e24bfce8d8821a565796b129d2a5898f2c05f75a",
+  "regressionLog": "regression-delivery-recovery.log"
+}

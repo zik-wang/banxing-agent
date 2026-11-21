@@ -1,0 +1,13 @@
+V8 P1 通用能力
+
+store_knowledge/search_knowledge：宿主配置knowledgeDirectory，全文不可执行，原件SHA+文字SHA+文档ID+真实行/字符位置。新会话可以打开相同授权目录检索，登记附件不等于此动作。字面检索不宣称语义召回。
+
+export_document：从正文或保存的result_ids生成真实UTF-8 TXT/Markdown/SRT，注册artifact并回读字节。原始转写优先引用保存结果，不让模型重新抄写。validate_artifact兼容文字/补丁与XLSX，保存无损和源事实正确分开。
+
+apply_patch_copy：原件SHA+唯一before跨度；生成修改副本及统一diff，原件不变，不执行代码、不创建PR。静态补丁定位不证明修复逻辑正确。
+
+inspect_media/split_audio/transcribe_audio：FFmpeg由宿主ffmpeg或FFMPEG_PATH提供；本机没有加载ASR/27B权重。ASR默认通过现有公司服务目录查找并核验/health/ready，地址只由宿主与目录提供，模型参数不可改请求主机。宿主可配置asr{baseUrl,model,maxDurationSeconds,maxBytes,maxCalls,timeoutMs}。默认切段上限120秒、8MB、24次ASR请求；约束失败明确建议切段。
+
+音频原件不改。单声道16k PCM分段保留原件SHA、真实PCM时长和累计偏移；它们是切段边界，不是词级对齐。每段保存原始HTTP响应、错误、缺段及未核听标识。重复成功段复用结果并明确cached，不伪称新请求。全部段有文字也不等于内容没有识别错误。实际服务接入与模型/测试桩严格区分。
+
+测试：v8-persistent-delivery-audio.test.mjs中的ASR文字与故障为显式合成HTTP桩；只有新批次真实ASR/API回执能证明真实调用。旧包、旧V7和旧两轮基线不变。

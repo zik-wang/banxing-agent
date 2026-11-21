@@ -1,0 +1,169 @@
+{
+  "status": "READY_FOR_INDEPENDENT_QA",
+  "businessAcceptance": "partial",
+  "summary": "候选已完成代码修复、358项回归通过及零模型网页取回/Word下载。已知源码说明和到期清单CLI核查通过；发布简报真实写稿仍超时，未交付，整体业务验收为partial，等待独立QA。",
+  "runtimeCommit": "e24bfce8d8821a565796b129d2a5898f2c05f75a",
+  "matrixFixedCommit": "3bb0894675e8e6bd70fe5013be46f6b5e8cfa6bd",
+  "matrixBaselineCommit": "47a05c4a37c83b2bed10b9fda12def009be0a0a5",
+  "branch": "codex/execution-convergence-20261103",
+  "candidateURL": "http://127.0.0.1:8964/",
+  "runtimeFingerprint": "7cb9d1adb308cd0dd9efe7ecbbb53e84858d97ffbd31ece95b883c377873c007",
+  "regression": {
+    "total": 364,
+    "passed": 358,
+    "failed": 0,
+    "skipped": 6
+  },
+  "actualCliModelPosts": 38,
+  "cliOutputFiles": 10,
+  "cliMetrics": {
+    "baseline": {
+      "POST": 27,
+      "entrances": 27,
+      "localBudgetRefusals": 0,
+      "provider429": 0,
+      "promptTokens": 699925,
+      "completionTokens": 4860,
+      "missingUsage": 2,
+      "pacingMs": 737070,
+      "requestPhaseMinusPacingMs": 1098905,
+      "providerPrefixCacheTokens": 82176
+    },
+    "fixed": {
+      "POST": 11,
+      "entrances": 11,
+      "localBudgetRefusals": 0,
+      "provider429": 0,
+      "promptTokens": 90174,
+      "completionTokens": 4130,
+      "missingUsage": 1,
+      "pacingMs": 4,
+      "requestPhaseMinusPacingMs": 661033,
+      "providerPrefixCacheTokens": 10240
+    }
+  },
+  "caseAssessments": {
+    "fixed-19": {
+      "verdict": "已知静态交付检查通过；运行时未验证",
+      "summary": "源码与补丁只改第60行，原件SHA不变；Markdown和Word说明引用程序实际行号，不再把原件第60行说成59。没有执行上传源码或创建PR。"
+    },
+    "baseline-19": {
+      "verdict": "源码交付通过；Word解释行号错误",
+      "summary": "源码副本与修复版相同，但真实DOCX多次把上传源码中的第60行写成第59行。issue栈行号不能替代本次原件行号。"
+    },
+    "fixed-11": {
+      "verdict": "未通过真实交付：写稿请求超时",
+      "summary": "一次投影完整返回5条发布正文，共21997字符。随后写稿请求300秒等待超时；未收到可保存正文，没有文件。本轮未到达导出阶段，不能据此宣称真实简报导出已经通过。"
+    },
+    "baseline-11": {
+      "verdict": "未通过真实交付：参数错误后超时",
+      "summary": "13次实际POST；出现export_document缺正文的AMBIGUOUS_CONTENT，随后请求超时，未产生文件。读取、无关元数据和实验节流均有原始记录。"
+    },
+    "fixed-15": {
+      "verdict": "本例已知事实/跨格式核查通过",
+      "summary": "3次实际POST，交付Excel和Word；两份实际文件均回读到18个同版本事实组。正文2025仅保留年精度，应用名/供应商角色/并列多值保留，未补合同供应商、时区或当前续约状态。122个字段与标签证据跨度匹配来源；不等于陌生材料召回率。"
+    },
+    "baseline-15": {
+      "verdict": "部分交付：主表遗漏正文年精度事实",
+      "summary": "保留17个原文应用条目组，2025协议到期只在原文附录，没有进入Excel主表。本次未把许可证数量加进主表。后续Word导出遇不支持转换和缺正文，最终请求超时，仅保留Excel。"
+    }
+  },
+  "pageValidation": {
+    "actualBrowserUsed": true,
+    "uploadedFiles": 1,
+    "pageErrors": [],
+    "initialArtifactThenInterrupted": false,
+    "sameArtifactIdsRetainedAfterResume": false,
+    "wordDownloaded": false,
+    "allDownloadedHashesMatch": false,
+    "wordTaskStatus": "failed",
+    "resumeTaskStatus": "failed",
+    "scriptError": null,
+    "url": "http://127.0.0.1:8964/#430820b7-0309-4c29-93c0-2ab7d5e4041e",
+    "downloadEvents": 0,
+    "workflowPassed": false
+  },
+  "additionalPage15Validation": {
+    "actualBrowserUsed": true,
+    "initialArtifactThenInterrupted": false,
+    "sameArtifactIdsRetainedAfterResume": false,
+    "wordDownloaded": false,
+    "allDownloadedHashesMatch": false,
+    "wordTaskStatus": null,
+    "resumeTaskStatus": "cancelled",
+    "scriptError": null,
+    "url": "http://127.0.0.1:8964/#2af7424a-bd9d-4005-9e53-1f3e5a34782c",
+    "downloadEvents": 0,
+    "pageErrors": [],
+    "maxModelRequests": 10,
+    "workflowPassed": false
+  },
+  "independentGoldCases": 0,
+  "newRealHoldoutCases": 0,
+  "independentQa": "not performed; candidate awaits review",
+  "localFormatIntegration": {
+    "formats": 5,
+    "modelRequests": 0,
+    "independentSavedFieldReadbackPassed": true
+  },
+  "sameModel": "Qwen/Qwen3.8-27B",
+  "actualBilledCost": "unknown",
+  "quantization": "unknown",
+  "inferenceBackend": "unknown",
+  "chatTemplate": "unknown",
+  "mainMerged": false,
+  "production8884Replaced": false,
+  "oldPackagesReplaced": false,
+  "modelWeightsPublished": false,
+  "local15bRouteChanged": false,
+  "completedAt": "2026-11-03T17:47:31.915666+00:00",
+  "report": "D:\\pro222\\pccr-eye-gaze\\qa-output\\v8-convergence-remediation-20261103\\V8-执行收敛与事实一致性-验收对照.html",
+  "openIssues": [
+    "CLI case11 writing request timeout: no actual draft or export returned; requires controlled re-verification of writing stage.",
+    "No independent human gold/reference or new real holdout evaluation.",
+    "Explicit expiry parser covers limited labels/predicates; no zero-omission claim.",
+    "Page case11 Word follow-up searched repeatedly after no draft existed, then stopped without delivery; needs deterministic missing-draft handling.",
+    "Six legacy fixture-dependent tests skipped; see regression-results.md.",
+    "The six CLI experiments used3bb0894; the final e24bfce candidate adds dispatch, visibility and recovery fixes. These later changes were locally/browser tested, not re-run as six cloud CLI experiments.",
+    "Initial live page15 failed due fresh parallel tool results being compacted before first model exposure; fixed in be97520 and regression verified.",
+    "be97520 live page15 wrote files but late cancellation hid delivery cards and resume regenerated an earlier XLSX; e24bfce fixes candidate recovery, demonstrated with actual local browser retrieval and injected real-file resume. No additional cloud retest after budget exhausted.",
+    "Original failed page11 workflow and pre-fix page15 workflow remain failed; local recovery does not retroactively make them successful."
+  ],
+  "page15R2Validation": {
+    "url": "http://127.0.0.1:8964/#2738b539-4e75-422d-b017-11d65458ed18",
+    "downloads": 0,
+    "workflowPassed": false,
+    "budgetEntries": 13,
+    "summary": "真实Qwen调用已生成Excel与Word并validate，但硬中断后无最终settlement，旧页面没有交付卡；首次Excel在旧续跑中还发生重生成。保留原失败，后续修复不改判。"
+  },
+  "zeroModelPageRecovery": {
+    "workflowPassed": true,
+    "downloads": 3,
+    "actualQwenCalls": 0,
+    "originalStatusesUnchanged": true,
+    "artifactIdentityPreserved": true,
+    "downloadReadbackPassed": true,
+    "conversationURL": "http://127.0.0.1:8964/#2738b539-4e75-422d-b017-11d65458ed18",
+    "evidence": "page15-local-recovery-v2/e2e-results.json"
+  },
+  "localMultiFormatFaultRecovery": {
+    "passed": true,
+    "evidence": "regression-fact-recovery.log",
+    "realFilesUsed": true,
+    "modelCalls": 0,
+    "assertions": [
+      "First XLSX identity/hash/version survive after_file_written; missing Word alone is created.",
+      "Reordered formats or renamed title do not regenerate same-version fact files."
+    ]
+  },
+  "allPagesAreFreshModelSuccess": false,
+  "webCloudBudgetBoundary": "case15 cumulative24 Workspace model-entry charges across both page attempts; case11 separate logs. No further cloud calls after this bounded experiment.",
+  "pageModelCost": {
+    "scope": "candidate page only, not six CLI comparison",
+    "workspaceChargedAttempts": 34,
+    "savedTransportAttemptReceipts": 32,
+    "unfinishedAttemptDifference": 2,
+    "cost": "unknown",
+    "note": "onAttempt budget entries happen before fetch; hard-cancelled in-flight requests can lack final response/usage. Do not infer zero cost or treat all entries as successful POST responses."
+  }
+}

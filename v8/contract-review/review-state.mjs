@@ -1,0 +1,7 @@
+// A read-only display classification. Never changes engine execution status,
+// findings, counter-evidence, or promotes a model disagreement to a fact.
+export function reviewDeliveryState(run){
+ const checks=Array.isArray(run.checks)?run.checks:[],files=Array.isArray(run.files)?run.files:[],unresolved=Array.isArray(run.unresolved)?run.unresolved:[],codes=unresolved.map(x=>x.code).filter(Boolean),uninspected=checks.filter(c=>c.execution_state!=='reviewed').map(c=>c.id||c.check_id),parseIssues=files.filter(f=>f.parse_status!=='parsed').length,blockingCodes=codes.filter(c=>c!=='LOCAL_LARGE_MODEL_DISAGREEMENT');
+ const recordsComplete=checks.length>0&&files.length>0&&!uninspected.length&&!parseIssues&&!blockingCodes.length&&run.execution_status!=='failed'&&!run.model_failure;
+ return {reportGenerated:true,reviewExecutionStatus:run.execution_status,reason:recordsComplete&&codes.includes('LOCAL_LARGE_MODEL_DISAGREEMENT')?'model_disagreement':recordsComplete?'recorded_review_with_open_judgments':'inspection_incomplete',executionCoverage:{state:recordsComplete?'required_stage_records_complete':'partial_or_unknown',checked:checks.length-uninspected.length,total:checks.length,uninspected,parseIssueCount:parseIssues,blockingCodes},openQuestions:unresolved.map(({code,detail})=>({code,detail:typeof detail==='string'?detail:undefined})),conclusion:'candidate_findings_require_confirmation',modelDisagreementIsUserFault:false,scope:'Stage records and report delivery only; not proof of semantic correctness or legal approval'};
+}

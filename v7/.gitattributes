@@ -1,3 +1,0 @@
-# Preserve original public input bytes and Windows launcher line endings.
-examples/mentor/desnz-202509.csv -text
-START-WINDOWS.cmd -text

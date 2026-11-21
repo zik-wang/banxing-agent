@@ -1,0 +1,50 @@
+{
+  "cases": [
+    {
+      "title": "限定范围代码修复与PR",
+      "originalRequest": "修 CSVExporter 在未指定编码时按系统默认编码写入失败的问题。\nbefore 必须是源码里的唯一原文。不要运行代码，不要创建 PR。\nissue 已关闭不代表上传的旧版本源码已被修复。",
+      "inputs": [
+        {
+          "bytes": 2907,
+          "name": "CSVExporter-pyqtgraph-0.11.0.py",
+          "sha256": "e8f88e8b08f80c98cfa63283551616529e3391a83bb7f4615843a156dfefbb76",
+          "source": "inputs/CSVExporter-pyqtgraph-0.11.0.py"
+        },
+        {
+          "bytes": 5546,
+          "name": "pyqtgraph-issue-1081.json",
+          "sha256": "0d2d9db1df9b6af3b86d4fd5dce1b63a93209810e3c85f0a26ccf5705e9a69ea",
+          "source": "inputs/pyqtgraph-issue-1081.json"
+        }
+      ],
+      "id": "19"
+    },
+    {
+      "title": "有依据的个人周报",
+      "originalRequest": "根据这份真实公开项目发布记录，生成该项目的阶段工作简报。\n只报告文档中已发布的成果，不冒称是用户个人完成；未给出的「本周个人进展」留空。\n输入是项目发布快照，不是用户工作日志；不要建立每周自动委托。",
+      "inputs": [
+        {
+          "bytes": 118192,
+          "name": "FunASR-releases-snapshot.json",
+          "sha256": "686137cfc924e816cb81578b19cdb1cad383751ab07d166a207ee4d2aee7c1a2",
+          "source": "inputs/FunASR-releases-snapshot.json"
+        }
+      ],
+      "id": "11"
+    },
+    {
+      "title": "订阅与合同到期管理",
+      "originalRequest": "从真实公开合同/软件到期信息中提取到期日，列出到期清单和需确认的时区/续约情况。\n没有准确时间或续约依据，不猜测，不付款。\n说明：本输入为境外 FOI 公开合同到期表；大陆政府采购合同公告常见「签订日」而非「到期日」字段，本轮未找到免登录的到期清单可替换。",
+      "inputs": [
+        {
+          "bytes": 36223,
+          "name": "public-contract-expiry.pdf",
+          "sha256": "359492ec59d9438cf52032d942399929b045cc8f77d95e4eb6b89ba569f55fe2",
+          "source": "inputs/public-contract-expiry.pdf"
+        }
+      ],
+      "id": "15"
+    }
+  ],
+  "kind": "PUBLIC_FROZEN_INPUTS_ORIGINAL_REQUESTS"
+}

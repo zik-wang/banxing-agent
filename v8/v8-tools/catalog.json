@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "note": "Only implemented entries are callable. Planned names are a backlog, not registered tools. Discovery queries the actual registry rather than this planning list.",
+  "implemented": [
+    "discover_tools",
+    "calculate_money",
+    "list_materials",
+    "inspect_material",
+    "render_pdf_page",
+    "split_image",
+    "vision_extract",
+    "read_result",
+    "processing_status",
+    "extract_pdf_text",
+    "export_xlsx",
+    "validate_artifact",
+    "read_workbook",
+    "merge_tables",
+    "export_table",
+    "read_text_range",
+    "read_json_range",
+    "search_document",
+    "store_knowledge",
+    "search_knowledge",
+    "export_document",
+    "apply_patch_copy",
+    "inspect_media",
+    "split_audio",
+    "transcribe_audio",
+    "read_source_records",
+    "export_source_records",
+    "read_artifact",
+    "revise_table"
+  ],
+  "plannedGroups": [
+    {
+      "family": "文件与文档",
+      "tools": [
+        "list_pdf_pages",
+        "rotate_page",
+        "read_docx",
+        "read_presentation",
+        "inspect_archive",
+        "extract_archive"
+      ]
+    },
+    {
+      "family": "图片与识别",
+      "tools": [
+        "crop_image_region",
+        "resize_image",
+        "convert_image_format",
+        "ocr_extract",
+        "detect_page_layout",
+        "inspect_table_structure",
+        "compare_extractions"
+      ]
+    },
+    {
+      "family": "表格与数据",
+      "tools": [
+        "read_sheet_range",
+        "filter_rows",
+        "sort_rows",
+        "join_tables",
+        "group_aggregate",
+        "validate_table_schema",
+        "write_workbook_copy"
+      ]
+    },
+    {
+      "family": "计算与校验",
+      "tools": [
+        "calculate_expression",
+        "parse_dates",
+        "convert_units",
+        "reconcile_totals",
+        "compare_versions"
+      ]
+    },
+    {
+      "family": "检索与服务接入",
+      "tools": [
+        "search_saved_results",
+        "fetch_configured_url",
+        "search_web",
+        "inspect_service_capabilities",
+        "read_configured_api"
+      ]
+    },
+    {
+      "family": "音视频",
+      "tools": [
+        "extract_video_frames",
+        "align_transcript"
+      ]
+    },
+    {
+      "family": "产物与工具链",
+      "tools": [
+        "export_docx",
+        "export_pdf",
+        "export_html",
+        "package_artifacts",
+        "save_tool_recipe",
+        "replay_tool_recipe",
+        "resume_tool_run"
+      ]
+    }
+  ],
+  "registrationRequirements": [
+    "Executable handler with actual input/output schemas and declared scope",
+    "Typed failures and documented limits; no empty success placeholders",
+    "Source/asset identifiers and persistent evidence where applicable",
+    "Focused correctness tests and real-material validation before declaring available",
+    "Network/write tools are explicitly configured by the host; model arguments cannot expand authority"
+  ]
+}

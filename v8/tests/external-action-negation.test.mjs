@@ -1,0 +1,3 @@
+import test from'node:test';import assert from'node:assert/strict';import{externalActionRequested,executionIntent}from'../v8-tools/execution-intent.mjs';
+test('explicit no payment or code execution is a constraint, not an external-action request',()=>{for(const s of ['没有准确时间或续约依据，不猜测，不付款。','只导出副本，不运行代码','提取清单，不执行续约或付款','不要发邮件，只给Word'])assert.equal(externalActionRequested(s),false,s);assert.equal(executionIntent('提取到期清单，不付款，给我Excel').requiresExternalAction,false);});
+test('negation does not suppress an independent affirmative action',()=>{for(const s of ['不要重写，直接发邮件','不要付款但请发送报告','请支付这笔款项','不要只发邮件，还要预约会议'])assert.equal(externalActionRequested(s),true,s);});

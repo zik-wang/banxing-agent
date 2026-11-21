@@ -1,0 +1,3719 @@
+{
+  "model": "Qwen/Qwen3.8-27B",
+  "provider": "siliconflow",
+  "counts": {
+    "savedAttemptReceipts": 150,
+    "httpResponses": 137,
+    "http200": 129,
+    "http429": 8,
+    "failedOrIncomplete": 21,
+    "usageMissing": 21
+  },
+  "byCase": {
+    "03": {
+      "savedAttemptReceipts": 7,
+      "httpResponses": 4,
+      "http200": 4,
+      "http429": 0,
+      "failedOrIncomplete": 3,
+      "usageMissing": 3
+    },
+    "06": {
+      "savedAttemptReceipts": 25,
+      "httpResponses": 22,
+      "http200": 22,
+      "http429": 0,
+      "failedOrIncomplete": 3,
+      "usageMissing": 3
+    },
+    "08": {
+      "savedAttemptReceipts": 11,
+      "httpResponses": 8,
+      "http200": 8,
+      "http429": 0,
+      "failedOrIncomplete": 3,
+      "usageMissing": 3
+    },
+    "10": {
+      "savedAttemptReceipts": 36,
+      "httpResponses": 33,
+      "http200": 33,
+      "http429": 0,
+      "failedOrIncomplete": 3,
+      "usageMissing": 3
+    },
+    "11": {
+      "savedAttemptReceipts": 7,
+      "httpResponses": 7,
+      "http200": 7,
+      "http429": 0,
+      "failedOrIncomplete": 0,
+      "usageMissing": 0
+    },
+    "13": {
+      "savedAttemptReceipts": 7,
+      "httpResponses": 7,
+      "http200": 7,
+      "http429": 0,
+      "failedOrIncomplete": 0,
+      "usageMissing": 0
+    },
+    "14": {
+      "savedAttemptReceipts": 33,
+      "httpResponses": 33,
+      "http200": 31,
+      "http429": 2,
+      "failedOrIncomplete": 2,
+      "usageMissing": 2
+    },
+    "15": {
+      "savedAttemptReceipts": 14,
+      "httpResponses": 13,
+      "http200": 10,
+      "http429": 3,
+      "failedOrIncomplete": 4,
+      "usageMissing": 4
+    },
+    "18": {},
+    "19": {
+      "savedAttemptReceipts": 10,
+      "httpResponses": 10,
+      "http200": 7,
+      "http429": 3,
+      "failedOrIncomplete": 3,
+      "usageMissing": 3
+    }
+  },
+  "reportedUsageSumKnownOnly": {
+    "prompt_tokens": 1608045,
+    "completion_tokens": 44128,
+    "total_tokens": 1652173
+  },
+  "cost": "unknown",
+  "localAsrRequests": 13,
+  "audioCloudRequests": 0,
+  "receipts": [
+    {
+      "caseId": "03",
+      "path": "s03\\attempt-1\\run\\model-responses\\45791a68-be39-41ff-bbc8-26f71a1b8b5a.01.json",
+      "requestId": "45791a68-be39-41ff-bbc8-26f71a1b8b5a",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:20:00.146Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 47539,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5352,
+        "completion_tokens": 267,
+        "total_tokens": 5619,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5352
+      }
+    },
+    {
+      "caseId": "03",
+      "path": "s03\\attempt-1\\run\\model-responses\\a5ddfe59-4f8f-43ac-a64d-c9b6d94b3ca6.01.json",
+      "requestId": "a5ddfe59-4f8f-43ac-a64d-c9b6d94b3ca6",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:20:47.730Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 303426,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "TypeError",
+        "message": "fetch failed",
+        "cause": {
+          "name": "HeadersTimeoutError",
+          "message": "Headers Timeout Error",
+          "code": "UND_ERR_HEADERS_TIMEOUT"
+        }
+      },
+      "usage": null
+    },
+    {
+      "caseId": "03",
+      "path": "s03\\attempt-1\\run\\model-responses\\a5ddfe59-4f8f-43ac-a64d-c9b6d94b3ca6.02.json",
+      "requestId": "a5ddfe59-4f8f-43ac-a64d-c9b6d94b3ca6",
+      "attempt": 2,
+      "startedAt": "2026-11-04T06:25:51.372Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 296378,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "code": 23
+      },
+      "usage": null
+    },
+    {
+      "caseId": "03",
+      "path": "s03\\attempt-2\\run\\model-responses\\0fbf7572-0608-4f95-994e-9a22f985d7e4.01.json",
+      "requestId": "0fbf7572-0608-4f95-994e-9a22f985d7e4",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:30:58.179Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 36320,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5403,
+        "completion_tokens": 257,
+        "total_tokens": 5660,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5403
+      }
+    },
+    {
+      "caseId": "03",
+      "path": "s03\\attempt-3\\run\\model-responses\\662d62ba-2bb1-4aac-98a4-10b0b92f19af.01.json",
+      "requestId": "662d62ba-2bb1-4aac-98a4-10b0b92f19af",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:34:56.175Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 13620,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5405,
+        "completion_tokens": 258,
+        "total_tokens": 5663,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5405
+      }
+    },
+    {
+      "caseId": "03",
+      "path": "s03\\attempt-3\\run\\model-responses\\8d00e5f0-c6b8-4ce3-8d4b-40acbcaf7ff3.01.json",
+      "requestId": "8d00e5f0-c6b8-4ce3-8d4b-40acbcaf7ff3",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:35:09.845Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 600009,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "AbortError",
+        "message": "The operation was aborted",
+        "code": "ABORT_ERR",
+        "cause": {
+          "name": "TimeoutError",
+          "message": "The operation was aborted due to timeout",
+          "code": 23
+        }
+      },
+      "usage": null
+    },
+    {
+      "caseId": "03",
+      "path": "s03\\quality-compose-5\\run\\model-responses\\e69988ec-2bb5-4095-abfb-602cdf6d6fd3.01.json",
+      "requestId": "e69988ec-2bb5-4095-abfb-602cdf6d6fd3",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:42:30.014Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 45139,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12321,
+        "completion_tokens": 1591,
+        "total_tokens": 13912,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12321
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\347404eb-fd18-4d56-b6bc-d390b21229d7.01.json",
+      "requestId": "347404eb-fd18-4d56-b6bc-d390b21229d7",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:21:07.446Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 3609,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 10584,
+        "completion_tokens": 27,
+        "total_tokens": 10611,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 10584
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\487d4b06-03c3-4990-8cda-84d3239d1730.01.json",
+      "requestId": "487d4b06-03c3-4990-8cda-84d3239d1730",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:21:11.069Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 6284,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 10954,
+        "completion_tokens": 87,
+        "total_tokens": 11041,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 10954
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\53771c34-62ff-4b09-b0b1-8ed7b090223b.01.json",
+      "requestId": "53771c34-62ff-4b09-b0b1-8ed7b090223b",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:20:00.897Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 11735,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5157,
+        "completion_tokens": 171,
+        "total_tokens": 5328,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5157
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\54d9ff0e-b897-4152-90c2-61124166ddea.01.json",
+      "requestId": "54d9ff0e-b897-4152-90c2-61124166ddea",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:20:47.913Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 8754,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 8250,
+        "completion_tokens": 67,
+        "total_tokens": 8317,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8250
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\6259380e-6322-4cfd-b0dc-5608239178ca.01.json",
+      "requestId": "6259380e-6322-4cfd-b0dc-5608239178ca",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:20:14.328Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 10624,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 18997,
+        "completion_tokens": 29,
+        "total_tokens": 19026,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 18997
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\818a8aef-75f0-40c8-b654-cb7a4ffac021.01.json",
+      "requestId": "818a8aef-75f0-40c8-b654-cb7a4ffac021",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:20:24.968Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 17890,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 15131,
+        "completion_tokens": 141,
+        "total_tokens": 15272,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 15131
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\a436ed8a-3f6a-4fbb-af4a-5f43cb21eb84.01.json",
+      "requestId": "a436ed8a-3f6a-4fbb-af4a-5f43cb21eb84",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:21:17.367Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 303463,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "TypeError",
+        "message": "fetch failed",
+        "cause": {
+          "name": "HeadersTimeoutError",
+          "message": "Headers Timeout Error",
+          "code": "UND_ERR_HEADERS_TIMEOUT"
+        }
+      },
+      "usage": null
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\a436ed8a-3f6a-4fbb-af4a-5f43cb21eb84.02.json",
+      "requestId": "a436ed8a-3f6a-4fbb-af4a-5f43cb21eb84",
+      "attempt": 2,
+      "startedAt": "2026-11-04T06:26:21.036Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 296343,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "code": 23
+      },
+      "usage": null
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\bbd0baed-605a-4c48-b4bd-e86dfe631deb.01.json",
+      "requestId": "bbd0baed-605a-4c48-b4bd-e86dfe631deb",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:20:56.679Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 6457,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 10824,
+        "completion_tokens": 30,
+        "total_tokens": 10854,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 10824
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\c7849125-e609-4bdb-b342-f6bf9b41c32e.01.json",
+      "requestId": "c7849125-e609-4bdb-b342-f6bf9b41c32e",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:21:03.151Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 4282,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12057,
+        "completion_tokens": 26,
+        "total_tokens": 12083,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12057
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-1\\run\\model-responses\\e3ec778a-3ddf-4bac-af10-031e7c146d50.01.json",
+      "requestId": "e3ec778a-3ddf-4bac-af10-031e7c146d50",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:20:43.866Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 4038,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 7917,
+        "completion_tokens": 28,
+        "total_tokens": 7945,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 7917
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-2\\run\\model-responses\\6ea45b0a-c864-46c1-a414-1fea79d59b5e.01.json",
+      "requestId": "6ea45b0a-c864-46c1-a414-1fea79d59b5e",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:32:04.686Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 29770,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 14756,
+        "completion_tokens": 141,
+        "total_tokens": 14897,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 14756
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-2\\run\\model-responses\\cdc0e90f-94d7-4940-aa7d-3ef08ae25016.01.json",
+      "requestId": "cdc0e90f-94d7-4940-aa7d-3ef08ae25016",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:31:28.211Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 19905,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5196,
+        "completion_tokens": 182,
+        "total_tokens": 5378,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5196
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-2\\run\\model-responses\\ce95af85-852e-4755-9eae-3ef58b6c94d3.01.json",
+      "requestId": "ce95af85-852e-4755-9eae-3ef58b6c94d3",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:31:49.851Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 14821,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 19043,
+        "completion_tokens": 62,
+        "total_tokens": 19105,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 19043
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-3\\run\\model-responses\\2e92ad4b-2b3d-4f4d-ba84-18a0df80481a.01.json",
+      "requestId": "2e92ad4b-2b3d-4f4d-ba84-18a0df80481a",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:35:54.942Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 69347,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 8813,
+        "completion_tokens": 1431,
+        "total_tokens": 10244,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8813
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-3\\run\\model-responses\\4e96b62f-e770-4980-af30-2526f25fb5ac.01.json",
+      "requestId": "4e96b62f-e770-4980-af30-2526f25fb5ac",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:35:19.210Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 9478,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 19231,
+        "completion_tokens": 28,
+        "total_tokens": 19259,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 19231
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-3\\run\\model-responses\\54368044-206f-48f4-8f13-da1c7937af30.01.json",
+      "requestId": "54368044-206f-48f4-8f13-da1c7937af30",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:35:28.702Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 19326,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 15902,
+        "completion_tokens": 489,
+        "total_tokens": 16391,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 15902
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-3\\run\\model-responses\\7b577e25-3e24-4b60-85bf-f7949a96df83.01.json",
+      "requestId": "7b577e25-3e24-4b60-85bf-f7949a96df83",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:38:08.055Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 42239,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 14063,
+        "completion_tokens": 1431,
+        "total_tokens": 15494,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 14063
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-3\\run\\model-responses\\7e35dbb8-d438-4ff8-b000-d90eef354924.01.json",
+      "requestId": "7e35dbb8-d438-4ff8-b000-d90eef354924",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:37:05.036Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 10657,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 13352,
+        "completion_tokens": 117,
+        "total_tokens": 13469,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 13352
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-3\\run\\model-responses\\a47cda0d-5044-48e1-b837-dd05e32f984b.01.json",
+      "requestId": "a47cda0d-5044-48e1-b837-dd05e32f984b",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:34:56.867Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 20553,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5202,
+        "completion_tokens": 173,
+        "total_tokens": 5375,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5202
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-3\\run\\model-responses\\e2d1e3f3-0952-4f92-9960-3f3a02f896d2.01.json",
+      "requestId": "e2d1e3f3-0952-4f92-9960-3f3a02f896d2",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:37:18.222Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 49822,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 14078,
+        "completion_tokens": 1500,
+        "total_tokens": 15578,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 14078
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\attempt-3\\run\\model-responses\\f2a5a70f-afbf-4c0e-886f-b0d1fdf045d7.01.json",
+      "requestId": "f2a5a70f-afbf-4c0e-886f-b0d1fdf045d7",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:38:51.043Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 22626,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 17423,
+        "completion_tokens": 720,
+        "total_tokens": 18143,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 17423
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\quality-compose-5\\run\\model-responses\\0acdd179-144a-44f0-8ea6-c1b89e77b414.01.json",
+      "requestId": "0acdd179-144a-44f0-8ea6-c1b89e77b414",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:45:15.801Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 409648,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "read ECONNRESET",
+        "code": "ECONNRESET",
+        "errno": -4077,
+        "syscall": "read"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\quality-compose-6\\run\\model-responses\\21474e51-d4c4-4164-a08b-61fd3d9ef49e.01.json",
+      "requestId": "21474e51-d4c4-4164-a08b-61fd3d9ef49e",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:42:07.326Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 111626,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 3263,
+        "completion_tokens": 1436,
+        "total_tokens": 4699,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 3263
+      }
+    },
+    {
+      "caseId": "06",
+      "path": "s06\\quality-compose-8\\run\\model-responses\\140ea5a2-b995-423d-8a2c-8280f98419e4.01.json",
+      "requestId": "140ea5a2-b995-423d-8a2c-8280f98419e4",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:51:24.033Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 64126,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 3337,
+        "completion_tokens": 1343,
+        "total_tokens": 4680,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 3337
+      }
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-1\\run\\model-responses\\73a59332-99cb-4aa3-8977-a10f029691c1.01.json",
+      "requestId": "73a59332-99cb-4aa3-8977-a10f029691c1",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:40:06.964Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 718481,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "read ECONNRESET",
+        "code": "ECONNRESET",
+        "errno": -4077,
+        "syscall": "read"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-1\\run\\model-responses\\e92f4d1f-e6e5-4b0b-9dc4-facdd068dc5c.01.json",
+      "requestId": "e92f4d1f-e6e5-4b0b-9dc4-facdd068dc5c",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:39:17.126Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 49797,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5135,
+        "completion_tokens": 182,
+        "total_tokens": 5317,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5135
+      }
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-2\\run\\model-responses\\5e5e92ce-3c86-4a1c-9961-6f2b660fb561.01.json",
+      "requestId": "5e5e92ce-3c86-4a1c-9961-6f2b660fb561",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:39:27.938Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 16459,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5184,
+        "completion_tokens": 174,
+        "total_tokens": 5358,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5184
+      }
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-2\\run\\model-responses\\6b62247e-ad92-485d-925d-c5afe6a538e5.01.json",
+      "requestId": "6b62247e-ad92-485d-925d-c5afe6a538e5",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:39:44.449Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 29086,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "read ECONNRESET",
+        "code": "ECONNRESET",
+        "errno": -4077,
+        "syscall": "read"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-2\\run\\model-responses\\6b62247e-ad92-485d-925d-c5afe6a538e5.02.json",
+      "requestId": "6b62247e-ad92-485d-925d-c5afe6a538e5",
+      "attempt": 2,
+      "startedAt": "2026-11-04T07:40:13.902Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 570552,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "AbortError",
+        "message": "The operation was aborted",
+        "code": "ABORT_ERR",
+        "cause": {
+          "name": "TimeoutError",
+          "message": "The operation was aborted due to timeout",
+          "code": 23
+        }
+      },
+      "usage": null
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-3\\run\\model-responses\\281a0f24-42a5-4341-8138-cbaa62824a07.01.json",
+      "requestId": "281a0f24-42a5-4341-8138-cbaa62824a07",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:53:50.700Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 23493,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11416,
+        "completion_tokens": 99,
+        "total_tokens": 11515,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11416
+      }
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-3\\run\\model-responses\\5c4b6b20-cefa-482b-8259-dac84d3f9536.01.json",
+      "requestId": "5c4b6b20-cefa-482b-8259-dac84d3f9536",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:53:32.713Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 17239,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 13577,
+        "completion_tokens": 230,
+        "total_tokens": 13807,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 13577
+      }
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-3\\run\\model-responses\\5d2f8ead-e9a1-484e-aba3-ace106d655c9.01.json",
+      "requestId": "5d2f8ead-e9a1-484e-aba3-ace106d655c9",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:49:54.626Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 10693,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5178,
+        "completion_tokens": 183,
+        "total_tokens": 5361,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5178
+      }
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-3\\run\\model-responses\\9327ec26-a96a-4a02-83ac-81289c7c879d.01.json",
+      "requestId": "9327ec26-a96a-4a02-83ac-81289c7c879d",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:50:05.346Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 207335,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 16251,
+        "completion_tokens": 1348,
+        "total_tokens": 17599,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 16251
+      }
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\attempt-3\\run\\model-responses\\94c1fb7e-7f19-4d78-a893-ecc690d42a4e.01.json",
+      "requestId": "94c1fb7e-7f19-4d78-a893-ecc690d42a4e",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:54:14.786Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 58543,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12916,
+        "completion_tokens": 552,
+        "total_tokens": 13468,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12916
+      }
+    },
+    {
+      "caseId": "08",
+      "path": "s08\\quality-compose-6\\run\\model-responses\\b69f70ad-5460-4c9b-81a0-3cdf128795d9.01.json",
+      "requestId": "b69f70ad-5460-4c9b-81a0-3cdf128795d9",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:44:00.179Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 42302,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5313,
+        "completion_tokens": 1360,
+        "total_tokens": 6673,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5313
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\0300a150-18bd-4db0-bb1a-73808c1657cc.01.json",
+      "requestId": "0300a150-18bd-4db0-bb1a-73808c1657cc",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:47:16.539Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 2925,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 8651,
+        "completion_tokens": 26,
+        "total_tokens": 8677,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8651
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\15514715-970a-439c-8f51-a45e0a68e889.01.json",
+      "requestId": "15514715-970a-439c-8f51-a45e0a68e889",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:45:21.367Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 2419,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5136,
+        "completion_tokens": 27,
+        "total_tokens": 5163,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5136
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\161e0c90-ea5d-4d74-a437-e9fecff66ab3.01.json",
+      "requestId": "161e0c90-ea5d-4d74-a437-e9fecff66ab3",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:47:27.229Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 23706,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12987,
+        "completion_tokens": 72,
+        "total_tokens": 13059,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12987
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\19226523-50f2-48ed-b401-8cd637301090.01.json",
+      "requestId": "19226523-50f2-48ed-b401-8cd637301090",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:48:21.845Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 223780,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "read ECONNRESET",
+        "code": "ECONNRESET",
+        "errno": -4077,
+        "syscall": "read"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\19226523-50f2-48ed-b401-8cd637301090.02.json",
+      "requestId": "19226523-50f2-48ed-b401-8cd637301090",
+      "attempt": 2,
+      "startedAt": "2026-11-04T06:52:05.879Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 47,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "getaddrinfo ENOTFOUND api.siliconflow.cn",
+        "code": "ENOTFOUND",
+        "errno": -3008,
+        "syscall": "getaddrinfo"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\2e54182d-4003-45db-ac5d-83268f4c2398.01.json",
+      "requestId": "2e54182d-4003-45db-ac5d-83268f4c2398",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:47:19.477Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 2688,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 9553,
+        "completion_tokens": 27,
+        "total_tokens": 9580,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9553
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\36008b39-e4c2-4216-9e49-9bca00d0c456.01.json",
+      "requestId": "36008b39-e4c2-4216-9e49-9bca00d0c456",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:45:23.810Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 2596,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5675,
+        "completion_tokens": 26,
+        "total_tokens": 5701,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5675
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\480cc477-da19-4764-8e20-74aff820d909.01.json",
+      "requestId": "480cc477-da19-4764-8e20-74aff820d909",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:47:50.953Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 30751,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 14719,
+        "completion_tokens": 89,
+        "total_tokens": 14808,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 13056
+        },
+        "prompt_cache_hit_tokens": 13056,
+        "prompt_cache_miss_tokens": 1663
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\55105a66-a254-4177-9dfe-1cfdba02536b.01.json",
+      "requestId": "55105a66-a254-4177-9dfe-1cfdba02536b",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:47:00.267Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 16259,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 10102,
+        "completion_tokens": 26,
+        "total_tokens": 10128,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 10102
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\57615325-4f39-4571-bc81-e46fe963ede2.01.json",
+      "requestId": "57615325-4f39-4571-bc81-e46fe963ede2",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:46:02.114Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 28908,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 6916,
+        "completion_tokens": 140,
+        "total_tokens": 7056,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 6916
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\5953abbd-9e9d-4c30-b544-29d7627d1976.01.json",
+      "requestId": "5953abbd-9e9d-4c30-b544-29d7627d1976",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:46:41.682Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 14127,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 7641,
+        "completion_tokens": 108,
+        "total_tokens": 7749,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 7641
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\72a33416-bdcb-4199-9591-0ba6aec8893a.01.json",
+      "requestId": "72a33416-bdcb-4199-9591-0ba6aec8893a",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:46:55.834Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 4418,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12197,
+        "completion_tokens": 26,
+        "total_tokens": 12223,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12197
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\7e0f3afd-87dc-4cb7-9195-5a3819a55636.01.json",
+      "requestId": "7e0f3afd-87dc-4cb7-9195-5a3819a55636",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:46:33.820Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 4356,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11722,
+        "completion_tokens": 26,
+        "total_tokens": 11748,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11722
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\7edecb19-3a65-469c-8d58-16edcd534674.01.json",
+      "requestId": "7edecb19-3a65-469c-8d58-16edcd534674",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:45:26.416Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 32605,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 6152,
+        "completion_tokens": 114,
+        "total_tokens": 6266,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 6152
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\8046db57-6054-4dd0-b320-592f9d8212f8.01.json",
+      "requestId": "8046db57-6054-4dd0-b320-592f9d8212f8",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:47:22.177Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 5033,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 9946,
+        "completion_tokens": 107,
+        "total_tokens": 10053,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9946
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-1\\run\\model-responses\\f272f738-f75a-43be-8132-7b88563e80d2.01.json",
+      "requestId": "f272f738-f75a-43be-8132-7b88563e80d2",
+      "attempt": 1,
+      "startedAt": "2026-11-04T06:46:38.192Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 3475,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 9531,
+        "completion_tokens": 26,
+        "total_tokens": 9557,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9531
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\03ed330f-b4f4-4139-a6c8-75764fe5fc90.01.json",
+      "requestId": "03ed330f-b4f4-4139-a6c8-75764fe5fc90",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:40:17.556Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 14117,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 6986,
+        "completion_tokens": 146,
+        "total_tokens": 7132,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 6986
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\05be40cb-220c-47b5-9c8a-ef00b8c7f560.01.json",
+      "requestId": "05be40cb-220c-47b5-9c8a-ef00b8c7f560",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:40:40.667Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 2865,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 9607,
+        "completion_tokens": 26,
+        "total_tokens": 9633,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9607
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\1fb47d7f-1c6b-471b-8443-dd4c80952f31.01.json",
+      "requestId": "1fb47d7f-1c6b-471b-8443-dd4c80952f31",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:42:46.442Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 137808,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11774,
+        "completion_tokens": 973,
+        "total_tokens": 12747,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11774
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\20dc8ed5-30c2-4a2b-925a-64ee35c10bd8.01.json",
+      "requestId": "20dc8ed5-30c2-4a2b-925a-64ee35c10bd8",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:41:50.841Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 4274,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11532,
+        "completion_tokens": 71,
+        "total_tokens": 11603,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11532
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\43d4ff06-7136-424f-ab86-f118ca91e854.01.json",
+      "requestId": "43d4ff06-7136-424f-ab86-f118ca91e854",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:45:13.546Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 78037,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 16093,
+        "completion_tokens": 582,
+        "total_tokens": 16675,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 16093
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\4caae760-1978-4748-937a-12c8ea6bbe90.01.json",
+      "requestId": "4caae760-1978-4748-937a-12c8ea6bbe90",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:42:17.888Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 6659,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11886,
+        "completion_tokens": 26,
+        "total_tokens": 11912,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11886
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\571d2b3e-8313-4e22-8b9d-889ef4bc1a45.01.json",
+      "requestId": "571d2b3e-8313-4e22-8b9d-889ef4bc1a45",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:40:58.716Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 22564,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "read ECONNRESET",
+        "code": "ECONNRESET",
+        "errno": -4077,
+        "syscall": "read"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\571d2b3e-8313-4e22-8b9d-889ef4bc1a45.02.json",
+      "requestId": "571d2b3e-8313-4e22-8b9d-889ef4bc1a45",
+      "attempt": 2,
+      "startedAt": "2026-11-04T07:41:21.494Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 7876,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12320,
+        "completion_tokens": 26,
+        "total_tokens": 12346,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12320
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\605c48f1-167c-4c01-b163-856cb219333e.01.json",
+      "requestId": "605c48f1-167c-4c01-b163-856cb219333e",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:42:03.029Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 6260,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12592,
+        "completion_tokens": 71,
+        "total_tokens": 12663,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12592
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\68ff48fd-ba1e-4543-a5a9-33eb6ae10ac2.01.json",
+      "requestId": "68ff48fd-ba1e-4543-a5a9-33eb6ae10ac2",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:39:32.678Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 4209,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5189,
+        "completion_tokens": 27,
+        "total_tokens": 5216,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5189
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\71f617a1-9b3e-44d6-9b1e-e39f654e5921.01.json",
+      "requestId": "71f617a1-9b3e-44d6-9b1e-e39f654e5921",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:40:43.561Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 15139,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 7718,
+        "completion_tokens": 138,
+        "total_tokens": 7856,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 7718
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\7338ac7f-886e-4de7-978a-0883734ba41e.01.json",
+      "requestId": "7338ac7f-886e-4de7-978a-0883734ba41e",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:40:37.232Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 3422,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11800,
+        "completion_tokens": 26,
+        "total_tokens": 11826,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11800
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\90bfcaae-31c9-4621-980a-7b3d61de3d79.01.json",
+      "requestId": "90bfcaae-31c9-4621-980a-7b3d61de3d79",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:41:29.400Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 21424,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 10213,
+        "completion_tokens": 107,
+        "total_tokens": 10320,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 10213
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\a4e1fdaf-965c-4163-9406-ee847cb5c59c.01.json",
+      "requestId": "a4e1fdaf-965c-4163-9406-ee847cb5c59c",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:41:55.151Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 3604,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 13262,
+        "completion_tokens": 27,
+        "total_tokens": 13289,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 13262
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\af3fde6b-2086-45b8-9924-0361b1c78e59.01.json",
+      "requestId": "af3fde6b-2086-45b8-9924-0361b1c78e59",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:45:04.311Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 8162,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 13489,
+        "completion_tokens": 196,
+        "total_tokens": 13685,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 13489
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\b2b2028e-d6a4-4306-b362-e61821c59e33.01.json",
+      "requestId": "b2b2028e-d6a4-4306-b362-e61821c59e33",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:39:36.927Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 2374,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5727,
+        "completion_tokens": 26,
+        "total_tokens": 5753,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5727
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\b3148256-9b77-4093-a6e3-de9af23fc7fd.01.json",
+      "requestId": "b3148256-9b77-4093-a6e3-de9af23fc7fd",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:42:09.303Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 8572,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 14322,
+        "completion_tokens": 26,
+        "total_tokens": 14348,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 14322
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\cc6dd513-fe26-4f9c-b0ac-b8571bb74d01.01.json",
+      "requestId": "cc6dd513-fe26-4f9c-b0ac-b8571bb74d01",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:39:39.318Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 14043,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 6203,
+        "completion_tokens": 120,
+        "total_tokens": 6323,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 6203
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\cce21ad2-4c28-4524-b325-4fa84339d96b.01.json",
+      "requestId": "cce21ad2-4c28-4524-b325-4fa84339d96b",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:42:24.567Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 17763,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11296,
+        "completion_tokens": 79,
+        "total_tokens": 11375,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11296
+      }
+    },
+    {
+      "caseId": "10",
+      "path": "s10\\attempt-2\\run\\model-responses\\f41c521c-724d-4a95-8943-10cf9ef0997a.01.json",
+      "requestId": "f41c521c-724d-4a95-8943-10cf9ef0997a",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:41:58.779Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 4231,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11147,
+        "completion_tokens": 68,
+        "total_tokens": 11215,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11147
+      }
+    },
+    {
+      "caseId": "11",
+      "path": "s11\\attempt-1\\run\\model-responses\\1130bef0-4ce6-4fe2-a2f4-166b706e8e56.01.json",
+      "requestId": "1130bef0-4ce6-4fe2-a2f4-166b706e8e56",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:54:44.173Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 8684,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 15121,
+        "completion_tokens": 59,
+        "total_tokens": 15180,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 15121
+      }
+    },
+    {
+      "caseId": "11",
+      "path": "s11\\attempt-1\\run\\model-responses\\49b60d78-bb55-42a8-9701-315cb1240ddd.01.json",
+      "requestId": "49b60d78-bb55-42a8-9701-315cb1240ddd",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:46:43.590Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 460284,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 15401,
+        "completion_tokens": 2740,
+        "total_tokens": 18141,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 15401
+      }
+    },
+    {
+      "caseId": "11",
+      "path": "s11\\attempt-1\\run\\model-responses\\58339c32-1cb9-478f-94d8-131ee6468689.01.json",
+      "requestId": "58339c32-1cb9-478f-94d8-131ee6468689",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:46:35.393Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 8151,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 4965,
+        "completion_tokens": 97,
+        "total_tokens": 5062,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 4965
+      }
+    },
+    {
+      "caseId": "11",
+      "path": "s11\\attempt-1\\run\\model-responses\\9504ba3b-e529-401b-9fd0-b5810f3ae738.01.json",
+      "requestId": "9504ba3b-e529-401b-9fd0-b5810f3ae738",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:54:53.569Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 18518,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 18075,
+        "completion_tokens": 488,
+        "total_tokens": 18563,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 18075
+      }
+    },
+    {
+      "caseId": "11",
+      "path": "s11\\attempt-1\\run\\model-responses\\cec60dcc-f85f-45a4-abc3-75850472e266.01.json",
+      "requestId": "cec60dcc-f85f-45a4-abc3-75850472e266",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:54:23.919Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 19437,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 18874,
+        "completion_tokens": 176,
+        "total_tokens": 19050,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 18874
+      }
+    },
+    {
+      "caseId": "11",
+      "path": "s11\\quality-compose-6\\run\\model-responses\\bfc16601-b528-4db0-af2d-f50a5ad662ca.01.json",
+      "requestId": "bfc16601-b528-4db0-af2d-f50a5ad662ca",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:44:43.893Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 50494,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 9080,
+        "completion_tokens": 1831,
+        "total_tokens": 10911,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9080
+      }
+    },
+    {
+      "caseId": "11",
+      "path": "s11\\quality-compose-8\\run\\model-responses\\a8427876-2960-44dd-aff9-2ffe0bbb6035.01.json",
+      "requestId": "a8427876-2960-44dd-aff9-2ffe0bbb6035",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:52:29.192Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 70948,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 14084,
+        "completion_tokens": 1780,
+        "total_tokens": 15864,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 14084
+      }
+    },
+    {
+      "caseId": "13",
+      "path": "s13\\attempt-1\\run\\model-responses\\1154e01b-5fe8-4c25-bccc-efa3db5b3e5c.01.json",
+      "requestId": "1154e01b-5fe8-4c25-bccc-efa3db5b3e5c",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:02:43.921Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 16957,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 14798,
+        "completion_tokens": 451,
+        "total_tokens": 15249,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 14798
+      }
+    },
+    {
+      "caseId": "13",
+      "path": "s13\\attempt-1\\run\\model-responses\\4fb96434-3948-4b5c-b0eb-78b14e33d524.01.json",
+      "requestId": "4fb96434-3948-4b5c-b0eb-78b14e33d524",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:55:12.836Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 26666,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5297,
+        "completion_tokens": 273,
+        "total_tokens": 5570,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5297
+      }
+    },
+    {
+      "caseId": "13",
+      "path": "s13\\attempt-1\\run\\model-responses\\a7b3b6b3-8610-4825-bf8c-97f57d4879ad.01.json",
+      "requestId": "a7b3b6b3-8610-4825-bf8c-97f57d4879ad",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:02:32.254Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 10896,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12984,
+        "completion_tokens": 90,
+        "total_tokens": 13074,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12984
+      }
+    },
+    {
+      "caseId": "13",
+      "path": "s13\\attempt-1\\run\\model-responses\\e6fe7395-e889-4362-a835-b98a7c330f18.01.json",
+      "requestId": "e6fe7395-e889-4362-a835-b98a7c330f18",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:01:36.365Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 54737,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 18761,
+        "completion_tokens": 254,
+        "total_tokens": 19015,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 18761
+      }
+    },
+    {
+      "caseId": "13",
+      "path": "s13\\attempt-1\\run\\model-responses\\ec09d41c-386c-40f8-87be-b95be2984528.01.json",
+      "requestId": "ec09d41c-386c-40f8-87be-b95be2984528",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:55:39.558Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 356766,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 41132,
+        "completion_tokens": 1723,
+        "total_tokens": 42855,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 41132
+      }
+    },
+    {
+      "caseId": "13",
+      "path": "s13\\quality-compose-6\\run\\model-responses\\ea11d063-adf5-4cc1-89b8-1e160ed39fcd.01.json",
+      "requestId": "ea11d063-adf5-4cc1-89b8-1e160ed39fcd",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:45:35.803Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 72861,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 17452,
+        "completion_tokens": 1644,
+        "total_tokens": 19096,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 17452
+      }
+    },
+    {
+      "caseId": "13",
+      "path": "s13\\quality-compose-8\\run\\model-responses\\6b3e6cdf-7683-4c55-bbb1-c46cf82ed3c5.01.json",
+      "requestId": "6b3e6cdf-7683-4c55-bbb1-c46cf82ed3c5",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:53:41.176Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 207022,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 17527,
+        "completion_tokens": 1535,
+        "total_tokens": 19062,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 17527
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\03c406de-2da0-4800-b290-f78db0c53361.01.json",
+      "requestId": "03c406de-2da0-4800-b290-f78db0c53361",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:55:31.534Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 6381,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 17359,
+        "completion_tokens": 30,
+        "total_tokens": 17389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 17359
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\1eac9846-61db-40ea-8a0e-c81c2405d1b3.01.json",
+      "requestId": "1eac9846-61db-40ea-8a0e-c81c2405d1b3",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:56:10.305Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 26827,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 24635,
+        "completion_tokens": 159,
+        "total_tokens": 24794,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 24635
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\3fa11a4d-c7f4-4fb4-a0e6-ada12c4ee6c6.01.json",
+      "requestId": "3fa11a4d-c7f4-4fb4-a0e6-ada12c4ee6c6",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:57:22.718Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 25228,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 19179,
+        "completion_tokens": 91,
+        "total_tokens": 19270,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 19179
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\4ec1e841-03bf-4951-8410-8abd5d53f8a5.01.json",
+      "requestId": "4ec1e841-03bf-4951-8410-8abd5d53f8a5",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:55:37.928Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 17168,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12759,
+        "completion_tokens": 164,
+        "total_tokens": 12923,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12759
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\58759e72-743f-4f85-9101-c53561be366b.01.json",
+      "requestId": "58759e72-743f-4f85-9101-c53561be366b",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:58:25.359Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 12311,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 20300,
+        "completion_tokens": 91,
+        "total_tokens": 20391,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 20300
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\9d8a8913-2499-4499-8702-7f532947dea3.01.json",
+      "requestId": "9d8a8913-2499-4499-8702-7f532947dea3",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:55:14.049Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 17444,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5126,
+        "completion_tokens": 169,
+        "total_tokens": 5295,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5126
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\a8525ab1-bffa-4781-ac94-3d2f02a63c37.01.json",
+      "requestId": "a8525ab1-bffa-4781-ac94-3d2f02a63c37",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:56:59.419Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 23262,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 18033,
+        "completion_tokens": 170,
+        "total_tokens": 18203,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 18033
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\bc3170c4-0c4f-444f-86a5-e16275399ef6.01.json",
+      "requestId": "bc3170c4-0c4f-444f-86a5-e16275399ef6",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:58:37.690Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 15222,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 20978,
+        "completion_tokens": 105,
+        "total_tokens": 21083,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 20978
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\c509b1bc-85d6-48d5-a419-d66df586b2db.01.json",
+      "requestId": "c509b1bc-85d6-48d5-a419-d66df586b2db",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:58:52.931Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 14751,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 21160,
+        "completion_tokens": 91,
+        "total_tokens": 21251,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 21160
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\ca1d0fdb-5128-402e-b9f3-ae1c8c92a8c3.01.json",
+      "requestId": "ca1d0fdb-5128-402e-b9f3-ae1c8c92a8c3",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:57:47.966Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 37365,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 20111,
+        "completion_tokens": 105,
+        "total_tokens": 20216,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 20111
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\d452c66e-f291-4798-87dd-25a65f9b3d1a.01.json",
+      "requestId": "d452c66e-f291-4798-87dd-25a65f9b3d1a",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:55:55.138Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 15133,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 7235,
+        "completion_tokens": 117,
+        "total_tokens": 7352,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 7235
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-1\\run\\model-responses\\d7bc5d51-54de-4a68-967e-392443400123.01.json",
+      "requestId": "d7bc5d51-54de-4a68-967e-392443400123",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:56:37.169Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 22231,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 16424,
+        "completion_tokens": 91,
+        "total_tokens": 16515,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 16424
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-2\\run\\model-responses\\0fc16216-51c7-44ce-b314-cd6ab7d1bae0.01.json",
+      "requestId": "0fc16216-51c7-44ce-b314-cd6ab7d1bae0",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:59:31.808Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 22830,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12832,
+        "completion_tokens": 169,
+        "total_tokens": 13001,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12832
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-2\\run\\model-responses\\1ae29051-030a-4c1e-9f53-6da6e5756640.01.json",
+      "requestId": "1ae29051-030a-4c1e-9f53-6da6e5756640",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:01:59.824Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 29020,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 16080,
+        "completion_tokens": 91,
+        "total_tokens": 16171,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 16080
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-2\\run\\model-responses\\25aada8e-0864-4876-bdf3-cdba3e98f614.01.json",
+      "requestId": "25aada8e-0864-4876-bdf3-cdba3e98f614",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:59:54.658Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 52133,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 7270,
+        "completion_tokens": 117,
+        "total_tokens": 7387,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 7270
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-2\\run\\model-responses\\48951c35-997a-461c-a49a-f305329feabd.01.json",
+      "requestId": "48951c35-997a-461c-a49a-f305329feabd",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:02:28.865Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 16544,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 20565,
+        "completion_tokens": 131,
+        "total_tokens": 20696,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 20565
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-2\\run\\model-responses\\554ac971-4069-48a5-b333-b300517c9812.01.json",
+      "requestId": "554ac971-4069-48a5-b333-b300517c9812",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:59:17.925Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 8966,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5179,
+        "completion_tokens": 175,
+        "total_tokens": 5354,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5179
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-2\\run\\model-responses\\b27f0003-621e-4abd-98a3-9b9c33c7bc9b.01.json",
+      "requestId": "b27f0003-621e-4abd-98a3-9b9c33c7bc9b",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:00:46.824Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 72964,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 19548,
+        "completion_tokens": 118,
+        "total_tokens": 19666,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 19548
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-2\\run\\model-responses\\fc3ea39f-a8a0-4116-9dc1-1c22ba78b0fb.01.json",
+      "requestId": "fc3ea39f-a8a0-4116-9dc1-1c22ba78b0fb",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:59:26.925Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 4872,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 17434,
+        "completion_tokens": 30,
+        "total_tokens": 17464,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 17434
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-2\\run\\model-responses\\fd5b8cb0-f7c3-44cc-8efc-27d03fc0b367.01.json",
+      "requestId": "fd5b8cb0-f7c3-44cc-8efc-27d03fc0b367",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:02:45.442Z",
+      "phase": "parse",
+      "httpStatus": 429,
+      "elapsedMs": 100,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "Planning model HTTP 429",
+        "code": "MODEL_HTTP_ERROR"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\attempt-3\\run\\model-responses\\66709e9e-b02b-4341-bb55-c1669a9bbbea.01.json",
+      "requestId": "66709e9e-b02b-4341-bb55-c1669a9bbbea",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:02:55.772Z",
+      "phase": "parse",
+      "httpStatus": 429,
+      "elapsedMs": 153,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "Planning model HTTP 429",
+        "code": "MODEL_HTTP_ERROR"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\quality-compose-6\\run\\model-responses\\b39d0477-3822-4edd-a5de-8c893edc8fb8.01.json",
+      "requestId": "b39d0477-3822-4edd-a5de-8c893edc8fb8",
+      "attempt": 1,
+      "startedAt": "2026-11-04T07:46:49.765Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 257402,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 25580,
+        "completion_tokens": 1592,
+        "total_tokens": 27172,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 25580
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\0460eccf-b8c6-4815-80b8-2db12f97eac7.01.json",
+      "requestId": "0460eccf-b8c6-4815-80b8-2db12f97eac7",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:26:14.693Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 23986,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 17453,
+        "completion_tokens": 78,
+        "total_tokens": 17531,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 17453
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\0cf9b0ea-aaf7-4541-bf41-c1c33d81696d.01.json",
+      "requestId": "0cf9b0ea-aaf7-4541-bf41-c1c33d81696d",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:23:30.926Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 39936,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12780,
+        "completion_tokens": 168,
+        "total_tokens": 12948,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12780
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\42e58a12-ce57-4482-9970-e6411ceb30ea.01.json",
+      "requestId": "42e58a12-ce57-4482-9970-e6411ceb30ea",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:23:10.649Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 20260,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 17377,
+        "completion_tokens": 30,
+        "total_tokens": 17407,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 17377
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\46960530-2b00-46a7-b76d-f7578e1fd924.01.json",
+      "requestId": "46960530-2b00-46a7-b76d-f7578e1fd924",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:24:10.891Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 29423,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 7226,
+        "completion_tokens": 117,
+        "total_tokens": 7343,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 7226
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\5db3bfac-5a9c-4496-8aff-d3fdc3ad473c.01.json",
+      "requestId": "5db3bfac-5a9c-4496-8aff-d3fdc3ad473c",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:25:48.698Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 25954,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 20652,
+        "completion_tokens": 119,
+        "total_tokens": 20771,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 20652
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\8b0c421b-a8fa-4777-bff6-22ba8e85b157.01.json",
+      "requestId": "8b0c421b-a8fa-4777-bff6-22ba8e85b157",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:26:38.708Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 34631,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 22079,
+        "completion_tokens": 117,
+        "total_tokens": 22196,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 22079
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\8b9ac02f-d923-41cb-8f96-aefd0fa50484.01.json",
+      "requestId": "8b9ac02f-d923-41cb-8f96-aefd0fa50484",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:25:16.452Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 32209,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 16035,
+        "completion_tokens": 78,
+        "total_tokens": 16113,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 16035
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\94f0f1be-5502-4b5b-8de0-066340802147.01.json",
+      "requestId": "94f0f1be-5502-4b5b-8de0-066340802147",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:22:56.138Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 14448,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5132,
+        "completion_tokens": 172,
+        "total_tokens": 5304,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5132
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\ae582df3-e3d8-42d3-a412-574cb3b0bd35.01.json",
+      "requestId": "ae582df3-e3d8-42d3-a412-574cb3b0bd35",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:27:44.190Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 33087,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 23706,
+        "completion_tokens": 119,
+        "total_tokens": 23825,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 23706
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\b87165b4-ddcd-4d7b-8815-1afc363e858c.01.json",
+      "requestId": "b87165b4-ddcd-4d7b-8815-1afc363e858c",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:27:13.378Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 30786,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 20537,
+        "completion_tokens": 78,
+        "total_tokens": 20615,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 20537
+      }
+    },
+    {
+      "caseId": "14",
+      "path": "s14\\rate-limit-recovery-4\\run\\model-responses\\d52a5f8e-fbf0-44d4-844a-31fb3a488e12.01.json",
+      "requestId": "d52a5f8e-fbf0-44d4-844a-31fb3a488e12",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:24:40.355Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 36042,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 19503,
+        "completion_tokens": 118,
+        "total_tokens": 19621,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 19503
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\attempt-1\\run\\model-responses\\8fa18952-f626-46a1-a318-cb17cb00545d.01.json",
+      "requestId": "8fa18952-f626-46a1-a318-cb17cb00545d",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:03:02.507Z",
+      "phase": "parse",
+      "httpStatus": 429,
+      "elapsedMs": 227,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "Planning model HTTP 429",
+        "code": "MODEL_HTTP_ERROR"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\attempt-2\\run\\model-responses\\aec168d5-a7d8-49e8-b33a-0a197e2f48c4.01.json",
+      "requestId": "aec168d5-a7d8-49e8-b33a-0a197e2f48c4",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:03:13.568Z",
+      "phase": "parse",
+      "httpStatus": 429,
+      "elapsedMs": 148,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "Planning model HTTP 429",
+        "code": "MODEL_HTTP_ERROR"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\attempt-3\\run\\model-responses\\5000765f-91d4-47be-9542-b91a867a6ad2.01.json",
+      "requestId": "5000765f-91d4-47be-9542-b91a867a6ad2",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:03:24.568Z",
+      "phase": "parse",
+      "httpStatus": 429,
+      "elapsedMs": 124,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "Planning model HTTP 429",
+        "code": "MODEL_HTTP_ERROR"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\046cde9f-44b5-4473-850b-236feb06d694.01.json",
+      "requestId": "046cde9f-44b5-4473-850b-236feb06d694",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:30:33.075Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 22407,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 13503,
+        "completion_tokens": 115,
+        "total_tokens": 13618,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 13503
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\1c758cf7-1bb2-4eac-a1af-04a501ee6d29.01.json",
+      "requestId": "1c758cf7-1bb2-4eac-a1af-04a501ee6d29",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:30:12.392Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 19303,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11574,
+        "completion_tokens": 160,
+        "total_tokens": 11734,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11574
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\3c8ca7bf-9306-45f6-9382-ebed6fe32937.01.json",
+      "requestId": "3c8ca7bf-9306-45f6-9382-ebed6fe32937",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:26:39.103Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 100363,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 12308,
+        "completion_tokens": 1090,
+        "total_tokens": 13398,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 12308
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\519498c4-1f42-404e-999a-470792f6fb0d.01.json",
+      "requestId": "519498c4-1f42-404e-999a-470792f6fb0d",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:24:04.636Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 24325,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 9172,
+        "completion_tokens": 27,
+        "total_tokens": 9199,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9172
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\a493e40c-8d6f-4b4c-b405-848d62c3e5bc.01.json",
+      "requestId": "a493e40c-8d6f-4b4c-b405-848d62c3e5bc",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:26:00.097Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 38991,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 8136,
+        "completion_tokens": 85,
+        "total_tokens": 8221,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8136
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\a4da08df-9888-44c0-8cb2-e0798e0ca81c.01.json",
+      "requestId": "a4da08df-9888-44c0-8cb2-e0798e0ca81c",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:24:28.981Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 61115,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 9633,
+        "completion_tokens": 364,
+        "total_tokens": 9997,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9633
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\c441c613-a9f6-49ec-989c-880758b2c9a6.01.json",
+      "requestId": "c441c613-a9f6-49ec-989c-880758b2c9a6",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:25:35.278Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 24800,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 9231,
+        "completion_tokens": 27,
+        "total_tokens": 9258,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9231
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\c8729c76-af79-4c89-9926-7426c3cd777c.01.json",
+      "requestId": "c8729c76-af79-4c89-9926-7426c3cd777c",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:23:42.092Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 18050,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5012,
+        "completion_tokens": 73,
+        "total_tokens": 5085,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5012
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\e3f33b30-f153-4fcd-b9f5-d61536d9f1c6.01.json",
+      "requestId": "e3f33b30-f153-4fcd-b9f5-d61536d9f1c6",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:31:00.059Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 43824,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 15036,
+        "completion_tokens": 498,
+        "total_tokens": 15534,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 15036
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\final-serial-5\\run\\model-responses\\fdfc6b09-2725-464c-b2f9-31a4023dd70d.01.json",
+      "requestId": "fdfc6b09-2725-464c-b2f9-31a4023dd70d",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:28:26.819Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 105515,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 14031,
+        "completion_tokens": 627,
+        "total_tokens": 14658,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 13312
+        },
+        "prompt_cache_hit_tokens": 13312,
+        "prompt_cache_miss_tokens": 719
+      }
+    },
+    {
+      "caseId": "15",
+      "path": "s15\\rate-limit-recovery-4\\run\\model-responses\\75dd5e3e-54c8-421b-8d37-f53af4aec4f0.01.json",
+      "requestId": "75dd5e3e-54c8-421b-8d37-f53af4aec4f0",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:13:09.684Z",
+      "phase": "fetch",
+      "httpStatus": null,
+      "elapsedMs": 12081,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "getaddrinfo ENOTFOUND api.siliconflow.cn",
+        "code": "ENOTFOUND",
+        "errno": -3008,
+        "syscall": "getaddrinfo"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\attempt-1\\run\\model-responses\\59bd941f-d9b7-433c-b404-bee660408773.01.json",
+      "requestId": "59bd941f-d9b7-433c-b404-bee660408773",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:03:06.131Z",
+      "phase": "parse",
+      "httpStatus": 429,
+      "elapsedMs": 224,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "Planning model HTTP 429",
+        "code": "MODEL_HTTP_ERROR"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\attempt-2\\run\\model-responses\\9ceba306-7163-4fdb-b5b7-ff68daef72cf.01.json",
+      "requestId": "9ceba306-7163-4fdb-b5b7-ff68daef72cf",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:03:16.558Z",
+      "phase": "parse",
+      "httpStatus": 429,
+      "elapsedMs": 154,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "Planning model HTTP 429",
+        "code": "MODEL_HTTP_ERROR"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\attempt-3\\run\\model-responses\\a4c576ce-53cc-47ee-a395-1e47b9a69a8e.01.json",
+      "requestId": "a4c576ce-53cc-47ee-a395-1e47b9a69a8e",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:03:26.905Z",
+      "phase": "parse",
+      "httpStatus": 429,
+      "elapsedMs": 187,
+      "networkRequestAttempted": true,
+      "error": {
+        "name": "Error",
+        "message": "Planning model HTTP 429",
+        "code": "MODEL_HTTP_ERROR"
+      },
+      "usage": null
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\rate-limit-recovery-4\\run\\model-responses\\0d94927a-4b03-45b3-be98-999b4e79d098.01.json",
+      "requestId": "0d94927a-4b03-45b3-be98-999b4e79d098",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:15:34.152Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 303502,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 8108,
+        "completion_tokens": 1788,
+        "total_tokens": 9896,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8108
+      }
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\rate-limit-recovery-4\\run\\model-responses\\1c9b818c-5092-4a23-ada3-127a6ebed6df.01.json",
+      "requestId": "1c9b818c-5092-4a23-ada3-127a6ebed6df",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:14:21.924Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 18010,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 5148,
+        "completion_tokens": 185,
+        "total_tokens": 5333,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 5148
+      }
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\rate-limit-recovery-4\\run\\model-responses\\1dc16be0-0d75-4938-9617-60ea24f9d6c5.01.json",
+      "requestId": "1dc16be0-0d75-4938-9617-60ea24f9d6c5",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:20:49.097Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 29557,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 13821,
+        "completion_tokens": 80,
+        "total_tokens": 13901,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 13821
+      }
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\rate-limit-recovery-4\\run\\model-responses\\319d6318-5073-47ad-b0d3-5408f953082b.01.json",
+      "requestId": "319d6318-5073-47ad-b0d3-5408f953082b",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:20:37.688Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 10266,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 9642,
+        "completion_tokens": 207,
+        "total_tokens": 9849,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9642
+      }
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\rate-limit-recovery-4\\run\\model-responses\\a33726c2-6882-458a-a600-2bd41c403129.01.json",
+      "requestId": "a33726c2-6882-458a-a600-2bd41c403129",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:15:14.860Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 19271,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11355,
+        "completion_tokens": 100,
+        "total_tokens": 11455,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11355
+      }
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\rate-limit-recovery-4\\run\\model-responses\\b5ee5b2f-3d86-4889-81e7-b9146ba51804.01.json",
+      "requestId": "b5ee5b2f-3d86-4889-81e7-b9146ba51804",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:21:19.435Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 35071,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 15767,
+        "completion_tokens": 500,
+        "total_tokens": 16267,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 15767
+      }
+    },
+    {
+      "caseId": "19",
+      "path": "s19\\rate-limit-recovery-4\\run\\model-responses\\c0f80ec0-d0e9-4e32-a618-6efaeab26f73.01.json",
+      "requestId": "c0f80ec0-d0e9-4e32-a618-6efaeab26f73",
+      "attempt": 1,
+      "startedAt": "2026-11-04T08:14:39.990Z",
+      "phase": "complete",
+      "httpStatus": 200,
+      "elapsedMs": 34811,
+      "networkRequestAttempted": true,
+      "error": null,
+      "usage": {
+        "prompt_tokens": 11685,
+        "completion_tokens": 300,
+        "total_tokens": 11985,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 11685
+      }
+    }
+  ],
+  "sseMirrorFilesNotExtraCalls": 138,
+  "limitations": [
+    "请求回执数不是任务成功数或模型逻辑轮次；DNS失败不等于已送达服务商。",
+    "被操作员中断的请求可能缺少最终回执及usage；已知token总和不代表所有计费token。",
+    "SSE文件是部分请求的镜像，不与回执相加。",
+    "并发从初期2路变为局部多路，再改串行及请求间隔；不是受控A/B测试。",
+    "价格未由账单核实，费用标unknown。"
+  ]
+}
